@@ -189,13 +189,11 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                             ">
                                 <div style="
                                     display: flex;
-                                    flex-direction: ${
-                                        userStatus.length > 0 && hideStatus !== "true" ? "row" : "column"
-                                    };
+                                    flex-direction: ${userStatus && hideStatus !== "true" ? "row" : "column"};
                                     position: relative;
                                     top: ${userStatus && hideStatus !== "true" ? "35%" : "40%"};
                                     transform: translate(0, -50%);
-                                    height: ${userStatus.length > 0 && hideStatus !== "true" ? "25px" : "35px"};
+                                    height: ${userStatus && hideStatus !== "true" ? "25px" : "35px"};
                                 ">
                                     <h1 style="
                                         font-size: 1.15rem;
