@@ -465,9 +465,9 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                     flex-direction: row;
                     height: 120px;
                     font-size: 0.8rem;
-                    padding-left: 18px;
+                    padding: 5px 0 0 15px;
                     background-color: #1DB954;
-                    border-radius: 5px 0 ${borderRadius} ${borderRadius};
+                    border-radius: 0px 0 ${borderRadius} ${borderRadius};
                 ">
                     <img src="${await (async () => {
                         const album = await encodeBase64(data.spotify.album_art_url);
