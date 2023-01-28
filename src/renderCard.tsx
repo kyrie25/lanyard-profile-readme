@@ -8,6 +8,7 @@ import { blue, green, gray, gold, red } from "./defaultAvatars";
 import escape from "escape-html";
 
 type Parameters = {
+    animationDuration?: string;
     theme?: string;
     bg?: string;
     animated?: string;
@@ -58,7 +59,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         hideBadges = "false",
         hideProfile = "false",
         borderRadius = "10px",
-        idleMessage = "I'm not currently doing anything!";
+        idleMessage = "I'm not currently doing anything!",
+        animationDuration = "8s";
 
     if (data.activities[0]?.emoji?.animated) statusExtension = "gif";
     if (data.discord_user.avatar && data.discord_user.avatar.startsWith("a_")) avatarExtension = "gif";
@@ -75,6 +77,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     if (params.bg) backgroundColor = params.bg;
     if (params.idleMessage) idleMessage = params.idleMessage;
     if (params.borderRadius) borderRadius = params.borderRadius;
+    if (params.animationDuration) animationDuration = params.animationDuration;
 
     let avatar: String;
     if (data.discord_user.avatar) {
@@ -300,8 +303,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                             <div style="
                                 background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIxIiB2aWV3Qm94PSIwIDAgMzYwIDIxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMCAyMC43MzI3VjcuNTgxN0MwIDcuNTgxNyA0Ny41MzEyIC0xLjQ2OTMyIDEwNi43MzQgMS4yMzgyNEMxNjkuMzEyIDIuMzk4NjMgMTkxLjY3MiAxMy42NTA4IDI3MS45NjkgMTQuNTQ0QzMyNS44MjggMTQuNTQ0IDM2MCA3LjczNjQyIDM2MCA3LjczNjQyVjIwLjczMjdIMFoiIGZpbGw9IiMxRTIyMzMiLz4KPC9zdmc+Cg==);
                                 background-size: 100%;
-                                -webkit-animation: wave 8s linear infinite;
-                                animation: wave 8s linear infinite;
+                                -webkit-animation: wave ${animationDuration} linear infinite;
+                                animation: wave ${animationDuration} linear infinite;
                                 -webkit-animation-delay: 0s;
                                 animation-delay: 0s;
                                 width: 100%;
@@ -451,8 +454,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                 <div style="
                     background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIxIiB2aWV3Qm94PSIwIDAgMzYwIDIxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMCAyMC43MzI3VjcuNTgxN0MwIDcuNTgxNyA0Ny41MzEyIC0xLjQ2OTMyIDEwNi43MzQgMS4yMzgyNEMxNjkuMzEyIDIuMzk4NjMgMTkxLjY3MiAxMy42NTA4IDI3MS45NjkgMTQuNTQ0QzMyNS44MjggMTQuNTQ0IDM2MCA3LjczNjQyIDM2MCA3LjczNjQyVjIwLjczMjdIMFoiIGZpbGw9IiMxRTIyMzMiLz4KPC9zdmc+Cg==);
                     background-size: 100%;
-                    -webkit-animation: wave 8s linear infinite;
-                    animation: wave 8s linear infinite;
+                    -webkit-animation: wave ${animationDuration} linear infinite;
+                    animation: wave ${animationDuration} linear infinite;
                     -webkit-animation-delay: 0s;
                     animation-delay: 0s;
                     width: 100%;
