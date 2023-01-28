@@ -308,8 +308,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                 height: 21px;
                                 color: #7289da;
                                 content: "";
-                                filter: invert(54%) sepia(90%) saturate(574%) hue-rotate(198deg) brightness(88%) contrast(93%);"
-                            </div>
+                                filter: invert(54%) sepia(90%) saturate(574%) hue-rotate(198deg) brightness(88%) contrast(93%);
+                            ">
                             <div style="
                                 display: flex;
                                 flex-direction: row;
