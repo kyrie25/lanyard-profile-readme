@@ -311,7 +311,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         ${
                             activity
                                 ? `
-                            <div classname="status" style="
+                            <div class="status" style="
                                 display: flex;
                                 flex-direction: row;
                                 background-color: #7289da;
