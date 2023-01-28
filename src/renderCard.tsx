@@ -140,21 +140,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                 hideProfile === "true" ? "120px" : "200px"
             }">
                 <style>
-                    .status::before {
-                        content: "";
-                        position: absolute;
-                        height: 21px;
-                        width: 100%;
-                        top: -21px;
-                        left: 0;
-                        background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIxIiB2aWV3Qm94PSIwIDAgMzYwIDIxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMCAyMC43MzI3VjcuNTgxN0MwIDcuNTgxNyA0Ny41MzEyIC0xLjQ2OTMyIDEwNi43MzQgMS4yMzgyNEMxNjkuMzEyIDIuMzk4NjMgMTkxLjY3MiAxMy42NTA4IDI3MS45NjkgMTQuNTQ0QzMyNS44MjggMTQuNTQ0IDM2MCA3LjczNjQyIDM2MCA3LjczNjQyVjIwLjczMjdIMFoiIGZpbGw9IiMxRTIyMzMiLz4KPC9zdmc+Cg==")
-                        background-size: 100% 21px;
-                        -webkit-animation: animate2 4s linear infinite;
-                        animation: animate2 4s linear infinite;
-                        -webkit-animation-delay: 0s;
-                        animation-delay: 0s;
-                    }
-                    @-webkit-keyframes animate2 {
+                    @-webkit-keyframes wave {
                         0% {
                         background-position-x: 360px;
                         }
@@ -162,7 +148,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         background-position-x: 0;
                         }
                     }
-                    @keyframes animate2 {
+                    @keyframes wave {
                         0% {
                         background-position-x: 360px;
                         }
@@ -311,7 +297,20 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         ${
                             activity
                                 ? `
-                            <div class="status" style="
+                            <div style="
+                                background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIxIiB2aWV3Qm94PSIwIDAgMzYwIDIxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMCAyMC43MzI3VjcuNTgxN0MwIDcuNTgxNyA0Ny41MzEyIC0xLjQ2OTMyIDEwNi43MzQgMS4yMzgyNEMxNjkuMzEyIDIuMzk4NjMgMTkxLjY3MiAxMy42NTA4IDI3MS45NjkgMTQuNTQ0QzMyNS44MjggMTQuNTQ0IDM2MCA3LjczNjQyIDM2MCA3LjczNjQyVjIwLjczMjdIMFoiIGZpbGw9IiMxRTIyMzMiLz4KPC9zdmc+Cg==);
+                                background-size: 100%;
+                                -webkit-animation: wave 8s linear infinite;
+                                animation: wave 8s linear infinite;
+                                -webkit-animation-delay: 0s;
+                                animation-delay: 0s;
+                                width: 100%;
+                                height: 21px;
+                                color: #7289da;
+                                content: "";
+                                filter: invert(54%) sepia(90%) saturate(574%) hue-rotate(198deg) brightness(88%) contrast(93%);
+                            </div>
+                            <div style="
                                 display: flex;
                                 flex-direction: row;
                                 background-color: #7289da;
