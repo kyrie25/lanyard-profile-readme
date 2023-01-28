@@ -139,24 +139,6 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml" width="400px" height="${
                 hideProfile === "true" ? "120px" : "200px"
             }">
-                <style>
-                    @-webkit-keyframes wave {
-                        0% {
-                        background-position-x: 360px;
-                        }
-                        100% {
-                        background-position-x: 0;
-                        }
-                    }
-                    @keyframes wave {
-                        0% {
-                        background-position-x: 360px;
-                        }
-                        100% {
-                        background-position-x: 0;
-                        }
-                    }
-                </style>
                 <foreignObject x="0" y="0" width="400" height="${hideProfile === "true" ? "120" : "200"}">
                     <div xmlns="http://www.w3.org/1999/xhtml" style="
                         position: absolute;
