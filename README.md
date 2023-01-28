@@ -8,7 +8,7 @@ https://lanyard.kyrie25.me/api/368399721494216706
 
 ![img](https://lanyard.kyrie25.me/api/368399721494216706)
 
-Options:
+## Options:
 - Added `animationDuration` to customize the speed of the wave animation (`0s` to disable)
 
 ```
