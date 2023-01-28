@@ -448,9 +448,18 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                 !activity &&
                 data.activities[Object.keys(data.activities).length - 1].type === 2
                     ? `
-                <svg xmlns="http://www.w3.org/2000/svg" style="overflow: visible;" fill="none" viewBox="0 0 294 20" height="21" width="400" preserveAspectRatio="none">
-                    <path d="M0 21V7.19143C0 7.19143 38.8172 -2.31216 87.1664 0.530784C138.272 1.7492 156.532 13.564 222.108 14.5019C266.093 14.5019 294 7.35388 294 7.35388V21H0Z" fill="#1DB954"/>
-                </svg>
+                <div style="
+                    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIxIiB2aWV3Qm94PSIwIDAgMzYwIDIxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMCAyMC43MzI3VjcuNTgxN0MwIDcuNTgxNyA0Ny41MzEyIC0xLjQ2OTMyIDEwNi43MzQgMS4yMzgyNEMxNjkuMzEyIDIuMzk4NjMgMTkxLjY3MiAxMy42NTA4IDI3MS45NjkgMTQuNTQ0QzMyNS44MjggMTQuNTQ0IDM2MCA3LjczNjQyIDM2MCA3LjczNjQyVjIwLjczMjdIMFoiIGZpbGw9IiMxRTIyMzMiLz4KPC9zdmc+Cg==);
+                    background-size: 100%;
+                    -webkit-animation: wave 8s linear infinite;
+                    animation: wave 8s linear infinite;
+                    -webkit-animation-delay: 0s;
+                    animation-delay: 0s;
+                    width: 100%;
+                    height: 21px;
+                    color: #7289da;
+                    filter: invert(60%) sepia(22%) saturate(1523%) hue-rotate(88deg) brightness(91%) contrast(92%);"
+                ></div>
                 <div style="
                     display: flex;
                     flex-direction: row;
@@ -458,7 +467,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                     font-size: 0.8rem;
                     padding-left: 18px;
                     background-color: #1DB954;
-                    border-radius: 0 0 ${borderRadius} ${borderRadius};
+                    border-radius: 5px 0 ${borderRadius} ${borderRadius};
                 ">
                     <img src="${await (async () => {
                         const album = await encodeBase64(data.spotify.album_art_url);
