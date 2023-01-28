@@ -316,7 +316,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                 border-radius: 0 0 ${borderRadius} ${borderRadius};
                                 height: 120px;
                                 font-size: 0.75rem;
-                                padding: 0 0 0 15px;
+                                padding: 5px 0 0 15px;
                             ">
                                 <div style="
                                     margin-right: 15px;
