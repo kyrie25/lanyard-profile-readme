@@ -51,7 +51,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         avatarExtension: string = "webp",
         statusExtension: string = "webp",
         activity: any = false,
-        backgroundColor: string = "1a1c1f",
+        backgroundColor: string = "101320",
         theme = "dark",
         discrim = "show",
         hideStatus = "false",
@@ -154,6 +154,22 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                     @keyframes wave {
                         0% {
                             background-position-x: 360px;
+                        }
+                        100% {
+                            background-position-x: 0;
+                        }
+                    }
+                    @-webkit-keyframes wave-reverse {
+                        0% {
+                            background-position-x: -360px;
+                        }
+                        100% {
+                            background-position-x: 0;
+                        }
+                    }
+                    @keyframes wave-reverse {
+                        0% {
+                            background-position-x: -360px;
                         }
                         100% {
                             background-position-x: 0;
@@ -300,17 +316,30 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         ${
                             activity
                                 ? `
-                            <div style="
-                                background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIxIiB2aWV3Qm94PSIwIDAgMzYwIDIxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMCAyMC43MzI3VjcuNTgxN0MwIDcuNTgxNyA0Ny41MzEyIC0xLjQ2OTMyIDEwNi43MzQgMS4yMzgyNEMxNjkuMzEyIDIuMzk4NjMgMTkxLjY3MiAxMy42NTA4IDI3MS45NjkgMTQuNTQ0QzMyNS44MjggMTQuNTQ0IDM2MCA3LjczNjQyIDM2MCA3LjczNjQyVjIwLjczMjdIMFoiIGZpbGw9IiMxRTIyMzMiLz4KPC9zdmc+Cg==);
-                                -webkit-animation: wave ${animationDuration} linear infinite;
-                                animation: wave ${animationDuration} linear infinite;
-                                -webkit-animation-delay: 0s;
-                                animation-delay: 0s;
-                                width: 100%;
-                                height: 21px;
-                                color: #7289da;
-                                filter: invert(54%) sepia(90%) saturate(574%) hue-rotate(198deg) brightness(88%) contrast(93%);"
-                            ></div>
+                            <div style="position: relative; width: 100%; height: 21px;">
+                                <div style="
+                                    position: absolute;
+                                    background: url(https://lanyard.kyrie25.me/assets/wave.svg);
+                                    -webkit-animation: wave ${animationDuration} linear infinite;
+                                    animation: wave ${animationDuration} linear infinite;
+                                    -webkit-animation-delay: 0s;
+                                    animation-delay: 0s;
+                                    width: 100%;
+                                    height: 21px;
+                                    z-index: 1;
+                                    filter: invert(54%) sepia(90%) saturate(574%) hue-rotate(198deg) brightness(88%) contrast(93%);"
+                                ></div>
+                                <div style="
+                                    position: absolute;
+                                    background: url(https://lanyard.kyrie25.me/assets/wave.svg);
+                                    -webkit-animation: wave-reverse ${animationDuration} linear infinite;
+                                    animation: wave-reverse ${animationDuration} linear infinite;
+                                    -webkit-animation-delay: 0s;
+                                    animation-delay: 0s;
+                                    width: 100%;
+                                    height: 21px;"
+                                ></div>
+                            </div>
                             <div style="
                                 display: flex;
                                 flex-direction: row;
@@ -319,6 +348,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                 height: 120px;
                                 font-size: 0.75rem;
                                 padding: 5px 0 0 15px;
+                                z-index: 2;
                             ">
                                 <div style="
                                     margin-right: 15px;
@@ -450,17 +480,30 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                 !activity &&
                 data.activities[Object.keys(data.activities).length - 1].type === 2
                     ? `
-                <div style="
-                    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIxIiB2aWV3Qm94PSIwIDAgMzYwIDIxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMCAyMC43MzI3VjcuNTgxN0MwIDcuNTgxNyA0Ny41MzEyIC0xLjQ2OTMyIDEwNi43MzQgMS4yMzgyNEMxNjkuMzEyIDIuMzk4NjMgMTkxLjY3MiAxMy42NTA4IDI3MS45NjkgMTQuNTQ0QzMyNS44MjggMTQuNTQ0IDM2MCA3LjczNjQyIDM2MCA3LjczNjQyVjIwLjczMjdIMFoiIGZpbGw9IiMxRTIyMzMiLz4KPC9zdmc+Cg==);
-                    -webkit-animation: wave ${animationDuration} linear infinite;
-                    animation: wave ${animationDuration} linear infinite;
-                    -webkit-animation-delay: 0s;
-                    animation-delay: 0s;
-                    width: 100%;
-                    height: 21px;
-                    color: #7289da;
-                    filter: invert(60%) sepia(22%) saturate(1523%) hue-rotate(88deg) brightness(91%) contrast(92%);"
-                ></div>
+                <div style="position: relative; width: 100%; height: 21px;">
+                    <div style="
+                        position: absolute;
+                        background: url(https://lanyard.kyrie25.me/assets/wave.svg);
+                        -webkit-animation: wave ${animationDuration} linear infinite;
+                        animation: wave ${animationDuration} linear infinite;
+                        -webkit-animation-delay: 0s;
+                        animation-delay: 0s;
+                        width: 100%;
+                        height: 21px;
+                        z-index: 1;
+                        filter: invert(60%) sepia(22%) saturate(1523%) hue-rotate(88deg) brightness(91%) contrast(92%);"
+                    ></div>
+                    <div style="
+                        position: absolute;
+                        background: url(https://lanyard.kyrie25.me/assets/wave.svg);
+                        -webkit-animation: wave-reverse ${animationDuration} linear infinite;
+                        animation: wave-reverse ${animationDuration} linear infinite;
+                        -webkit-animation-delay: 0s;
+                        animation-delay: 0s;
+                        width: 100%;
+                        height: 21px;"
+                    ></div>
+                </div>
                 <div style="
                     display: flex;
                     flex-direction: row;
@@ -469,6 +512,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                     padding: 5px 0 0 15px;
                     background-color: #1DB954;
                     border-radius: 0px 0 ${borderRadius} ${borderRadius};
+                    z-index: 2;
                 ">
                     <img src="${await (async () => {
                         const album = await encodeBase64(data.spotify.album_art_url);
