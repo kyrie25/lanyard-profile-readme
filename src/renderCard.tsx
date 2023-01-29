@@ -319,7 +319,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                             <div style="position: relative; width: 100%; height: 21px;">
                                 <div style="
                                     position: absolute;
-                                    background: url(https://lanyard.kyrie25.me/assets/wave.svg);
+                                    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIxIiB2aWV3Qm94PSIwIDAgMzYwIDIxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMCAyMC43MzI3VjcuNTgxN0MwIDcuNTgxNyA0Ny41MzEyIC0xLjQ2OTMyIDEwNi43MzQgMS4yMzgyNEMxNjkuMzEyIDIuMzk4NjMgMTkxLjY3MiAxMy42NTA4IDI3MS45NjkgMTQuNTQ0QzMyNS44MjggMTQuNTQ0IDM2MCA3LjczNjQyIDM2MCA3LjczNjQyVjIwLjczMjdIMFoiIGZpbGw9IiMxRTIyMzMiLz4KPC9zdmc+Cg==);
                                     -webkit-animation: wave ${animationDuration} linear infinite;
                                     animation: wave ${animationDuration} linear infinite;
                                     -webkit-animation-delay: 0s;
@@ -331,7 +331,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                 ></div>
                                 <div style="
                                     position: absolute;
-                                    background: url(https://lanyard.kyrie25.me/assets/wave.svg);
+                                    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIxIiB2aWV3Qm94PSIwIDAgMzYwIDIxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMCAyMC43MzI3VjcuNTgxN0MwIDcuNTgxNyA0Ny41MzEyIC0xLjQ2OTMyIDEwNi43MzQgMS4yMzgyNEMxNjkuMzEyIDIuMzk4NjMgMTkxLjY3MiAxMy42NTA4IDI3MS45NjkgMTQuNTQ0QzMyNS44MjggMTQuNTQ0IDM2MCA3LjczNjQyIDM2MCA3LjczNjQyVjIwLjczMjdIMFoiIGZpbGw9IiMxRTIyMzMiLz4KPC9zdmc+Cg==);
                                     -webkit-animation: wave-reverse ${animationDuration} linear infinite;
                                     animation: wave-reverse ${animationDuration} linear infinite;
                                     -webkit-animation-delay: 0s;
@@ -483,7 +483,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                 <div style="position: relative; width: 100%; height: 21px;">
                     <div style="
                         position: absolute;
-                        background: url(https://lanyard.kyrie25.me/assets/wave.svg);
+                        background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIxIiB2aWV3Qm94PSIwIDAgMzYwIDIxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMCAyMC43MzI3VjcuNTgxN0MwIDcuNTgxNyA0Ny41MzEyIC0xLjQ2OTMyIDEwNi43MzQgMS4yMzgyNEMxNjkuMzEyIDIuMzk4NjMgMTkxLjY3MiAxMy42NTA4IDI3MS45NjkgMTQuNTQ0QzMyNS44MjggMTQuNTQ0IDM2MCA3LjczNjQyIDM2MCA3LjczNjQyVjIwLjczMjdIMFoiIGZpbGw9IiMxRTIyMzMiLz4KPC9zdmc+Cg==);
                         -webkit-animation: wave ${animationDuration} linear infinite;
                         animation: wave ${animationDuration} linear infinite;
                         -webkit-animation-delay: 0s;
@@ -495,7 +495,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                     ></div>
                     <div style="
                         position: absolute;
-                        background: url(https://lanyard.kyrie25.me/assets/wave.svg);
+                        background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIxIiB2aWV3Qm94PSIwIDAgMzYwIDIxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMCAyMC43MzI3VjcuNTgxN0MwIDcuNTgxNyA0Ny41MzEyIC0xLjQ2OTMyIDEwNi43MzQgMS4yMzgyNEMxNjkuMzEyIDIuMzk4NjMgMTkxLjY3MiAxMy42NTA4IDI3MS45NjkgMTQuNTQ0QzMyNS44MjggMTQuNTQ0IDM2MCA3LjczNjQyIDM2MCA3LjczNjQyVjIwLjczMjdIMFoiIGZpbGw9IiMxRTIyMzMiLz4KPC9zdmc+Cg==);
                         -webkit-animation: wave-reverse ${animationDuration} linear infinite;
                         animation: wave-reverse ${animationDuration} linear infinite;
                         -webkit-animation-delay: 0s;
