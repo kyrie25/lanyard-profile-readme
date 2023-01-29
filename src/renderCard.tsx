@@ -316,17 +316,29 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         ${
                             activity
                                 ? `
-                            <div style="
-                                background: url(/);
-                                -webkit-animation: wave ${animationDuration} linear infinite;
-                                animation: wave ${animationDuration} linear infinite;
-                                -webkit-animation-delay: 0s;
-                                animation-delay: 0s;
-                                width: 100%;
-                                height: 21px;
-                                color: #7289da;
-                                filter: invert(54%) sepia(90%) saturate(574%) hue-rotate(198deg) brightness(88%) contrast(93%);"
-                            ></div>
+                            <div style="position: relative; width: 100%; height: 21px;">
+                                <div style="
+                                    position: absolute;
+                                    background: url(https://lanyard.kyrie25.me/assets/wave.svg);
+                                    -webkit-animation: wave ${animationDuration} linear infinite;
+                                    animation: wave ${animationDuration} linear infinite;
+                                    -webkit-animation-delay: 0s;
+                                    animation-delay: 0s;
+                                    width: 100%;
+                                    height: 21px;
+                                    filter: invert(54%) sepia(90%) saturate(574%) hue-rotate(198deg) brightness(88%) contrast(93%);"
+                                ></div>
+                                <div style="
+                                    position: absolute;
+                                    background: url(https://lanyard.kyrie25.me/assets/wave.svg);
+                                    -webkit-animation: wave-reverse ${animationDuration} linear infinite;
+                                    animation: wave-reverse ${animationDuration} linear infinite;
+                                    -webkit-animation-delay: 0s;
+                                    animation-delay: 0s;
+                                    width: 100%;
+                                    height: 21px;"
+                                ></div>
+                            </div>
                             <div style="
                                 display: flex;
                                 flex-direction: row;
