@@ -145,7 +145,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                 <style>
                     @-webkit-keyframes wave {
                         0% {
-                            background-position-x: 400px;
+                            background-position-x: 360px;
                         }
                         100% {
                             background-position-x: 0;
@@ -153,7 +153,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                     }
                     @keyframes wave {
                         0% {
-                            background-position-x: 400px;
+                            background-position-x: 360px;
                         }
                         100% {
                             background-position-x: 0;
