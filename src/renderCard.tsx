@@ -51,7 +51,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         avatarExtension: string = "webp",
         statusExtension: string = "webp",
         activity: any = false,
-        backgroundColor: string = "1a1c1f",
+        backgroundColor: string = "101320",
         theme = "dark",
         discrim = "show",
         hideStatus = "false",
@@ -326,6 +326,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     animation-delay: 0s;
                                     width: 100%;
                                     height: 21px;
+                                    z-index: 1;
                                     filter: invert(54%) sepia(90%) saturate(574%) hue-rotate(198deg) brightness(88%) contrast(93%);"
                                 ></div>
                                 <div style="
@@ -347,6 +348,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                 height: 120px;
                                 font-size: 0.75rem;
                                 padding: 5px 0 0 15px;
+                                z-index: 2;
                             ">
                                 <div style="
                                     margin-right: 15px;
@@ -488,6 +490,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         animation-delay: 0s;
                         width: 100%;
                         height: 21px;
+                        z-index: 1;
                         filter: invert(60%) sepia(22%) saturate(1523%) hue-rotate(88deg) brightness(91%) contrast(92%);"
                     ></div>
                     <div style="
@@ -509,6 +512,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                     padding: 5px 0 0 15px;
                     background-color: #1DB954;
                     border-radius: 0px 0 ${borderRadius} ${borderRadius};
+                    z-index: 2;
                 ">
                     <img src="${await (async () => {
                         const album = await encodeBase64(data.spotify.album_art_url);
