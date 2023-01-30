@@ -6,6 +6,7 @@ import * as LanyardTypes from "./LanyardTypes";
 import { encodeBase64 } from "./toBase64";
 import { blue, green, gray, gold, red } from "./defaultAvatars";
 import escape from "escape-html";
+import { hexToRgb, Color, Solver } from "./colorFilter";
 
 type Parameters = {
     animationDuration?: string;
@@ -19,6 +20,8 @@ type Parameters = {
     hideProfile?: string;
     borderRadius?: string;
     idleMessage?: string;
+    waveColor?: string;
+    waveSpotifyColor?: string;
 };
 
 const elapsedTime = (timestamp: any) => {
@@ -44,6 +47,19 @@ const elapsedTime = (timestamp: any) => {
     )}:${("0" + secondsDifference).slice(-2)}`;
 };
 
+const generateColorFilter = (hex: string) => {
+    const rgb = hexToRgb(hex);
+    if (rgb?.length !== 3) {
+        alert("Invalid format!");
+        return;
+    }
+
+    const color = new Color(rgb[0], rgb[1], rgb[2]);
+    const solver = new Solver(color);
+    const result = solver.solve();
+    return result.filter;
+};
+
 const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<string> => {
     let { data } = body;
 
@@ -60,7 +76,9 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         hideProfile = "false",
         borderRadius = "10px",
         idleMessage = "I'm not currently doing anything!",
-        animationDuration = "8s";
+        animationDuration = "8s",
+        waveColor = "#7289da",
+        waveSpotifyColor = "#1DB954";
 
     if (data.activities[0]?.emoji?.animated) statusExtension = "gif";
     if (data.discord_user.avatar && data.discord_user.avatar.startsWith("a_")) avatarExtension = "gif";
@@ -78,6 +96,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     if (params.idleMessage) idleMessage = params.idleMessage;
     if (params.borderRadius) borderRadius = params.borderRadius;
     if (params.animationDuration) animationDuration = params.animationDuration;
+    if (params.waveColor) waveColor = params.waveColor;
+    if (params.waveSpotifyColor) waveSpotifyColor = params.waveSpotifyColor;
 
     let avatar: String;
     if (data.discord_user.avatar) {
@@ -327,7 +347,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     width: 100%;
                                     height: 21px;
                                     z-index: 1;
-                                    filter: invert(54%) sepia(90%) saturate(574%) hue-rotate(198deg) brightness(88%) contrast(93%);"
+                                    filter: ${generateColorFilter(waveColor)};}"
                                 ></div>
                                 <div style="
                                     position: absolute;
@@ -343,7 +363,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                             <div style="
                                 display: flex;
                                 flex-direction: row;
-                                background-color: #7289da;
+                                background-color: ${waveColor};
                                 border-radius: 0 0 ${borderRadius} ${borderRadius};
                                 height: 120px;
                                 font-size: 0.75rem;
@@ -491,7 +511,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         width: 100%;
                         height: 21px;
                         z-index: 1;
-                        filter: invert(60%) sepia(22%) saturate(1523%) hue-rotate(88deg) brightness(91%) contrast(92%);"
+                        filter: ${generateColorFilter(waveSpotifyColor)};"
                     ></div>
                     <div style="
                         position: absolute;
@@ -510,7 +530,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                     height: 120px;
                     font-size: 0.8rem;
                     padding: 5px 0 0 15px;
-                    background-color: #1DB954;
+                    background-color: ${waveSpotifyColor};
                     border-radius: 0px 0 ${borderRadius} ${borderRadius};
                     z-index: 2;
                 ">
