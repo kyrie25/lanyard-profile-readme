@@ -25,4 +25,12 @@ https://lanyard.kyrie25.me/api/368399721494216706?waveColor=FF597B
 
 ![img](https://lanyard.kyrie25.me/api/368399721494216706?waveColor=FF597B)
 
+- Use custom gradient colors for your user name using `gradient`
+
+```
+https://lanyard.kyrie25.me/api/368399721494216706?gradient=645CBB-A084DC-BFACE2-EBC7E6
+```
+
+![img](https://lanyard.kyrie25.me/api/368399721494216706?gradient=645CBB-A084DC-BFACE2-EBC7E6)
+
 Credit to [NYRI4](https://github.com/NYRI4) for the wave asset and original animation CSS rules.
