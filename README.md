@@ -8,7 +8,8 @@ https://lanyard.kyrie25.me/api/368399721494216706
 
 ![img](https://lanyard.kyrie25.me/api/368399721494216706)
 
-## Options:
+## Options
+Everything from [upstream](https://github.com/cnrad/lanyard-profile-readme#options), in addition with my own below:
 - Added `animationDuration` to customize the speed of the wave animation (`0s` to disable)
 
 ```
