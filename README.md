@@ -13,10 +13,10 @@ Everything from [upstream](https://github.com/cnrad/lanyard-profile-readme#optio
 - Added `animationDuration` to customize the speed of the wave animation (`0s` to disable)
 
 ```
-https://lanyard.kyrie25.me/api/368399721494216706?animationDuration=0s
+https://lanyard.kyrie25.me/api/368399721494216706?animationDuration=4s
 ```
 
-![img](https://lanyard.kyrie25.me/api/368399721494216706?animationDuration=0s)
+![img](https://lanyard.kyrie25.me/api/368399721494216706?animationDuration=4s)
 
 - Define activity color using `waveColor` and `waveSpotifyColor`
 
