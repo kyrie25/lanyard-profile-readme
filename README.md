@@ -20,10 +20,10 @@ https://lanyard.kyrie25.me/api/368399721494216706?animationDuration=0s
 - Define activity color using `waveColor` and `waveSpotifyColor`
 
 ```
-https://lanyard.kyrie25.me/api/368399721494216706?waveColor=FF597B
+https://lanyard.kyrie25.me/api/368399721494216706?waveColor=FF597B&waveSpotifyColor=FF597B
 ```
 
-![img](https://lanyard.kyrie25.me/api/368399721494216706?waveColor=FF597B)
+![img](https://lanyard.kyrie25.me/api/368399721494216706?waveColor=FF597B&waveSpotifyColor=FF597B)
 
 - Use custom gradient colors for your user name using `gradient`
 
