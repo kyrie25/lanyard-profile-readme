@@ -22,6 +22,7 @@ type Parameters = {
     idleMessage?: string;
     waveColor?: string;
     waveSpotifyColor?: string;
+    gradient?: string;
 };
 
 const elapsedTime = (timestamp: any) => {
@@ -78,7 +79,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         idleMessage = "I'm not currently doing anything!",
         animationDuration = "8s",
         waveColor = "7289da",
-        waveSpotifyColor = "1DB954";
+        waveSpotifyColor = "1DB954",
+        gradient = "#ccf9ff, #7ce8ff, #55d0ff, #00acdf, #0080bf, #00acdf, #55d0ff, #7ce8ff, #ccf9ff";
 
     if (data.activities[0]?.emoji?.animated) statusExtension = "gif";
     if (data.discord_user.avatar && data.discord_user.avatar.startsWith("a_")) avatarExtension = "gif";
@@ -98,6 +100,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     if (params.animationDuration) animationDuration = params.animationDuration;
     if (params.waveColor) waveColor = params.waveColor;
     if (params.waveSpotifyColor) waveSpotifyColor = params.waveSpotifyColor;
+    if (params.gradient) gradient = "#" + params.gradient.split("-").join(", #");
 
     let avatar: String;
     if (data.discord_user.avatar) {
@@ -258,7 +261,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                         margin: 0 12px 0 0;
                                         white-space: nowrap;
                                     ">
-                                    ${`<span style="background-image: linear-gradient(60deg, #ccf9ff, #7ce8ff, #55d0ff, #00acdf, #0080bf, #00acdf, #55d0ff, #7ce8ff, #ccf9ff); background-size: 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${escape(
+                                    ${`<span style="background-image: linear-gradient(60deg, ${gradient}); background-size: 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${escape(
                                         data.discord_user.username
                                     )}</span>`}${
                                   discrim !== "hide"
