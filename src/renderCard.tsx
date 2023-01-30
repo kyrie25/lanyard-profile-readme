@@ -77,8 +77,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         borderRadius = "10px",
         idleMessage = "I'm not currently doing anything!",
         animationDuration = "8s",
-        waveColor = "#7289da",
-        waveSpotifyColor = "#1DB954";
+        waveColor = "7289da",
+        waveSpotifyColor = "1DB954";
 
     if (data.activities[0]?.emoji?.animated) statusExtension = "gif";
     if (data.discord_user.avatar && data.discord_user.avatar.startsWith("a_")) avatarExtension = "gif";
@@ -363,7 +363,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                             <div style="
                                 display: flex;
                                 flex-direction: row;
-                                background-color: ${waveColor};
+                                background-color: #${waveColor};
                                 border-radius: 0 0 ${borderRadius} ${borderRadius};
                                 height: 120px;
                                 font-size: 0.75rem;
@@ -530,7 +530,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                     height: 120px;
                     font-size: 0.8rem;
                     padding: 5px 0 0 15px;
-                    background-color: ${waveSpotifyColor};
+                    background-color: #${waveSpotifyColor};
                     border-radius: 0px 0 ${borderRadius} ${borderRadius};
                     z-index: 2;
                 ">
