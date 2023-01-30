@@ -60,7 +60,6 @@ const generateColorFilter = (hex: string) => {
     return result.filter;
 };
 
-// Make function that tests if color is dark or light
 const isColorDark = (color: string) => {
     const rgb = hexToRgb(color);
     if (rgb?.length !== 3) {
