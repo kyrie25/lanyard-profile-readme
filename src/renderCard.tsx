@@ -100,7 +100,10 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     if (params.animationDuration) animationDuration = params.animationDuration;
     if (params.waveColor) waveColor = params.waveColor;
     if (params.waveSpotifyColor) waveSpotifyColor = params.waveSpotifyColor;
-    if (params.gradient) gradient = "#" + params.gradient.split("-").join(", #");
+    if (params.gradient) {
+        if (params.gradient.includes("-")) gradient = "#" + params.gradient.replaceAll("-", ", #");
+        else gradient = `#${params.gradient}, #${params.gradient}`;
+    }
 
     let avatar: String;
     if (data.discord_user.avatar) {
