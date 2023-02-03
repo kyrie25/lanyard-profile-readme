@@ -1,6 +1,8 @@
 # lanyard-profile-readme
 
-Pretty much the same as [upstream repo](https://github.com/cnrad/lanyard-profile-readme), with custom stylings
+Pretty much the same as [upstream repo](https://github.com/cnrad/lanyard-profile-readme), with custom stylings.
+
+Additionally, `Time Left` is now supported and displayed over `Elapsed Time` whenever possible.
 
 ```
 https://lanyard.kyrie25.me/api/368399721494216706
