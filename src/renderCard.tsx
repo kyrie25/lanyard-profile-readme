@@ -48,6 +48,29 @@ const elapsedTime = (timestamp: any) => {
     )}:${("0" + secondsDifference).slice(-2)}`;
 };
 
+const remainingTime = (timestamp: any) => {
+    let startTime = timestamp;
+    let endTime = Number(new Date());
+    let difference = (startTime - endTime) / 1000;
+
+    // we only calculate them, but we don't display them.
+    // this fixes a bug in the Discord API that does not send the correct timestamp to presence.
+    let daysDifference = Math.floor(difference / 60 / 60 / 24);
+    difference -= daysDifference * 60 * 60 * 24;
+
+    let hoursDifference = Math.floor(difference / 60 / 60);
+    difference -= hoursDifference * 60 * 60;
+
+    let minutesDifference = Math.floor(difference / 60);
+    difference -= minutesDifference * 60;
+
+    let secondsDifference = Math.floor(difference);
+
+    return `${hoursDifference >= 1 ? ("0" + hoursDifference).slice(-2) + ":" : ""}${("0" + minutesDifference).slice(
+        -2
+    )}:${("0" + secondsDifference).slice(-2)}`;
+};
+
 const generateColorFilter = (hex: string) => {
     const rgb = hexToRgb(hex);
     if (rgb?.length !== 3) {
@@ -482,7 +505,23 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                                 : ``
                                         }
                                         ${
-                                            activity.timestamps?.start && hideTimestamp !== "true"
+                                            activity.timestamps?.end && hideTimestamp !== "true"
+                                                ? `
+                                            <p style="
+                                                color: ${theme === "dark" ? "#ccc" : "#777"};
+                                                overflow: hidden;
+                                                white-space: nowrap;
+                                                font-size: 0.85rem;
+                                                text-overflow: ellipsis;
+                                                height: 15px;
+                                                margin: 7px 0;
+                                            ">${remainingTime(new Date(activity.timestamps.end).getTime())} left</p>`
+                                                : ``
+                                        }
+                                        ${
+                                            !activity.timestamps?.end &&
+                                            activity.timestamps?.start &&
+                                            hideTimestamp !== "true"
                                                 ? `
                                             <p style="
                                                 color: ${theme === "dark" ? "#ccc" : "#777"};
