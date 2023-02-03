@@ -25,10 +25,13 @@ type Parameters = {
     gradient?: string;
 };
 
-const elapsedTime = (timestamp: any) => {
-    let startTime = timestamp;
+const formatTime = (timestamps: any) => {
+    const { start, end } = timestamps;
+    // End timestamps is prioritized over start timestamps and displayed accordingly.
+    let startTime = new Date(end || start).getTime();
     let endTime = Number(new Date());
-    let difference = (endTime - startTime) / 1000;
+    let difference = end ? (startTime - endTime) / 1000 : (endTime - startTime) / 1000;
+    if (difference < 0) return "00:00";
 
     // we only calculate them, but we don't display them.
     // this fixes a bug in the Discord API that does not send the correct timestamp to presence.
@@ -45,7 +48,7 @@ const elapsedTime = (timestamp: any) => {
 
     return `${hoursDifference >= 1 ? ("0" + hoursDifference).slice(-2) + ":" : ""}${("0" + minutesDifference).slice(
         -2
-    )}:${("0" + secondsDifference).slice(-2)}`;
+    )}:${("0" + secondsDifference).slice(-2)} ${end ? "left" : "elapsed"}`;
 };
 
 const generateColorFilter = (hex: string) => {
@@ -482,7 +485,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                                 : ``
                                         }
                                         ${
-                                            activity.timestamps?.start && hideTimestamp !== "true"
+                                            (activity.timestamps?.end || activity.timestamps?.start) &&
+                                            hideTimestamp !== "true"
                                                 ? `
                                             <p style="
                                                 color: ${theme === "dark" ? "#ccc" : "#777"};
@@ -492,7 +496,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                                 text-overflow: ellipsis;
                                                 height: 15px;
                                                 margin: 7px 0;
-                                            ">${elapsedTime(new Date(activity.timestamps.start).getTime())} elapsed</p>`
+                                            ">${formatTime(activity.timestamps)}</p>`
                                                 : ``
                                         }
                                 </div>
