@@ -48,7 +48,7 @@ const formatTime = (timestamps: any) => {
 
     return `${hoursDifference >= 1 ? ("0" + hoursDifference).slice(-2) + ":" : ""}${("0" + minutesDifference).slice(
         -2
-    )}:${("0" + secondsDifference).slice(-2)} ${end ? "left" : "elapsed"}}`;
+    )}:${("0" + secondsDifference).slice(-2)} ${end ? "left" : "elapsed"}`;
 };
 
 const generateColorFilter = (hex: string) => {
