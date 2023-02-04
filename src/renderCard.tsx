@@ -51,14 +51,34 @@ const formatTime = (timestamps: any) => {
     )}:${("0" + secondsDifference).slice(-2)} ${end ? "left" : "elapsed"}`;
 };
 
-const generateColorFilter = (hex: string) => {
+const getColorFilter = (hex: string) => {
     const rgb = hexToRgb(hex);
-    if (rgb?.length !== 3) {
-        alert("Invalid format!");
-        return;
-    }
+    if (rgb?.length !== 3) return;
 
     const color = new Color(rgb[0], rgb[1], rgb[2]);
+    const solver = new Solver(color);
+    const result = solver.solve();
+    return result.filter;
+};
+
+// Get the blended color value between two colors with 10 midpoints
+const getBlendedFilter = (color1: string, color2: string, theme: string) => {
+    const rgb1 = hexToRgb(color1);
+    const rgb2 = hexToRgb(color2);
+    const midpoint = theme === "dark" ? 3 : 8;
+    if (rgb1?.length !== 3 || rgb2?.length !== 3) return;
+
+    const calculateBlend = (a: number, b: number) => {
+        const baseColor = a < b ? a : b;
+        const difference = Math.abs(a - b);
+        return baseColor + Math.floor(difference / 10) * midpoint;
+    };
+
+    const avgR = calculateBlend(rgb1[0], rgb2[0]);
+    const avgG = calculateBlend(rgb1[1], rgb2[1]);
+    const avgB = calculateBlend(rgb1[2], rgb2[2]);
+
+    const color = new Color(avgR, avgG, avgB);
     const solver = new Solver(color);
     const result = solver.solve();
     return result.filter;
@@ -355,7 +375,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     width: 100%;
                                     height: 21px;
                                     z-index: 1;
-                                    filter: ${generateColorFilter(waveColor)};}"
+                                    filter: ${getColorFilter(waveColor)}"
                                 ></div>
                                 <div style="
                                     position: absolute;
@@ -365,7 +385,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     -webkit-animation-delay: 0s;
                                     animation-delay: 0s;
                                     width: 100%;
-                                    height: 21px;"
+                                    height: 21px;
+                                    filter: ${getBlendedFilter(waveColor, backgroundColor, theme)}"
                                 ></div>
                             </div>
                             <div style="
@@ -523,7 +544,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         width: 100%;
                         height: 21px;
                         z-index: 1;
-                        filter: ${generateColorFilter(waveSpotifyColor)};"
+                        filter: ${getColorFilter(waveSpotifyColor)}"
                     ></div>
                     <div style="
                         position: absolute;
@@ -533,7 +554,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         -webkit-animation-delay: 0s;
                         animation-delay: 0s;
                         width: 100%;
-                        height: 21px;"
+                        height: 21px;
+                        filter: ${getBlendedFilter(waveSpotifyColor, backgroundColor, theme)}"
                     ></div>
                 </div>
                 <div style="
