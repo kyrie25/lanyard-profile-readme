@@ -375,7 +375,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     width: 100%;
                                     height: 21px;
                                     z-index: 1;
-                                    filter: ${getColorFilter(waveColor)}"
+                                    filter: brightness(0) saturate(100%) ${getColorFilter(waveColor)}"
                                 ></div>
                                 <div style="
                                     position: absolute;
@@ -386,7 +386,11 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     animation-delay: 0s;
                                     width: 100%;
                                     height: 21px;
-                                    filter: ${getBlendedFilter(waveColor, backgroundColor, theme)}"
+                                    filter: brightness(0) saturate(100%) ${getBlendedFilter(
+                                        waveColor,
+                                        backgroundColor,
+                                        theme
+                                    )}"
                                 ></div>
                             </div>
                             <div style="
@@ -544,7 +548,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         width: 100%;
                         height: 21px;
                         z-index: 1;
-                        filter: ${getColorFilter(waveSpotifyColor)}"
+                        filter: brightness(0) saturate(100%) ${getColorFilter(waveSpotifyColor)}"
                     ></div>
                     <div style="
                         position: absolute;
@@ -555,7 +559,11 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         animation-delay: 0s;
                         width: 100%;
                         height: 21px;
-                        filter: ${getBlendedFilter(waveSpotifyColor, backgroundColor, theme)}"
+                        filter: brightness(0) saturate(100%) ${getBlendedFilter(
+                            waveSpotifyColor,
+                            backgroundColor,
+                            theme
+                        )}"
                     ></div>
                 </div>
                 <div style="
