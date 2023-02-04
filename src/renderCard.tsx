@@ -71,7 +71,7 @@ const getBlendedFilter = (color1: string, color2: string, theme: string) => {
     const calculateBlend = (a: number, b: number) => {
         const baseColor = a < b ? a : b;
         const difference = Math.abs(a - b);
-        return baseColor + Math.floor(difference / 10) * midpoint;
+        return baseColor + Math.floor(difference / 11) * midpoint;
     };
 
     const avgR = calculateBlend(rgb1[0], rgb2[0]);
