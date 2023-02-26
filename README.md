@@ -4,6 +4,8 @@ Pretty much the same as [upstream repo](https://github.com/cnrad/lanyard-profile
 
 Additionally, `Time Left` is now supported and displayed over `Elapsed Time` whenever possible.
 
+Please do consider giving this fork a star 🌟 if you liked it, it means a lot :)
+
 ```
 https://lanyard.kyrie25.me/api/368399721494216706
 ```
