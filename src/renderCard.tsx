@@ -93,6 +93,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         activity: any = false,
         backgroundColor: string = "101320",
         theme = "dark",
+        activityTheme = "dark",
+        spotifyTheme = "dark",
         discrim = "show",
         hideStatus = "false",
         hideTimestamp = "false",
@@ -116,13 +118,23 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     if (params.theme === "light") {
         backgroundColor = "#eee";
         theme = "light";
+        activityTheme = "light";
+        spotifyTheme = "light";
     }
     if (params.bg) backgroundColor = params.bg;
     if (params.idleMessage) idleMessage = params.idleMessage;
     if (params.borderRadius) borderRadius = params.borderRadius;
     if (params.animationDuration) animationDuration = params.animationDuration;
-    if (params.waveColor) waveColor = params.waveColor;
-    if (params.waveSpotifyColor) waveSpotifyColor = params.waveSpotifyColor;
+    if (params.waveColor) {
+        const [color, theme] = params.waveColor.split("-");
+        waveColor = color;
+        if (theme === "light" || theme === "dark") activityTheme = theme;
+    }
+    if (params.waveSpotifyColor) {
+        const [color, theme] = params.waveSpotifyColor.split("-");
+        waveSpotifyColor = color;
+        if (theme === "light" || theme === "dark") spotifyTheme = theme;
+    }
     if (params.gradient) {
         if (params.gradient.includes("-")) gradient = "#" + params.gradient.replaceAll("-", ", #");
         else gradient = `#${params.gradient}, #${params.gradient}`;
@@ -470,7 +482,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     width: 279px;
                                 ">
                                     <p style="
-                                        color: ${theme === "dark" ? "#fff" : "#000"};
+                                        color: ${activityTheme === "dark" ? "#fff" : "#000"};
                                         font-size: 0.85rem;
                                         font-weight: bold;
                                         overflow: hidden;
@@ -483,7 +495,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                             activity.details
                                                 ? `
                                             <p style="
-                                                color: ${theme === "dark" ? "#ccc" : "#777"};
+                                                color: ${activityTheme === "dark" ? "#ccc" : "#777"};
                                                 overflow: hidden;
                                                 white-space: nowrap;
                                                 font-size: 0.85rem;
@@ -497,7 +509,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                             activity.state
                                                 ? `
                                             <p style="
-                                                color: ${theme === "dark" ? "#ccc" : "#777"};
+                                                color: ${activityTheme === "dark" ? "#ccc" : "#777"};
                                                 overflow: hidden;
                                                 white-space: nowrap;
                                                 font-size: 0.85rem;
@@ -516,7 +528,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                             hideTimestamp !== "true"
                                                 ? `
                                             <p style="
-                                                color: ${theme === "dark" ? "#ccc" : "#777"};
+                                                color: ${activityTheme === "dark" ? "#ccc" : "#777"};
                                                 overflow: hidden;
                                                 white-space: nowrap;
                                                 font-size: 0.85rem;
@@ -594,11 +606,11 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         width: 279px;
                     ">
                         <p style="font-size: 0.75rem; font-weight: bold; color: ${
-                            theme === "dark" ? "#ddd8d8" : "#0d943d"
+                            spotifyTheme === "dark" ? "#ddd8d8" : "#0d943d"
                         }; margin-bottom: 15px;">LISTENING TO SPOTIFY...</p>
                         <p style="
                             height: 15px;
-                            color: ${theme === "dark" ? "#fff" : "#000"};
+                            color: ${spotifyTheme === "dark" ? "#fff" : "#000"};
                             font-weight: bold;
                             font-size: 0.85rem;
                             overflow: hidden;
@@ -613,7 +625,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                             white-space: nowrap;
                             font-size: 0.85rem;
                             text-overflow: ellipsis;
-                            color: ${theme === "dark" ? "#ccc" : "#777"};
+                            color: ${spotifyTheme === "dark" ? "#ccc" : "#777"};
                         ">By ${escape(data.spotify.artist)}</p>
                     </div>
                 </div>
