@@ -298,8 +298,6 @@ class Solver {
 }
 
 function fullFormHex(hex: string) {
-    if (!hex.startsWith("#")) hex = "#" + hex;
-
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
     const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
     hex = hex.replace(shorthandRegex, (_, r: any, g: any, b: any) => {
@@ -316,20 +314,9 @@ function hexToRgb(hex: string) {
 }
 
 // https://wunnle.com/dynamic-text-color-based-on-background
-function getRGB(c: string) {
-    return parseInt(c, 16);
-}
-
-function getsRGB(c: string) {
-    return getRGB(c) / 255 <= 0.03928 ? getRGB(c) / 255 / 12.92 : Math.pow((getRGB(c) / 255 + 0.055) / 1.055, 2.4);
-}
-
 function getLuminance(hexColor: string) {
-    return (
-        0.2126 * getsRGB(hexColor.substr(1, 2)) +
-        0.7152 * getsRGB(hexColor.substr(3, 2)) +
-        0.0722 * getsRGB(hexColor.substr(-2))
-    );
+    const [r, g, b] = hexToRgb(hexColor) || [0, 0, 0];
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
 function getContrast(f: any, b: string) {
@@ -338,7 +325,7 @@ function getContrast(f: any, b: string) {
     return (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05);
 }
 
-function getTextColor(bgColor: string, lightColor = "#ffffff", darkColor = "#000000") {
+function getTextColor(bgColor: string, lightColor = "ffffff", darkColor = "000000") {
     bgColor = fullFormHex(bgColor);
     lightColor = fullFormHex(lightColor);
     darkColor = fullFormHex(darkColor);
@@ -346,7 +333,7 @@ function getTextColor(bgColor: string, lightColor = "#ffffff", darkColor = "#000
     const whiteContrast = getContrast(bgColor, lightColor);
     const blackContrast = getContrast(bgColor, darkColor);
 
-    return whiteContrast > blackContrast ? lightColor : darkColor;
+    return `#${whiteContrast > blackContrast ? lightColor : darkColor}`;
 }
 
 export { getTextColor, hexToRgb, Solver, Color };
