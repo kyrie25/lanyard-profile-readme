@@ -6,7 +6,7 @@ import * as LanyardTypes from "./LanyardTypes";
 import { encodeBase64 } from "./toBase64";
 import { blue, green, gray, gold, red } from "./defaultAvatars";
 import escape from "escape-html";
-import { hexToRgb, Color, Solver } from "./colorFilter";
+import { hexToRgb, Color, Solver, getTextColor } from "./colorFilter";
 
 type Parameters = {
     animationDuration?: string;
@@ -232,7 +232,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         height: ${hideProfile === "true" ? "120px" : "200px"};
                         inset: 0;
                         background-color: #${backgroundColor};
-                        color: ${theme === "dark" ? "#fff" : "#000"};
+                        color: ${getTextColor(backgroundColor)};
                         font-family: 'Century Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
                         font-size: 16px;
                         display: flex;
@@ -290,9 +290,11 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                         data.discord_user.username
                                     )}</span>`}${
                                   discrim !== "hide"
-                                      ? `<span style="color: ${
-                                            theme === "dark" ? "#ccc" : "#666"
-                                        }; font-weight: lighter;">#${data.discord_user.discriminator}</span>`
+                                      ? `<span style="color: ${getTextColor(
+                                            backgroundColor,
+                                            "#ccc",
+                                            "#666"
+                                        )}; font-weight: lighter;">#${data.discord_user.discriminator}</span>`
                                       : ""
                               }
                                     </h1>
@@ -323,7 +325,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     <h1 style="
                                         font-size: 0.9rem;
                                         margin-top: 16px;
-                                        color: ${theme === "dark" ? "#aaa" : "#333"};
+                                        color: ${getTextColor(backgroundColor, "#aaa", "#333")};
                                         font-weight: 400;
                                         overflow: hidden;
                                         white-space: nowrap;
@@ -470,7 +472,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     width: 279px;
                                 ">
                                     <p style="
-                                        color: ${theme === "dark" ? "#fff" : "#000"};
+                                        color: ${getTextColor(waveColor)};
                                         font-size: 0.85rem;
                                         font-weight: bold;
                                         overflow: hidden;
@@ -483,7 +485,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                             activity.details
                                                 ? `
                                             <p style="
-                                                color: ${theme === "dark" ? "#ccc" : "#777"};
+                                                color: ${getTextColor(waveColor, "#ccc", "#777")};
                                                 overflow: hidden;
                                                 white-space: nowrap;
                                                 font-size: 0.85rem;
@@ -497,7 +499,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                             activity.state
                                                 ? `
                                             <p style="
-                                                color: ${theme === "dark" ? "#ccc" : "#777"};
+                                                color: ${getTextColor(waveColor, "#ccc", "#777")};
                                                 overflow: hidden;
                                                 white-space: nowrap;
                                                 font-size: 0.85rem;
@@ -516,7 +518,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                             hideTimestamp !== "true"
                                                 ? `
                                             <p style="
-                                                color: ${theme === "dark" ? "#ccc" : "#777"};
+                                                color: ${getTextColor(waveColor, "#ccc", "#777")};
                                                 overflow: hidden;
                                                 white-space: nowrap;
                                                 font-size: 0.85rem;
@@ -593,12 +595,14 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         line-height: 1;
                         width: 279px;
                     ">
-                        <p style="font-size: 0.75rem; font-weight: bold; color: ${
-                            theme === "dark" ? "#ddd8d8" : "#0d943d"
-                        }; margin-bottom: 15px;">LISTENING TO SPOTIFY...</p>
+                        <p style="font-size: 0.75rem; font-weight: bold; color: ${getTextColor(
+                            waveSpotifyColor,
+                            "#ddd8d8",
+                            "#0d943d"
+                        )}; margin-bottom: 15px;">LISTENING TO SPOTIFY...</p>
                         <p style="
                             height: 15px;
-                            color: ${theme === "dark" ? "#fff" : "#000"};
+                            color: ${getTextColor(waveSpotifyColor)};
                             font-weight: bold;
                             font-size: 0.85rem;
                             overflow: hidden;
@@ -613,7 +617,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                             white-space: nowrap;
                             font-size: 0.85rem;
                             text-overflow: ellipsis;
-                            color: ${theme === "dark" ? "#ccc" : "#777"};
+                            color: ${getTextColor(waveSpotifyColor, "#ccc", "#777")};
                         ">By ${escape(data.spotify.artist)}</p>
                     </div>
                 </div>
@@ -632,7 +636,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                     <p style="
                         font-style: italic;
                         font-size: 0.8rem;
-                        color: ${theme === "dark" ? "#aaa" : "#444"};
+                        color: ${getTextColor(backgroundColor, "#aaa", "#444")};
                         height: auto;
                         text-align: center;
                     ">
@@ -645,7 +649,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                     </div>
                 </foreignObject>
             </svg>
-        `;
+`;
 };
 
 export default renderCard;
