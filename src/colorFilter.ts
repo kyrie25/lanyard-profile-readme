@@ -343,8 +343,8 @@ function getTextColor(bgColor: string, lightColor = "#ffffff", darkColor = "#000
     lightColor = fullFormHex(lightColor);
     darkColor = fullFormHex(darkColor);
 
-    const whiteContrast = getContrast(bgColor, "#ffffff");
-    const blackContrast = getContrast(bgColor, "#000000");
+    const whiteContrast = getContrast(bgColor, lightColor);
+    const blackContrast = getContrast(bgColor, darkColor);
 
     return whiteContrast > blackContrast ? lightColor : darkColor;
 }
