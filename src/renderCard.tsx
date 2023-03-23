@@ -451,7 +451,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                         style="
                                             width: 80px;
                                             height: 80px;
-                                            border: solid 0.5px #222;
+                                            border: solid 0.5px #${waveColor};
                                             border-radius: ${imgBorderRadius};
                                         "/>
                                     `
@@ -607,7 +607,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                 ">
                     <img src="${await (async () => {
                         const album = await encodeBase64(data.spotify.album_art_url);
-                        if (album) return `data:image/png;base64,${album}" style="border: solid 0.5px #222;`;
+                        if (album)
+                            return `data:image/png;base64,${album}" style="border: solid 0.5px #${waveSpotifyColor};`;
                         return 'https://lanyard.kyrie25.me/assets/unknown.png" style="filter: invert(100);';
                     })()}
                         width: 80px;
