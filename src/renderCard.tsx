@@ -23,6 +23,8 @@ type Parameters = {
     waveColor?: string;
     waveSpotifyColor?: string;
     gradient?: string;
+    imgStyle?: string;
+    imgBorderRadius?: string;
 };
 
 const formatTime = (timestamps: any) => {
@@ -105,7 +107,9 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         animationDuration = "8s",
         waveColor = "7289da",
         waveSpotifyColor = "1DB954",
-        gradient = "#ccf9ff, #7ce8ff, #55d0ff, #00acdf, #0080bf, #00acdf, #55d0ff, #7ce8ff, #ccf9ff";
+        gradient = "#ccf9ff, #7ce8ff, #55d0ff, #00acdf, #0080bf, #00acdf, #55d0ff, #7ce8ff, #ccf9ff",
+        imgStyle = "circle",
+        imgBorderRadius = "10px";
 
     if (data.activities[0]?.emoji?.animated) statusExtension = "gif";
     if (data.discord_user.avatar && data.discord_user.avatar.startsWith("a_")) avatarExtension = "gif";
@@ -139,6 +143,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         if (params.gradient.includes("-")) gradient = "#" + params.gradient.replaceAll("-", ", #");
         else gradient = `#${params.gradient}, #${params.gradient}`;
     }
+    if (params.imgStyle) imgStyle = params.imgStyle;
+    if (params.imgBorderRadius) imgBorderRadius = params.imgBorderRadius;
 
     let avatar: String;
     if (data.discord_user.avatar) {
@@ -271,8 +277,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                             ">
                                 <img src="data:image/png;base64,${avatar}"
                                 style="
-                                    border: solid 3px ${avatarBorderColor};
-                                    border-radius: 50%;
+                                    ${imgStyle === "square" ? "" : `border: solid 3px ${avatarBorderColor};`}
+                                    border-radius: ${imgStyle === "square" ? imgBorderRadius : "50%"};
                                     width: 50px;
                                     height: 50px;
                                     position: relative;
@@ -280,6 +286,17 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     left: 50%;
                                     transform: translate(-50%, -50%);
                                 "/>
+                                ${
+                                    imgStyle === "square"
+                                        ? `<svg xmlns="http://www.w3.org/2000/svg"
+                                            style="
+                                            overflow: visible;
+                                            z-index: 1;
+                                            ">
+                                                <rect fill="${avatarBorderColor}" x="4" y="54" width="16" height="16" rx="4" ry="4" stroke="#${backgroundColor}" style="stroke-width: 4px;"/>
+                                            </svg>`
+                                        : ""
+                                }
                             </div>
                             <div style="
                                 height: 80px;
@@ -435,7 +452,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                             width: 80px;
                                             height: 80px;
                                             border: solid 0.5px #222;
-                                            border-radius: 10px;
+                                            border-radius: ${imgBorderRadius};
                                         "/>
                                     `
                                             : `
@@ -463,7 +480,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     style="
                                         width: 30px;
                                         height: 30px;
-                                        border-radius: 50%;
+                                        border-radius: ${imgStyle === "square" ? imgBorderRadius : "50%"};
                                         margin-left: -26px;
                                         margin-bottom: -8px;
                                     "/>`
@@ -595,7 +612,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                     })()}
                         width: 80px;
                         height: 80px;
-                        border-radius: 10px;
+                        border-radius: ${imgBorderRadius};
                         margin-right: 15px;
                     "/>
 
