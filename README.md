@@ -49,12 +49,19 @@ https://lanyard.kyrie25.me/api/368399721494216706?gradient=645CBB-A084DC-BFACE2-
   - `imgStyle`: Defines style for your profile picture and activity small image.
     - Default: `circle`
     - Accepts: `circle`, `square`
-  - `imgBorderRadius`: Define border radius for your profile picture and activity images. Profile picture and activity small image unaffected if `imgStyle` is not `square` because, well, circle lol.
+  - `imgBorderRadius`: Define border radius for your profile picture, status indicator, and activity images. 
+    - Profile picture and activity small image unaffected if `imgStyle` is not `square` because, well, circle lol.
     - Default: `10px`
  
  ```url
- https://lanyard.kyrie25.me/api/368399721494216706?imgStyle=square&imgBorderRadius=10px
+ https://lanyard.kyrie25.me/api/368399721494216706?imgStyle=square
  ```
  
  ![imgStyle showcase](https://user-images.githubusercontent.com/77577746/227162049-8b99c39c-91f3-4e6a-bf37-f7dff5c64a6d.svg)
+
+ ```url
+ https://lanyard.kyrie25.me/api/368399721494216706?imgStyle=square&imgBorderRadius=15px
+ ```
+ 
+ ![imgBorderRadius showcase](https://user-images.githubusercontent.com/77577746/227757276-84085324-249f-4eb8-93f2-c1149430543a.svg)
 
