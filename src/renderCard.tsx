@@ -109,7 +109,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         waveSpotifyColor = "1DB954",
         gradient = "#ccf9ff, #7ce8ff, #55d0ff, #00acdf, #0080bf, #00acdf, #55d0ff, #7ce8ff, #ccf9ff",
         imgStyle = "circle",
-        imgBorderRadius = "10px";
+        imgBorderRadius = "10px",
+        statusRadius = 4;
 
     if (data.activities[0]?.emoji?.animated) statusExtension = "gif";
     if (data.discord_user.avatar && data.discord_user.avatar.startsWith("a_")) avatarExtension = "gif";
@@ -144,7 +145,13 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         else gradient = `#${params.gradient}, #${params.gradient}`;
     }
     if (params.imgStyle) imgStyle = params.imgStyle;
-    if (params.imgBorderRadius) imgBorderRadius = params.imgBorderRadius;
+    if (params.imgBorderRadius) {
+        imgBorderRadius = params.imgBorderRadius;
+        if (imgBorderRadius.includes("px")) {
+            const conversionValue = 10 / 4;
+            statusRadius = Number(imgBorderRadius.replace("px", "")) / conversionValue;
+        }
+    }
 
     let avatar: String;
     if (data.discord_user.avatar) {
@@ -293,7 +300,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                             overflow: visible;
                                             z-index: 1;
                                             ">
-                                                <rect fill="${avatarBorderColor}" x="4" y="54" width="16" height="16" rx="4" ry="4" stroke="#${backgroundColor}" style="stroke-width: 4px;"/>
+                                                <rect fill="${avatarBorderColor}" x="4" y="54" width="16" height="16" rx="${statusRadius}" ry="${statusRadius}" stroke="#${backgroundColor}" style="stroke-width: 4px;"/>
                                             </svg>`
                                         : ""
                                 }
