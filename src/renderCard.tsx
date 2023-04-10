@@ -516,7 +516,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                         margin: 7px 0;
                                     ">${escape(activity.name)}</p>
                                         ${
-                                            activity.details
+                                            activity.details?.trim()
                                                 ? `
                                             <p style="
                                                 color: ${activityTheme === "dark" ? "#ccc" : "#777"};
@@ -530,7 +530,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                                 : ``
                                         }
                                         ${
-                                            activity.state
+                                            activity.state?.trim()
                                                 ? `
                                             <p style="
                                                 color: ${activityTheme === "dark" ? "#ccc" : "#777"};
