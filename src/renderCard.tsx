@@ -206,7 +206,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     if (data.activities[0] && data.activities[0].type === 4) userStatus = data.activities[0];
 
     let flags: string[] = getFlags(data.discord_user.public_flags);
-    if ((data.discord_user.avatar && data.discord_user.avatar.includes("a_")) || userStatus?.emoji?.id)
+    if ((data.discord_user.avatar && data.discord_user.avatar.includes("a_")) || userStatus?.emoji?.id || data.discord_user.avatar_decoration)
         flags.push("Nitro");
 
     // Filter only type 0
@@ -290,9 +290,10 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                             src="https://cdn.discordapp.com/avatar-decoration-presets/${data.discord_user.avatar_decoration}.png" 
                                             style="
                                                 position: absolute;
-                                                width: 58px;
-                                                top: 11px;
-                                                left: 11px;
+                                                height: 60px;
+                                                width: 60px;
+                                                top: 10px;
+                                                left: 10px;
                                                 z-index: 1;" 
                                         />`
                                     : ""
