@@ -349,7 +349,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                         data.discord_user.username
                                     )}</span>`}${
                                   // New username system
-                                  discrim !== "hide" && data.discord_user.discriminator && data.discord_user.discriminator !== "0"
+                                  discrim !== "hide" && data.discord_user.discriminator !== "0"
                                       ? `<span style="color: ${
                                             theme === "dark" ? "#ccc" : "#666"
                                         }; font-weight: lighter;">#${data.discord_user.discriminator}</span>`
