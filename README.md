@@ -20,9 +20,9 @@ https://lanyard.kyrie25.me/api/368399721494216706
 
 - Avatar decorator is now supported! It is enabled by default:
 
-![decoration](https://github.com/kyrie25/lanyard-profile-readme/assets/77577746/2dde5beb-17f3-4fd9-975a-3d3d71dff02e)
+![decoration](https://github.com/kyrie25/lanyard-profile-readme/assets/77577746/fb43bf30-5832-415b-8ac4-618bdb3b6e1c)
 
-![decoration-square](https://github.com/kyrie25/lanyard-profile-readme/assets/77577746/49ddc4d4-70fb-46ee-a192-6acdae831f5b)
+![decoration-square](https://github.com/kyrie25/lanyard-profile-readme/assets/77577746/69e1db08-e9cf-4da2-94f4-d3232df7ad63)
 
 If you wish to disable it (because the round decoration on square image look weird perhaps?), you can use `decoration=false`:
 
