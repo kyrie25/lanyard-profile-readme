@@ -30,7 +30,10 @@ export interface Timestamps {
 }
 
 export interface DiscordUser {
+    avatar_decoration: string | null;
     username: string;
+    global_name: string | null;
+    display_name: string | null;
     public_flags: number;
     id: string;
     discriminator: string;

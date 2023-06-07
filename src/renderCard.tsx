@@ -13,6 +13,7 @@ type Parameters = {
     theme?: string;
     bg?: string;
     animated?: string;
+    hideDecor?: string;
     hideDiscrim?: string;
     hideStatus?: string;
     hideTimestamp?: string;
@@ -97,6 +98,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         theme = "dark",
         activityTheme = "dark",
         spotifyTheme = "dark",
+        hideDecor = "false",
         discrim = "show",
         hideStatus = "false",
         hideTimestamp = "false",
@@ -120,6 +122,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     if (params.hideBadges === "true") hideBadges = "true";
     if (params.hideDiscrim === "true") discrim = "hide";
     if (params.hideProfile === "true") hideProfile = "true";
+    if (params.hideDecor === "true") hideDecor = "true";
     if (params.theme === "light") {
         backgroundColor = "#eee";
         theme = "light";
@@ -282,6 +285,18 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                 height: 80px;
                                 width: 80px;
                             ">
+                                ${hideDecor !== "true" && data.discord_user.avatar_decoration
+                                    ? `<img 
+                                            src="https://cdn.discordapp.com/avatar-decoration-presets/${data.discord_user.avatar_decoration}.png" 
+                                            style="
+                                                position: absolute;
+                                                width: 58px;
+                                                top: 11px;
+                                                left: 11px;
+                                                z-index: 1;" 
+                                        />`
+                                    : ""
+                                }
                                 <img src="data:image/png;base64,${avatar}"
                                 style="
                                     ${imgStyle === "square" ? "" : `border: solid 3px ${avatarBorderColor};`}
@@ -298,7 +313,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                         ? `<svg xmlns="http://www.w3.org/2000/svg"
                                             style="
                                             overflow: visible;
-                                            z-index: 1;
+                                            z-index: 9999;
                                             ">
                                                 <rect fill="${avatarBorderColor}" x="4" y="54" width="16" height="16" rx="${statusRadius}" ry="${statusRadius}" stroke="#${backgroundColor}" style="stroke-width: 4px;"/>
                                             </svg>`
@@ -325,7 +340,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     ${`<span style="background-image: linear-gradient(60deg, ${gradient}); background-size: 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${escape(
                                         data.discord_user.username
                                     )}</span>`}${
-                                  discrim !== "hide"
+                                  // New username system
+                                  discrim !== "hide" && data.discord_user.discriminator && data.discord_user.discriminator !== "0"
                                       ? `<span style="color: ${
                                             theme === "dark" ? "#ccc" : "#666"
                                         }; font-weight: lighter;">#${data.discord_user.discriminator}</span>`
