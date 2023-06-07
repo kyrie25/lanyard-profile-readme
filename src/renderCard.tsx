@@ -13,7 +13,7 @@ type Parameters = {
     theme?: string;
     bg?: string;
     animated?: string;
-    hideDecor?: string;
+    decoration?: string;
     hideDiscrim?: string;
     hideStatus?: string;
     hideTimestamp?: string;
@@ -98,7 +98,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         theme = "dark",
         activityTheme = "dark",
         spotifyTheme = "dark",
-        hideDecor = "false",
+        decoration = "true",
         discrim = "show",
         hideStatus = "false",
         hideTimestamp = "false",
@@ -122,7 +122,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     if (params.hideBadges === "true") hideBadges = "true";
     if (params.hideDiscrim === "true") discrim = "hide";
     if (params.hideProfile === "true") hideProfile = "true";
-    if (params.hideDecor === "true") hideDecor = "true";
+    if (params.decoration === "false") decoration = "false";
     if (params.theme === "light") {
         backgroundColor = "#eee";
         theme = "light";
@@ -285,7 +285,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                 height: 80px;
                                 width: 80px;
                             ">
-                                ${hideDecor !== "true" && data.discord_user.avatar_decoration
+                                ${decoration === "true" && data.discord_user.avatar_decoration
                                     ? `<img 
                                             src="https://cdn.discordapp.com/avatar-decoration-presets/${data.discord_user.avatar_decoration}.png" 
                                             style="
