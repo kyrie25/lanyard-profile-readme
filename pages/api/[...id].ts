@@ -20,6 +20,12 @@ type Parameters = {
     animated?: string;
 };
 
+export const config = {
+    api: {
+        responseLimit: false,
+    }
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     let getUser;
     const params: Parameters = req.query,
