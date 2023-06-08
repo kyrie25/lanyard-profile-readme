@@ -36,6 +36,8 @@ https://lanyard.kyrie25.me/api/368399721494216706?decoration=false
 https://lanyard.kyrie25.me/api/368399721494216706?useDisplayName=true
 ```
 
+![display-name](https://github.com/kyrie25/lanyard-profile-readme/assets/77577746/a57e6d7a-ba42-4fc0-b3fd-752dde7800a5)
+
 - Use `animationDuration` to customize the speed of the wave animation (`0s` to disable)
 
 ```url
