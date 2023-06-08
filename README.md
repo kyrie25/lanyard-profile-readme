@@ -30,6 +30,12 @@ If you wish to disable it (because the round decoration on square image look wei
 https://lanyard.kyrie25.me/api/368399721494216706?decoration=false
 ```
 
+- You can choose to use your display name instead of username using `useDisplayName=true`:
+
+```url
+https://lanyard.kyrie25.me/api/368399721494216706?useDisplayName=true
+```
+
 - Use `animationDuration` to customize the speed of the wave animation (`0s` to disable)
 
 ```url

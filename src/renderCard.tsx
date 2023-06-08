@@ -26,6 +26,7 @@ type Parameters = {
     gradient?: string;
     imgStyle?: string;
     imgBorderRadius?: string;
+    useDisplayName?: string;
 };
 
 const formatTime = (timestamps: any) => {
@@ -112,7 +113,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         gradient = "#ccf9ff, #7ce8ff, #55d0ff, #00acdf, #0080bf, #00acdf, #55d0ff, #7ce8ff, #ccf9ff",
         imgStyle = "circle",
         imgBorderRadius = "10px",
-        statusRadius = 4;
+        statusRadius = 4,
+        useDisplayName = "false";
 
     if (data.activities[0]?.emoji?.animated) statusExtension = "gif";
     if (data.discord_user.avatar && data.discord_user.avatar.startsWith("a_")) avatarExtension = "gif";
@@ -155,6 +157,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
             statusRadius = Number(imgBorderRadius.replace("px", "")) / conversionValue;
         }
     }
+    if (params.useDisplayName === "true" && data.discord_user.global_name) data.discord_user.username = data.discord_user.global_name;
 
     let avatar: String;
     if (data.discord_user.avatar) {
