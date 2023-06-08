@@ -20,7 +20,7 @@ https://lanyard.kyrie25.me/api/368399721494216706
 
 - Avatar decorator is now supported! It is enabled by default:
 
-![decoration](https://github.com/kyrie25/lanyard-profile-readme/assets/77577746/fb43bf30-5832-415b-8ac4-618bdb3b6e1c)
+![decoration](https://github.com/kyrie25/lanyard-profile-readme/assets/77577746/0fb9a445-1973-4a81-831f-03b0c9e10c69)
 
 ![decoration-square](https://github.com/kyrie25/lanyard-profile-readme/assets/77577746/69e1db08-e9cf-4da2-94f4-d3232df7ad63)
 
