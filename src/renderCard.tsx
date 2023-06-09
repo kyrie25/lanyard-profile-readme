@@ -277,7 +277,6 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         flex-direction: column;
                         border-radius: ${borderRadius};
                     ">
-
                     ${
                         hideProfile === "true"
                             ? ""
@@ -296,15 +295,15 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                 width: 80px;
                             ">
                                 ${decor !== ""
-                                    ? `<img 
-                                            src="data:image/png;base64,${decor}" 
+                                    ? `<img
+                                            src="data:image/png;base64,${decor}"
                                             style="
                                                 position: absolute;
                                                 height: 60px;
                                                 width: 60px;
                                                 top: 10px;
                                                 left: 10px;
-                                                z-index: 1;" 
+                                                z-index: 1;"
                                         />`
                                     : ""
                                 }
@@ -479,7 +478,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                                 ? `https://media.discordapp.net/external/${activity.assets.large_image.replace(
                                                       "mp:external/",
                                                       ""
-                                                  )}`
+                                                  )}${activity.assets.large_image.includes(".gif") ? "?width=160&height=160" : ""}`
                                                 : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${activity.assets.large_image}.webp`
                                         )}"
                                         style="
@@ -508,7 +507,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                             ? `https://media.discordapp.net/external/${activity.assets.small_image.replace(
                                                   "mp:external/",
                                                   ""
-                                              )}`
+                                              )}${activity.assets.small_image.includes(".gif") ? "?width=50&height=50" : ""}`
                                             : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${activity.assets.small_image}.webp`
                                     )}"
                                     style="
@@ -709,7 +708,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                     </div>
                 </foreignObject>
             </svg>
-        `;
+        `.trim().replace(/\n/g, "");
 };
 
 export default renderCard;
