@@ -4,7 +4,6 @@ import { Badges } from "../public/assets/badges/BadgesEncoded";
 import { getFlags } from "./getFlags";
 import * as LanyardTypes from "./LanyardTypes";
 import { encodeBase64 } from "./toBase64";
-import { blue, green, gray, gold, red } from "./defaultAvatars";
 import escape from "escape-html";
 import { hexToRgb, Color, Solver } from "./colorFilter";
 
@@ -167,27 +166,11 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
             }.${avatarExtension}?size=${avatarExtension === "gif" ? "64" : "256"}`
         );
     } else {
-        let lastDigit = Number(data.discord_user.discriminator.substr(-1));
-        if (lastDigit >= 5) {
-            lastDigit -= 5;
-        }
-        // the default avatar that discord uses depends on the last digit of the user's discriminator
-        switch (lastDigit) {
-            case 1:
-                avatar = gray;
-                break;
-            case 2:
-                avatar = green;
-                break;
-            case 3:
-                avatar = gold;
-                break;
-            case 4:
-                avatar = red;
-                break;
-            default:
-                avatar = blue;
-        }
+        avatar = await encodeBase64(
+            `https://cdn.discordapp.com/embed/avatars/${data.discord_user.discriminator === "0"
+                ? ((Number(BigInt(data.discord_user.id) >> BigInt(22))) % 6)
+                : Number(data.discord_user.discriminator) % 5}.png`
+        );
     }
 
     let decor = "";
