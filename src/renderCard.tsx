@@ -174,9 +174,9 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     }
 
     let decor = "";
-    if (decoration === "true" && data.discord_user.avatar_decoration) {
+    if (decoration === "true" && data.discord_user.avatar_decoration_data?.asset) {
         decor = await encodeBase64(
-            `https://cdn.discordapp.com/avatar-decoration-presets/${data.discord_user.avatar_decoration}.png`
+            `https://cdn.discordapp.com/avatar-decoration-presets/${data.discord_user.avatar_decoration_data.asset}.png`
         );
     }
 
