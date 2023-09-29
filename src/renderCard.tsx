@@ -199,7 +199,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     if (data.activities[0] && data.activities[0].type === 4) userStatus = data.activities[0];
 
     let flags: string[] = getFlags(data.discord_user.public_flags);
-    if ((data.discord_user.avatar && data.discord_user.avatar.includes("a_")) || userStatus?.emoji?.id || data.discord_user.avatar_decoration)
+    if ((data.discord_user.avatar && data.discord_user.avatar.includes("a_")) || userStatus?.emoji?.id || data.discord_user.avatar_decoration_data)
         flags.push("Nitro");
 
     // Filter only type 0
