@@ -30,7 +30,10 @@ export interface Timestamps {
 }
 
 export interface DiscordUser {
-    avatar_decoration: string | null;
+    avatar_decoration_data?: {
+        asset: string;
+        sku_id: bigint;
+    }
     username: string;
     global_name: string | null;
     display_name: string | null;
