@@ -303,7 +303,6 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     top: 50%;
                                     left: 50%;
                                     transform: translate(-50%, -50%);
-                                    object-fit: ${imgFit};
                                 "/>
                                 ${
                                     imgStyle === "square"
