@@ -12,7 +12,7 @@
     "@types/escape-html": "^1.0.1",
     "@types/ioredis": "^4.28.8",
     "@types/styled-components": "^5.1.10",
-    "axios": "^0.21.2",
+    "axios": "^1.6.0",
     "escape-html": "^1.0.3",
     "framer-motion": "^4.1.17",
     "image-to-base64": "^2.2.0",
