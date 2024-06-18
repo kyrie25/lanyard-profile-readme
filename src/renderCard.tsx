@@ -102,7 +102,7 @@ async function getLargeImage(asset: LanyardTypes.Assets | null, application_id?:
 
     if (!data?.data?.id) return "https://lanyard.kyrie25.me/assets/unknown.png";
 
-    return `https://cdn.discordapp.com/app-icons/${application_id}/${data.data.avatar}.png?size=256`;
+    return `https://cdn.discordapp.com/app-icons/${application_id}/${data.data.avatar}.webp?size=256`;
 }
 
 
@@ -188,14 +188,14 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         avatar = await encodeBase64(
             `https://cdn.discordapp.com/embed/avatars/${data.discord_user.discriminator === "0"
                 ? ((Number(BigInt(data.discord_user.id) >> BigInt(22))) % 6)
-                : Number(data.discord_user.discriminator) % 5}.png`
+                : Number(data.discord_user.discriminator) % 5}.webp`
         );
     }
 
     let decor = "";
     if (decoration === "true" && data.discord_user.avatar_decoration_data?.asset) {
         decor = await encodeBase64(
-            `https://cdn.discordapp.com/avatar-decoration-presets/${data.discord_user.avatar_decoration_data.asset}.png`
+            `https://cdn.discordapp.com/avatar-decoration-presets/${data.discord_user.avatar_decoration_data.asset}.webp`
         );
     }
 
