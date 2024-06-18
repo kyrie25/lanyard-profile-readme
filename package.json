@@ -9,27 +9,26 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@types/escape-html": "^1.0.1",
-    "@types/ioredis": "^4.28.8",
-    "@types/styled-components": "^5.1.10",
-    "axios": "^0.21.2",
+    "axios": "^1.7.2",
     "escape-html": "^1.0.3",
-    "framer-motion": "^4.1.17",
+    "framer-motion": "^11.2.10",
     "image-to-base64": "^2.2.0",
-    "ioredis": "^4.28.5",
-    "next": "12.1.0",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "styled-components": "^5.3.0",
-    "use-smooth-count": "^0.3.0"
+    "ioredis": "^5.4.1",
+    "next": "14.2.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "styled-components": "^6.1.11",
+    "use-smooth-count": "^1.0.1"
   },
   "devDependencies": {
-    "@types/escape-html": "^1.0.1",
-    "@types/image-to-base64": "^2.1.0",
-    "@types/react": "17.0.11",
-    "eslint": "7.28.0",
-    "eslint-config-next": "11.0.0",
-    "prettier": "^2.3.1",
-    "typescript": "4.3.3"
-  }
+    "@types/escape-html": "^1.0.4",
+    "@types/image-to-base64": "^2.1.2",
+    "@types/ioredis": "^5.0.0",
+    "@types/node": "^20.14.5",
+    "@types/react": "18.3.3",
+    "@types/styled-components": "^5.1.34",
+    "prettier": "^3.3.2",
+    "typescript": "5.4.5"
+  },
+  "packageManager": "yarn@4.3.0"
 }
