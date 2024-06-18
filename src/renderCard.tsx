@@ -6,6 +6,7 @@ import * as LanyardTypes from "./LanyardTypes";
 import { encodeBase64 } from "./toBase64";
 import escape from "escape-html";
 import { hexToRgb, Color, Solver } from "./colorFilter";
+import axios from "axios";
 
 type Parameters = {
     animationDuration?: string;
@@ -86,6 +87,24 @@ const getBlendedFilter = (color1: string, color2: string, theme: string) => {
     const result = solver.solve();
     return result.filter;
 };
+
+async function getLargeImage(asset: LanyardTypes.Assets | null, application_id?: string): Promise<string> {
+    if (asset?.large_image) {
+        return asset.large_image.startsWith("mp:external/")
+            ? `https://media.discordapp.net/external/${asset.large_image.replace(
+                "mp:external/",
+                ""
+            )}${asset.large_image.includes(".gif") ? "?width=160&height=160" : ""}`
+        : `https://cdn.discordapp.com/app-assets/${application_id}/${asset.large_image}.webp`
+    }
+
+    const data = await axios.get(`https://api.kyrie25.me/discord/${application_id}`).catch(() => null);
+
+    if (!data?.data?.id) return "https://lanyard.kyrie25.me/assets/unknown.png";
+
+    return `https://cdn.discordapp.com/app-icons/${application_id}/${data.data.avatar}.png?size=256`;
+}
+
 
 const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<string> => {
     let { data } = body;
@@ -454,15 +473,10 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     height: auto;
                                 ">
                                     ${
-                                        activity.assets?.large_image
+                                        (activity.assets?.large_image || activity.application_id)
                                             ? `
                                         <img src="data:image/png;base64,${await encodeBase64(
-                                            activity.assets.large_image.startsWith("mp:external/")
-                                                ? `https://media.discordapp.net/external/${activity.assets.large_image.replace(
-                                                      "mp:external/",
-                                                      ""
-                                                  )}${activity.assets.large_image.includes(".gif") ? "?width=160&height=160" : ""}`
-                                                : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${activity.assets.large_image}.webp`
+                                            await getLargeImage(activity.assets, activity.application_id)
                                         )}"
                                         style="
                                             width: 80px;
