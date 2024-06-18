@@ -102,7 +102,7 @@ async function getLargeImage(asset: LanyardTypes.Assets | null, application_id?:
 
     if (!data?.data?.id) return "https://lanyard.kyrie25.me/assets/unknown.png";
 
-    return `https://cdn.discordapp.com/app-icons/${application_id}/${data.data.avatar}.webp?size=256`;
+    return `https://cdn.discordapp.com/app-icons/${application_id}/${data.data.avatar}.webp`;
 }
 
 
