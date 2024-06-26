@@ -14,7 +14,7 @@ export default function Home({ userCount }: { userCount: number }) {
 
     const copy = () => {
         navigator.clipboard.writeText(
-            `[![Discord Presence](https://lanyard.kyrie25.me/api/${userId})](https://discord.com/users/${userId})`
+            `[![Discord Presence](https://lanyard.kyrie25.me/api/${userId})](https://discord.com/users/${userId})`,
         );
         setCopyState("Copied!");
 
@@ -68,7 +68,7 @@ export default function Home({ userCount }: { userCount: number }) {
                             </Output>
                             <ActionButton onClick={copy}>{copyState}</ActionButton>
                             <a
-                                href="https://github.com/cnrad/lanyard-profile-readme#options"
+                                href="https://github.com/kyrie25/lanyard-profile-readme#options"
                                 target="_blank"
                                 rel="noreferrer"
                             >
@@ -100,7 +100,7 @@ export default function Home({ userCount }: { userCount: number }) {
 
 export async function getServerSideProps(ctx: any) {
     let userCount = await axios
-        .get("https://lanyard.cnrad.dev/api/getUserCount", { timeout: 1000 })
+        .get("https://lanyard.kyrie25.me/api/getUserCount", { timeout: 1000 })
         .then(res => res.data.count)
         .catch(() => 1000);
 
@@ -257,7 +257,9 @@ const FooterStat = styled.div`
         border-radius: 0.35rem;
         border: 2px solid transparent;
         background: linear-gradient(45deg, #be123c, #6b21a8, #3730a3) border-box;
-        -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+        -webkit-mask:
+            linear-gradient(#fff 0 0) padding-box,
+            linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
         mask-composite: exclude;
     }
