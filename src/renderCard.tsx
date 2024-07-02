@@ -221,8 +221,9 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     if ((data.discord_user.avatar && data.discord_user.avatar.includes("a_")) || userStatus?.emoji?.id || data.discord_user.avatar_decoration_data)
         flags.push("Nitro");
 
-    // Filter only type 0
-    const activities = data.activities.filter(activity => activity.type === 0);
+    // Filter playing, watching, listening activities
+    // If the user is listening to Spotify, we will display that instead of the last activity
+    const activities = data.activities.filter(activity => [0, 2, 3].includes(activity.type)).filter(activity => !data.listening_to_spotify || activity.type !== 2);
 
     // Take the highest one
     activity = Array.isArray(activities) ? activities[0] : activities;
@@ -537,7 +538,12 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                         text-overflow: ellipsis;
                                         height: 15px;
                                         margin: 7px 0;
-                                    ">${escape(activity.name)}</p>
+                                    ">${activity.type === 2 || activity.type === 3
+                                        ?  `<span style="font-weight: normal;">
+                                                ${activity.type === 2 ? "Listening to " : "Watching "}
+                                            </span>`
+                                        : ""
+                                    }${escape(activity.name)}</p>
                                         ${
                                             activity.details?.trim()
                                                 ? `
