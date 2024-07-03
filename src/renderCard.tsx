@@ -223,7 +223,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
 
     // Filter playing, watching, listening activities
     // If the user is listening to Spotify, we will display that instead of the last activity
-    const activities = data.activities.filter(activity => [0, 2, 3].includes(activity.type)).filter(activity => !data.listening_to_spotify || activity.type !== 2);
+    const activities = data.activities.filter(activity => [0, 2, 3].includes(activity.type)).filter(activity => !data.listening_to_spotify || activity.type !== 2).sort((a, b) => a.type - b.type);
 
     // Take the highest one
     activity = Array.isArray(activities) ? activities[0] : activities;
