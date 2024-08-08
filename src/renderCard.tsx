@@ -105,6 +105,22 @@ async function getLargeImage(asset: LanyardTypes.Assets | null, application_id?:
     return `https://cdn.discordapp.com/app-icons/${application_id}/${data.data.avatar}.webp`;
 }
 
+function getPrefixActivityString(activity: LanyardTypes.Activity) {
+    switch (activity.type) {
+        case 1:
+            return "Streaming";
+        case 2:
+            return "Listening to";
+        case 3:
+            return "Watching";
+        case 5:
+            return "Competing in";
+        case 0:
+        default:
+            return "";
+    }
+}
+
 
 const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<string> => {
     let { data } = body;
@@ -221,9 +237,10 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     if ((data.discord_user.avatar && data.discord_user.avatar.includes("a_")) || userStatus?.emoji?.id || data.discord_user.avatar_decoration_data)
         flags.push("Nitro");
 
-    // Filter playing, watching, listening activities
+    // Filter playing, watching, listening, competiting activities
     // If the user is listening to Spotify, we will display that instead of the last activity
-    const activities = data.activities.filter(activity => [0, 2, 3].includes(activity.type)).filter(activity => !data.listening_to_spotify || activity.type !== 2).sort((a, b) => a.type - b.type);
+    // https://github.com/discordjs/RPC/pull/149#discussion_r1690290834
+    const activities = data.activities.filter(activity => [0, 1, 2, 3, 5].includes(activity.type)).filter(activity => !data.listening_to_spotify || activity.type !== 2).sort((a, b) => a.type - b.type);
 
     // Take the highest one
     activity = Array.isArray(activities) ? activities[0] : activities;
@@ -538,9 +555,9 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                         text-overflow: ellipsis;
                                         height: 15px;
                                         margin: 7px 0;
-                                    ">${activity.type === 2 || activity.type === 3
+                                    ">${getPrefixActivityString(activity)
                                         ?  `<span style="font-weight: normal;">
-                                                ${activity.type === 2 ? "Listening to " : "Watching "}
+                                                ${getPrefixActivityString(activity) + " "}
                                             </span>`
                                         : ""
                                     }${escape(activity.name)}</p>

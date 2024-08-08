@@ -5,7 +5,7 @@ Pretty much the same as [upstream repo](https://github.com/cnrad/lanyard-profile
 Some niche features are also added:
 - `Time Left` are supported and displayed over `Elapsed Time` whenever possible.
 - Show large image of activities with only application icons. (e.g. CS2, BG3, Genshin, WuWa, etc.)
-- Allows displaying `Listening to` and `Watching` activities.
+- Allows displaying special activities.
 
 Please do consider giving this fork a star 🌟 if you liked it, it means a lot :)
 
