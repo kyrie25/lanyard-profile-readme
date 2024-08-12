@@ -100,7 +100,9 @@ async function getLargeImage(asset: LanyardTypes.Assets | null, application_id?:
 
     const data = await axios.get(`https://api.kyrie25.me/discord/${application_id}`).catch(() => null);
 
-    if (!data?.data?.id) return "https://lanyard.kyrie25.me/assets/unknown.png";
+    if (!data?.data?.id || (await axios.head(`https://cdn.discordapp.com/app-icons/${application_id}/${data.data.avatar}.webp`).catch(e => e)).status !== 200) {
+        return "https://lanyard.kyrie25.me/assets/unknown.png";
+    }
 
     return `https://cdn.discordapp.com/app-icons/${application_id}/${data.data.avatar}.webp`;
 }
