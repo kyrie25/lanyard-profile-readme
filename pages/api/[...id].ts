@@ -23,8 +23,8 @@ type Parameters = {
 export const config = {
     api: {
         responseLimit: false,
-    }
-}
+    },
+};
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     let getUser;
@@ -64,5 +64,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     res.setHeader("content-security-policy", "default-src 'none'; img-src * data:; style-src 'unsafe-inline'");
 
     const svg = await renderCard(getUser.data, params);
-    res.status(200).send(svg as any);
+    res.status(200).send(svg as Data);
 }

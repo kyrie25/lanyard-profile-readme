@@ -3,6 +3,7 @@
 Pretty much the same as [upstream repo](https://github.com/cnrad/lanyard-profile-readme), with custom stylings.
 
 Some niche features are also added:
+
 - `Time Left` are supported and displayed over `Elapsed Time` whenever possible.
 - Show large image of activities with only application icons. (e.g. CS2, BG3, Genshin, WuWa, etc.)
 - Allows displaying special activities.
