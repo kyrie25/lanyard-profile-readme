@@ -4,6 +4,7 @@ Pretty much the same as [upstream repo](https://github.com/cnrad/lanyard-profile
 
 Some niche features are also added:
 
+- [Banners are supported!](#banners)
 - `Time Left` are supported and displayed over `Elapsed Time` whenever possible.
 - Show large image of activities with only application icons. (e.g. CS2, BG3, Genshin, WuWa, etc.)
 - Allows displaying special activities.
@@ -22,7 +23,41 @@ https://lanyard.kyrie25.me/api/368399721494216706
 
 **Everything from [upstream](https://github.com/cnrad/lanyard-profile-readme#options)**, in addition with my own below:
 
-- Avatar decorator is now supported! It is enabled by default:
+### Banners
+
+- Banners are supported and can be enabled
+
+```url
+https://lanyard.kyrie25.me/api/368399721494216706?showBanner=true
+```
+
+![banner](https://github.com/user-attachments/assets/38f2f4e2-c80f-4ffd-9057-670536696776)
+
+```url
+https://lanyard.kyrie25.me/api/368399721494216706?showBanner=animated
+```
+
+![animated-banner](https://github.com/user-attachments/assets/bcdcb73a-bf6a-410f-8589-ec85f3e6b238)
+
+You can combine this with `waveColor=transparent` and `waveSpotifyColor=transparent` to make the banner more visible.
+
+```url
+https://lanyard.kyrie25.me/api/368399721494216706?showBanner=animated&waveColor=transparent&waveSpotifyColor=transparent
+```
+
+![banner-transparent](https://github.com/user-attachments/assets/d2934faf-6c92-4dad-884f-43c57763a8ac)
+
+#### Banners are disabled by default & caveats
+
+Banners are disabled by default because not every card will look good with it. It would also increase the API's response time, and [may exceed Vercel's serverless function's limit](https://vercel.com/guides/how-to-bypass-vercel-body-size-limit-serverless-functions) if you have a lot of animated assets in your card.
+
+Banners are **cached for 1 minute** to avoid API rate limit.
+
+Experiment with it and see if it fits your needs!
+
+### Avatar Decorator
+
+- Avatar decorator are supported! It is enabled by default:
 
 ![decoration](https://github.com/kyrie25/lanyard-profile-readme/assets/77577746/0fb9a445-1973-4a81-831f-03b0c9e10c69)
 
@@ -42,6 +77,8 @@ https://lanyard.kyrie25.me/api/368399721494216706?useDisplayName=true
 
 ![display-name](https://github.com/kyrie25/lanyard-profile-readme/assets/77577746/a57e6d7a-ba42-4fc0-b3fd-752dde7800a5)
 
+### Activity Customizations
+
 - Use `animationDuration` to customize the speed of the wave animation (`0s` to disable)
 
 ```url
@@ -57,6 +94,8 @@ https://lanyard.kyrie25.me/api/368399721494216706?waveColor=FF597B&waveSpotifyCo
 ```
 
 ![waveColor showcase](https://user-images.githubusercontent.com/77577746/223082809-14b38bbc-c600-4b62-ba74-f242dada553b.svg)
+
+### Text & Image Customizations
 
 You can also change the color of the text by specifying theme following the hex color code. \
 E.g. `waveColor=FF597B-light` will make the text darker.

@@ -7,6 +7,7 @@ import { encodeBase64 } from "./toBase64";
 import escape from "escape-html";
 import { hexToRgb, Color, Solver } from "./colorFilter";
 import axios from "axios";
+import redis from "./redis";
 
 type Parameters = {
     animationDuration?: string;
@@ -27,6 +28,7 @@ type Parameters = {
     imgStyle?: string;
     imgBorderRadius?: string;
     useDisplayName?: string;
+    showBanner?: string;
 };
 
 const formatTime = (timestamps: any) => {
@@ -56,6 +58,8 @@ const formatTime = (timestamps: any) => {
 };
 
 const getColorFilter = (hex: string) => {
+    if (hex === "transparent") return "brightness(0) saturate(100%)";
+
     const rgb = hexToRgb(hex);
     if (rgb?.length !== 3) return;
 
@@ -67,6 +71,8 @@ const getColorFilter = (hex: string) => {
 
 // Get the blended color value between two colors with 10 midpoints
 const getBlendedFilter = (color1: string, color2: string, theme: string) => {
+    if (color1 === "transparent" || color2 === "transparent") return "brightness(0) saturate(100%)";
+
     const rgb1 = hexToRgb(color1);
     const rgb2 = hexToRgb(color2);
     const midpoint = theme === "dark" ? 3 : 8;
@@ -98,7 +104,7 @@ async function getLargeImage(asset: LanyardTypes.Assets | null, application_id?:
             : `https://cdn.discordapp.com/app-assets/${application_id}/${asset.large_image}.webp`;
     }
 
-    const data = await axios.get(`https://api.kyrie25.me/discord/${application_id}`).catch(() => null);
+    const data = await axios.get(`${process.env.DISCORD_API_ENDPOINT}/${application_id}`).catch(() => null);
 
     if (
         !data?.data?.id ||
@@ -166,7 +172,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         imgStyle = "circle",
         imgBorderRadius = "10px",
         statusRadius = 4,
-        useDisplayName = "false";
+        banner = "";
 
     if (data.activities[0]?.emoji?.animated) statusExtension = "gif";
     if (data.discord_user.avatar && data.discord_user.avatar.startsWith("a_")) avatarExtension = "gif";
@@ -211,6 +217,26 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     }
     if (params.useDisplayName === "true" && data.discord_user.global_name)
         data.discord_user.username = data.discord_user.global_name;
+    if (params.showBanner === "true" || params.showBanner === "animated") {
+        banner = await redis.get(`banner-${data.discord_user.id}`).catch(() => null);
+
+        if (!banner) {
+            const userData = await axios
+                .get(`${process.env.DISCORD_API_ENDPOINT}/${data.discord_user.id}`)
+                .catch(() => null);
+
+            if (userData?.data?.banner) {
+                const animatedBanner = params.showBanner === "animated" && userData.data.banner.startsWith("a_");
+                banner = `https://cdn.discordapp.com/banners/${data.discord_user.id}/${userData.data.banner}.${animatedBanner ? "gif" : "webp"}?size=1024`;
+
+                // Cache for 1 minute
+                await redis.set(`banner-${data.discord_user.id}`, userData.data.banner, "EX", 60).catch(() => null);
+            }
+        } else {
+            const animatedBanner = params.showBanner === "animated" && banner.startsWith("a_");
+            banner = `https://cdn.discordapp.com/banners/${data.discord_user.id}/${banner}.${animatedBanner ? "gif" : "webp"}?size=1024`;
+        }
+    }
 
     let avatar: String;
     if (data.discord_user.avatar) {
@@ -258,7 +284,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     if (
         (data.discord_user.avatar && data.discord_user.avatar.includes("a_")) ||
         userStatus?.emoji?.id ||
-        data.discord_user.avatar_decoration_data
+        data.discord_user.avatar_decoration_data ||
+        banner
     )
         flags.push("Nitro");
 
@@ -319,6 +346,10 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         height: ${hideProfile === "true" ? "120px" : "200px"};
                         inset: 0;
                         background-color: #${backgroundColor};
+                        background-position: center top;
+                        background-repeat: no-repeat;
+                        background-size: cover;
+                        ${banner ? `background-image: url(data:image/png;base64,${await encodeBase64(banner)});` : ""}
                         color: ${theme === "dark" ? "#fff" : "#000"};
                         font-family: 'Century Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
                         font-size: 16px;
@@ -476,7 +507,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         ${
                             activity
                                 ? `
-                            <div style="position: relative; width: 100%; height: 21px;">
+                            <div style="position: relative; width: 100%; height: 21px;${waveColor === "transparent" ? "opacity: 0;" : ""}">
                                 <div style="
                                     position: absolute;
                                     background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIxIiB2aWV3Qm94PSIwIDAgMzYwIDIxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMCAyMC43MzI3VjcuNTgxN0MwIDcuNTgxNyA0Ny41MzEyIC0xLjQ2OTMyIDEwNi43MzQgMS4yMzgyNEMxNjkuMzEyIDIuMzk4NjMgMTkxLjY3MiAxMy42NTA4IDI3MS45NjkgMTQuNTQ0QzMyNS44MjggMTQuNTQ0IDM2MCA3LjczNjQyIDM2MCA3LjczNjQyVjIwLjczMjdIMFoiIGZpbGw9IiMxRTIyMzMiLz4KPC9zdmc+Cg==);
@@ -650,7 +681,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                 !activity &&
                 data.activities[Object.keys(data.activities).length - 1].type === 2
                     ? `
-                <div style="position: relative; width: 100%; height: 21px;">
+                <div style="position: relative; width: 100%; height: 21px;${waveSpotifyColor === "transparent" ? "opacity: 0;" : ""}">
                     <div style="
                         position: absolute;
                         background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIxIiB2aWV3Qm94PSIwIDAgMzYwIDIxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMCAyMC43MzI3VjcuNTgxN0MwIDcuNTgxNyA0Ny41MzEyIC0xLjQ2OTMyIDEwNi43MzQgMS4yMzgyNEMxNjkuMzEyIDIuMzk4NjMgMTkxLjY3MiAxMy42NTA4IDI3MS45NjkgMTQuNTQ0QzMyNS44MjggMTQuNTQ0IDM2MCA3LjczNjQyIDM2MCA3LjczNjQyVjIwLjczMjdIMFoiIGZpbGw9IiMxRTIyMzMiLz4KPC9zdmc+Cg==);
