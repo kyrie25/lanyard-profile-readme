@@ -57,7 +57,7 @@ https://lanyard.kyrie25.me/api/368399721494216706?showBanner=animated&waveColor=
 
 #### Banners are disabled by default & caveats
 
-Banners are disabled by default because not every card will look good with it. It would also increase the API's response time, and [may exceed Vercel's serverless function's limit](https://vercel.com/guides/how-to-bypass-vercel-body-size-limit-serverless-functions) if you have a lot of animated assets in your card.
+Banners are disabled by default because not every card will look good with it. It would also increase the API's response time, and you may hit the 5MB limit for assets on markdown files if you have a lot of animated assets in your card.
 
 Banners are **cached for 1 minute** to avoid API rate limit.
 
