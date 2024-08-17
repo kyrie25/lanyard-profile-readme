@@ -47,6 +47,14 @@ https://lanyard.kyrie25.me/api/368399721494216706?showBanner=animated&waveColor=
 
 ![banner-transparent](https://github.com/user-attachments/assets/d2934faf-6c92-4dad-884f-43c57763a8ac)
 
+If the contents on the card are hard to read, you can use `bannerFilter` to pass in CSS filter for the banner.
+
+```url
+https://lanyard.kyrie25.me/api/368399721494216706?showBanner=animated&waveColor=transparent&bannerFilter=brightness(0.8)%20blur(2px)
+```
+
+![banner-filter](https://github.com/user-attachments/assets/7b672045-8356-4691-af2d-fbd4e4945d3e)
+
 #### Banners are disabled by default & caveats
 
 Banners are disabled by default because not every card will look good with it. It would also increase the API's response time, and [may exceed Vercel's serverless function's limit](https://vercel.com/guides/how-to-bypass-vercel-body-size-limit-serverless-functions) if you have a lot of animated assets in your card.

@@ -29,6 +29,7 @@ type Parameters = {
     imgBorderRadius?: string;
     useDisplayName?: string;
     showBanner?: string;
+    bannerFilter?: string;
 };
 
 const formatTime = (timestamps: any) => {
@@ -140,7 +141,9 @@ function minify(s) {
     return s
         ? s
               .replace(/\>[\r\n ]+\</g, "><") // Removes new lines and irrelevant spaces which might affect layout, and are better gone
-              .replace(/(<.*?>)|\s+/g, (m, $1) => ($1 ? $1 : " "))
+              .replace(/(<.*?>)|\s+/g, (m, $1) => ($1 ? $1 : " ")) // Removes all spaces except for those in tags
+              .replace(/; +/g, ";") // Removes spaces after semicolons
+              .replace(/style=" +/g, 'style="') // Removes spaces after style="
               .trim()
         : "";
 }
@@ -172,7 +175,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         imgStyle = "circle",
         imgBorderRadius = "10px",
         statusRadius = 4,
-        banner = "";
+        banner = "",
+        bannerFilter = "";
 
     if (data.activities[0]?.emoji?.animated) statusExtension = "gif";
     if (data.discord_user.avatar && data.discord_user.avatar.startsWith("a_")) avatarExtension = "gif";
@@ -237,6 +241,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
             banner = `https://cdn.discordapp.com/banners/${data.discord_user.id}/${banner}.${animatedBanner ? "gif" : "webp"}?size=1024`;
         }
     }
+    if (params.bannerFilter && banner) bannerFilter = params.bannerFilter;
 
     let avatar: String;
     if (data.discord_user.avatar) {
@@ -340,16 +345,39 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                     }
                 </style>
                 <foreignObject x="0" y="0" width="400" height="${hideProfile === "true" ? "120" : "200"}">
+                    ${
+                        banner
+                            ? `
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="
+                            position: absolute;
+                            width: 400px;
+                            height: 200px;
+                            inset: 0;
+                            z-index: -1;
+                            overflow: hidden;
+                            border-radius: ${borderRadius};
+                        ">
+                            <img
+                                xmlns="http://www.w3.org/1999/xhtml"
+                                src="data:image/png;base64,${await encodeBase64(banner)}"
+                                style="
+                                    width: 400px;
+                                    height: 200px;
+                                    aspect-ratio: 400 / 200;
+                                    object-fit: cover;
+                                    border-radius: ${borderRadius};
+                                    object-position: center;
+                                    ${bannerFilter ? `filter: ${bannerFilter};` : ""}
+                            "/>
+                        </div>`
+                            : ""
+                    }
                     <div xmlns="http://www.w3.org/1999/xhtml" style="
                         position: absolute;
                         width: 400px;
                         height: ${hideProfile === "true" ? "120px" : "200px"};
                         inset: 0;
-                        background-color: #${backgroundColor};
-                        background-position: center top;
-                        background-repeat: no-repeat;
-                        background-size: cover;
-                        ${banner ? `background-image: url(data:image/png;base64,${await encodeBase64(banner)});` : ""}
+                        background-color: ${banner ? "transparent" : `#${backgroundColor};`};
                         color: ${theme === "dark" ? "#fff" : "#000"};
                         font-family: 'Century Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
                         font-size: 16px;
