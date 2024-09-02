@@ -26,6 +26,7 @@ https://lanyard.kyrie25.me/api/368399721494216706
 ### Banners
 
 - Banners are supported and can be enabled
+- Banner from USRBG **are supported**, and Nitro banners are prioritized over USRBG banners.
 
 ```url
 https://lanyard.kyrie25.me/api/368399721494216706?showBanner=true
