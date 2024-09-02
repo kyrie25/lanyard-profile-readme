@@ -233,12 +233,32 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                 const animatedBanner = params.showBanner === "animated" && userData.data.banner.startsWith("a_");
                 banner = `https://cdn.discordapp.com/banners/${data.discord_user.id}/${userData.data.banner}.${animatedBanner ? "gif" : "webp"}?size=1024`;
 
-                // Cache for 1 minute
-                await redis.set(`banner-${data.discord_user.id}`, userData.data.banner, "EX", 60).catch(() => null);
+                // Cache for 5 minutes
+                await redis.set(`banner-${data.discord_user.id}`, userData.data.banner, "EX", 300).catch(() => null);
+            } else {
+                // Fetch banner from USRBG
+                const usrbg = await axios("https://usrbg.is-hardly.online/users").catch(() => null);
+                if (usrbg?.data?.users?.[data.discord_user.id]) {
+                    const {
+                        endpoint,
+                        bucket,
+                        prefix,
+                        users: { [data.discord_user.id]: etag },
+                    } = usrbg.data;
+                    banner = `${endpoint}/${bucket}/${prefix}${data.discord_user.id}?${etag}`;
+
+                    // Cache for 5 minutes
+                    await redis.set(`banner-${data.discord_user.id}`, banner, "EX", 300).catch(() => null);
+                }
             }
         } else {
-            const animatedBanner = params.showBanner === "animated" && banner.startsWith("a_");
-            banner = `https://cdn.discordapp.com/banners/${data.discord_user.id}/${banner}.${animatedBanner ? "gif" : "webp"}?size=1024`;
+            // If cache is an URL, it's from USRBG
+            try {
+                new URL(banner);
+            } catch {
+                const animatedBanner = params.showBanner === "animated" && banner.startsWith("a_");
+                banner = `https://cdn.discordapp.com/banners/${data.discord_user.id}/${banner}.${animatedBanner ? "gif" : "webp"}?size=1024`;
+            }
         }
     }
     if (params.bannerFilter && banner) bannerFilter = params.bannerFilter;
