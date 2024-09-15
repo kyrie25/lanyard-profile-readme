@@ -103,7 +103,7 @@ async function getLargeImage(asset: LanyardTypes.Assets | null, application_id?:
                   "",
               )}${asset.large_image.includes(".gif") ? "?width=160&height=160" : ""}`
             : asset.large_image.startsWith("mp:attachments/")
-              ? `https://media.discordapp.net/attachments/${asset.large_image.replace("mp:attachments/", "")}`
+              ? `https://media.discordapp.net/attachments/${asset.large_image.replace("mp:attachments/", "")}${asset.large_image.includes(".gif") ? "&width=160&height=160" : ""}`
               : `https://cdn.discordapp.com/app-assets/${application_id}/${asset.large_image}.webp`;
     }
 
@@ -638,7 +638,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                               ? `https://media.discordapp.net/attachments/${activity.assets.small_image.replace(
                                                     "mp:attachments/",
                                                     "",
-                                                )}`
+                                                )}${activity.assets.small_image.includes(".gif") ? "&width=50&height=50" : ""}`
                                               : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${activity.assets.small_image}.webp`,
                                     )}"
                                     style="
