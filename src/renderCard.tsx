@@ -102,7 +102,12 @@ async function getLargeImage(asset: LanyardTypes.Assets | null, application_id?:
                   "mp:external/",
                   "",
               )}${asset.large_image.includes(".gif") ? "?width=160&height=160" : ""}`
-            : `https://cdn.discordapp.com/app-assets/${application_id}/${asset.large_image}.webp`;
+            : asset.large_image.startsWith("mp:attachments/")
+              ? `https://cdn.discordapp.com/attachments/${application_id}/${asset.large_image.replace(
+                    "mp:attachments/",
+                    "",
+                )}`
+              : `https://cdn.discordapp.com/app-assets/${application_id}/${asset.large_image}.webp`;
     }
 
     const data = await axios.get(`${process.env.DISCORD_API_ENDPOINT}/${application_id}`).catch(() => null);
@@ -632,7 +637,12 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                                   "mp:external/",
                                                   "",
                                               )}${activity.assets.small_image.includes(".gif") ? "?width=50&height=50" : ""}`
-                                            : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${activity.assets.small_image}.webp`,
+                                            : activity.assets.small_image.startsWith("mp:attachments/")
+                                              ? `https://cdn.discordapp.com/attachments/${activity.application_id}/${activity.assets.small_image.replace(
+                                                    "mp:attachments/",
+                                                    "",
+                                                )}`
+                                              : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${activity.assets.small_image}.webp`,
                                     )}"
                                     style="
                                         width: 30px;
