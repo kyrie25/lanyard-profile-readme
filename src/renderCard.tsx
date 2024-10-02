@@ -34,6 +34,23 @@ type Parameters = {
     bannerFilter?: string;
 };
 
+const getFormatFromMs = (ms: number) => {
+    let daysDifference = Math.floor(ms / 60 / 60 / 24);
+    ms -= daysDifference * 60 * 60 * 24;
+
+    let hoursDifference = Math.floor(ms / 60 / 60);
+    ms -= hoursDifference * 60 * 60;
+
+    let minutesDifference = Math.floor(ms / 60);
+    ms -= minutesDifference * 60;
+
+    let secondsDifference = Math.floor(ms);
+
+    return `${hoursDifference >= 1 ? ("0" + hoursDifference).slice(-2) + ":" : ""}${("0" + minutesDifference).slice(
+        -2,
+    )}:${("0" + secondsDifference).slice(-2)}`;
+};
+
 const formatTime = (timestamps: any) => {
     const { start, end } = timestamps;
     // End timestamps is prioritized over start timestamps and displayed accordingly.
@@ -42,22 +59,7 @@ const formatTime = (timestamps: any) => {
     let difference = end ? (startTime - endTime) / 1000 : (endTime - startTime) / 1000;
     if (difference < 0) return `00:00 ${end ? "left" : "elapsed"}`;
 
-    // we only calculate them, but we don't display them.
-    // this fixes a bug in the Discord API that does not send the correct timestamp to presence.
-    let daysDifference = Math.floor(difference / 60 / 60 / 24);
-    difference -= daysDifference * 60 * 60 * 24;
-
-    let hoursDifference = Math.floor(difference / 60 / 60);
-    difference -= hoursDifference * 60 * 60;
-
-    let minutesDifference = Math.floor(difference / 60);
-    difference -= minutesDifference * 60;
-
-    let secondsDifference = Math.floor(difference);
-
-    return `${hoursDifference >= 1 ? ("0" + hoursDifference).slice(-2) + ":" : ""}${("0" + minutesDifference).slice(
-        -2,
-    )}:${("0" + secondsDifference).slice(-2)} ${end ? "left" : "elapsed"}`;
+    return `${getFormatFromMs(difference)} ${end ? "left" : "elapsed"}`;
 };
 
 const getColorFilter = (hex: string) => {
@@ -200,7 +202,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         spotifyTheme = "light";
     }
     if (params.bg) backgroundColor = params.bg;
-    let clanBackgroundColor = theme === "light" ? "#e0dede" : "#111214";
+    let clanBackgroundColor = theme === "light" ? "f0f0f0" : "333";
     if (params.clanbg) clanBackgroundColor = params.clanbg;
     if (params.idleMessage) idleMessage = params.idleMessage;
     if (params.borderRadius) borderRadius = params.borderRadius;
@@ -486,6 +488,12 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     transform: translate(0, -50%);
                                     height: ${userStatus && hideStatus !== "true" ? "25px" : "35px"};
                                 ">
+                                <div style="
+                                    display: flex;
+                                    flex-direction: row;
+                                    gap: 5px;
+                                    height: 1.5rem;
+                                ">
                                     <h1 style="
                                         font-size: 1.15rem;
                                         margin: 0 12px 0 0;
@@ -509,7 +517,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                             ? ""
                                             : `
                                         <span style="
-                                            background-color: ${clanBackgroundColor};
+                                            background-color: #${clanBackgroundColor};
                                             border-radius: 0.375rem;
                                             padding-left: 0.5rem;
                                             padding-right: 0.5rem;
@@ -527,6 +535,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                         </span>
                                     `
                                     }
+                                </div>
                                     ${
                                         hideBadges == "true"
                                             ? ""
@@ -751,16 +760,62 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                         ${
                                             (activity.timestamps?.end || activity.timestamps?.start) &&
                                             hideTimestamp !== "true"
-                                                ? `
-                                            <p style="
-                                                color: ${activityTheme === "dark" ? "#ccc" : "#777"};
-                                                overflow: hidden;
-                                                white-space: nowrap;
-                                                font-size: 0.85rem;
-                                                text-overflow: ellipsis;
-                                                height: 15px;
-                                                margin: 7px 0;
-                                            ">${formatTime(activity.timestamps)}</p>`
+                                                ? activity.timestamps?.end &&
+                                                  activity.timestamps?.start &&
+                                                  activity.type !== 0
+                                                    ? `
+                                                        <div style="
+                                                            width: calc(100% - 15px);
+                                                            display: flex;
+                                                            flex-direction: row;
+                                                            justify-content: space-between;
+                                                            align-items: center;
+                                                            font-size: 0.85rem;
+                                                        ">
+                                                            <span style="
+                                                                color: ${theme === "dark" ? "#fff" : "#000"};
+                                                            ">
+                                                                ${getFormatFromMs(Math.min(Date.now() - activity.timestamps.start, activity.timestamps.end - activity.timestamps.start) / 1000)}
+                                                            </span>
+                                                            <div style="
+                                                                width: 100%;
+                                                                height: 2px;
+                                                                background-color: ${theme === "dark" ? "#333" : "#ccc"};
+                                                                border-radius: 5px;
+                                                                margin-left: 7px;
+                                                                margin-right: 7px;
+                                                                overflow: hidden;
+                                                            ">
+                                                                <div style="
+                                                                    width: ${Math.min(
+                                                                        100,
+                                                                        ((Date.now() - activity.timestamps.start) /
+                                                                            (activity.timestamps.end -
+                                                                                activity.timestamps.start)) *
+                                                                            100,
+                                                                    )}%;
+                                                                    height: 100%;
+                                                                    background-color: ${theme === "dark" ? "#fff" : "#000"};
+                                                                    border-radius: 5px;
+                                                                "></div>
+                                                            </div>
+                                                            <span style="
+                                                                color: ${theme === "dark" ? "#fff" : "#000"};
+                                                            ">
+                                                                ${getFormatFromMs((activity.timestamps.end - activity.timestamps.start) / 1000)}
+                                                            </span>
+                                                        </div>
+                                                    `
+                                                    : `
+                                                        <p style="
+                                                            color: ${activityTheme === "dark" ? "#ccc" : "#777"};
+                                                            overflow: hidden;
+                                                            white-space: nowrap;
+                                                            font-size: 0.85rem;
+                                                            text-overflow: ellipsis;
+                                                            height: 15px;
+                                                            margin: 7px 0;
+                                                        ">${formatTime(activity.timestamps)}</p>`
                                                 : ``
                                         }
                                 </div>
@@ -827,13 +882,13 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
 
                     <div style="
                         color: #999;
-                        margin-top: -3px;
+                        margin-top: ${hideTimestamp !== "true" ? "-10px" : "-3px"};
                         line-height: 1;
                         width: 279px;
                     ">
                         <p style="font-size: 0.75rem; font-weight: bold; color: ${
                             spotifyTheme === "dark" ? "#ddd8d8" : "#0d943d"
-                        }; margin-bottom: 15px;">LISTENING TO SPOTIFY...</p>
+                        }; margin-bottom: ${hideTimestamp !== "true" ? "0px" : "15px"};">LISTENING TO SPOTIFY...</p>
                         <p style="
                             height: 15px;
                             color: ${spotifyTheme === "dark" ? "#fff" : "#000"};
@@ -853,6 +908,52 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                             text-overflow: ellipsis;
                             color: ${spotifyTheme === "dark" ? "#ccc" : "#777"};
                         ">By ${escape(data.spotify.artist)}</p>
+                        ${
+                            hideTimestamp !== "true"
+                                ? `
+                            <div style="
+                                width: calc(100% - 15px);
+                                display: flex;
+                                flex-direction: row;
+                                justify-content: space-between;
+                                align-items: center;
+                                font-size: 0.85rem;
+                            ">
+                                <span style="
+                                    color: ${spotifyTheme === "dark" ? "#fff" : "#000"};
+                                ">
+                                    ${getFormatFromMs(Math.min(Date.now() - data.spotify.timestamps.start, data.spotify.timestamps.end - data.spotify.timestamps.start) / 1000)}
+                                </span>
+                                <div style="
+                                    width: 100%;
+                                    height: 2px;
+                                    background-color: ${spotifyTheme === "dark" ? "#333" : "#ccc"};
+                                    border-radius: 5px;
+                                    margin-left: 7px;
+                                    margin-right: 7px;
+                                    overflow: hidden;
+                                ">
+                                    <div style="
+                                        width: ${Math.min(
+                                            100,
+                                            ((Date.now() - data.spotify.timestamps.start) /
+                                                (data.spotify.timestamps.end - data.spotify.timestamps.start)) *
+                                                100,
+                                        )}%;
+                                        height: 100%;
+                                        background-color: ${spotifyTheme === "dark" ? "#fff" : "#000"};
+                                        border-radius: 5px;
+                                    "></div>
+                                </div>
+                                <span style="
+                                    color: ${spotifyTheme === "dark" ? "#fff" : "#000"};
+                                ">
+                                    ${getFormatFromMs((data.spotify.timestamps.end - data.spotify.timestamps.start) / 1000)}
+                                </span>
+                            </div>
+                        `
+                                : ""
+                        }
                     </div>
                 </div>
             `
