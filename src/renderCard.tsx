@@ -13,6 +13,7 @@ type Parameters = {
     animationDuration?: string;
     theme?: string;
     bg?: string;
+    clanbg?: string;
     animated?: string;
     decoration?: string;
     hideDiscrim?: string;
@@ -20,6 +21,7 @@ type Parameters = {
     hideTimestamp?: string;
     hideBadges?: string;
     hideProfile?: string;
+    hideClan?: string;
     borderRadius?: string;
     idleMessage?: string;
     waveColor?: string;
@@ -167,6 +169,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         hideTimestamp = "false",
         hideBadges = "false",
         hideProfile = "false",
+        hideClan = "false",
         borderRadius = "10px",
         idleMessage = "I'm not currently doing anything!",
         animationDuration = "8s",
@@ -188,6 +191,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     if (params.hideBadges === "true") hideBadges = "true";
     if (params.hideDiscrim === "true") discrim = "hide";
     if (params.hideProfile === "true") hideProfile = "true";
+    if (params.hideClan === "true" || !data.discord_user.clan) hideClan = "true";
     if (params.decoration === "false") decoration = "false";
     if (params.theme === "light") {
         backgroundColor = "#eee";
@@ -196,6 +200,8 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         spotifyTheme = "light";
     }
     if (params.bg) backgroundColor = params.bg;
+    let clanBackgroundColor = theme === "light" ? "#e0dede" : "#111214";
+    if (params.clanbg) clanBackgroundColor = params.clanbg;
     if (params.idleMessage) idleMessage = params.idleMessage;
     if (params.borderRadius) borderRadius = params.borderRadius;
     if (params.animationDuration) animationDuration = params.animationDuration;
@@ -286,6 +292,13 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     if (decoration === "true" && data.discord_user.avatar_decoration_data?.asset) {
         decor = await encodeBase64(
             `https://cdn.discordapp.com/avatar-decoration-presets/${data.discord_user.avatar_decoration_data.asset}.webp`,
+        );
+    }
+
+    let clanBadge: string | null = null;
+    if (data.discord_user.clan) {
+        clanBadge = await encodeBase64(
+            `https://cdn.discordapp.com/clan-badges/${data.discord_user.clan.identity_guild_id}/${data.discord_user.clan.badge}.png?size=16`,
         );
     }
 
@@ -489,6 +502,31 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                             : ""
                                     }
                                     </h1>
+
+                                    ${
+                                        hideClan === "true" ||
+                                        (!data.discord_user.clan?.tag && !data.discord_user.clan?.badge)
+                                            ? ""
+                                            : `
+                                        <span style="
+                                            background-color: ${clanBackgroundColor};
+                                            border-radius: 0.375rem;
+                                            padding-left: 0.5rem;
+                                            padding-right: 0.5rem;
+                                            margin-left: -6px;
+                                            margin-right: 12px;
+                                            display: flex;
+                                            align-items: center;
+                                            gap: 0.25rem;
+                                            font-size: 16px;
+                                            font-weight: 500;
+                                            height: 100%;
+                                        ">
+                                            <img src="data:image/png;base64,${clanBadge!}" />
+                                            <p style="margin-bottom: 1.1rem">${escape(data.discord_user.clan!.tag)}</p>
+                                        </span>
+                                    `
+                                    }
                                     ${
                                         hideBadges == "true"
                                             ? ""

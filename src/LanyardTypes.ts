@@ -33,7 +33,7 @@ export interface DiscordUser {
     avatar_decoration_data?: {
         asset: string;
         sku_id: bigint;
-    }
+    };
     username: string;
     global_name: string | null;
     display_name: string | null;
@@ -41,6 +41,14 @@ export interface DiscordUser {
     id: string;
     discriminator: string;
     avatar: string;
+    clan: ClanTag | null;
+}
+
+export interface ClanTag {
+    tag: string;
+    badge: string;
+    identity_enabled: boolean;
+    identity_guild_id: number;
 }
 
 export interface Activity {
