@@ -155,16 +155,19 @@ function minify(s) {
         : "";
 }
 
-function getActivityIcon(activity: LanyardTypes.Activity, theme: string) {
+function getActivityIcon(activity: LanyardTypes.Activity | string, theme: string) {
     const iconList = Object.keys(Icons);
-    const icon = iconList.find(
-        icon =>
-            icon.replace("Si", "").toLowerCase() ===
-            activity.name
-                .replaceAll(" ", "")
-                .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
-                .toLowerCase(),
-    );
+    const icon =
+        typeof activity === "string"
+            ? activity
+            : iconList.find(
+                  icon =>
+                      icon.replace("Si", "").toLowerCase() ===
+                      activity.name
+                          .replaceAll(" ", "")
+                          .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+                          .toLowerCase(),
+              );
 
     if (icon) {
         return renderToString(
@@ -921,13 +924,19 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
 
                     <div style="
                         color: #999;
-                        margin-top: ${hideTimestamp !== "true" ? "-10px" : "-3px"};
+                        margin-top: ${hideTimestamp !== "true" ? "0" : "-3px"};
                         line-height: 1;
                         width: 279px;
                     ">
-                        <p style="font-size: 0.75rem; font-weight: bold; color: ${
-                            spotifyTheme === "dark" ? "#ddd8d8" : "#0d943d"
-                        }; margin-bottom: ${hideTimestamp !== "true" ? "0px" : "15px"};">LISTENING TO SPOTIFY...</p>
+                        <p style="
+                            font-size: 0.85rem;
+                            color: ${spotifyTheme === "dark" ? "#ccc" : "#777"};
+                            margin: ${hideTimestamp !== "true" ? "0" : "revert"};
+                        ">
+                            Listening to ${getActivityIcon("SiSpotify", spotifyTheme)} <span style="color: ${
+                                spotifyTheme === "dark" ? "#fff" : "#000"
+                            };">Spotify</span>
+                        </p>
                         <p style="
                             height: 15px;
                             color: ${spotifyTheme === "dark" ? "#fff" : "#000"};
