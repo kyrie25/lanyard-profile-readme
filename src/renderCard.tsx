@@ -555,7 +555,6 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                             padding-left: 0.5rem;
                                             padding-right: 0.5rem;
                                             margin-left: -6px;
-                                            margin-right: 12px;
                                             display: flex;
                                             align-items: center;
                                             gap: 0.25rem;
@@ -572,9 +571,10 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     ${
                                         hideBadges == "true"
                                             ? ""
-                                            : `<div style="${
-                                                  userStatus && hideStatus !== "true" ? "" : "margin-top:5px;"
-                                              }">
+                                            : `<div style="
+                                                    ${userStatus && hideStatus !== "true" ? "" : "margin-top:5px;"}
+                                                    display: flex;
+                                                ">
                                                 ${flags
                                                     .map(
                                                         v => `
