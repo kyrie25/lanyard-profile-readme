@@ -1,5 +1,5 @@
 //probably the messiest code i've ever written but it works so :)
-
+import { renderToString } from "react-dom/server";
 import { Badges } from "../public/assets/badges/BadgesEncoded";
 import { getFlags } from "./getFlags";
 import * as LanyardTypes from "./LanyardTypes";
@@ -8,6 +8,7 @@ import escape from "escape-html";
 import { hexToRgb, Color, Solver } from "./colorFilter";
 import axios from "axios";
 import redis from "./redis";
+import * as Icons from "react-icons/si";
 
 type Parameters = {
     animationDuration?: string;
@@ -152,6 +153,35 @@ function minify(s) {
               .replace(/style=" +/g, 'style="') // Removes spaces after style="
               .trim()
         : "";
+}
+
+function getActivityIcon(activity: LanyardTypes.Activity, theme: string) {
+    const iconList = Object.keys(Icons);
+    const icon = iconList.find(
+        icon =>
+            icon.replace("Si", "").toLowerCase() ===
+            activity.name
+                .replaceAll(" ", "")
+                .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+                .toLowerCase(),
+    );
+
+    if (icon) {
+        return renderToString(
+            Icons[icon]({
+                size: 12,
+                color: theme === "dark" ? "#fff" : "#000",
+                style: {
+                    paddingRight: 4,
+                    paddingLeft: 2,
+                    top: 1,
+                    position: "relative",
+                },
+            }),
+        );
+    }
+
+    return "";
 }
 
 const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<string> => {
@@ -720,19 +750,28 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                         margin: 7px 0;
                                     ">${
                                         getPrefixActivityString(activity)
-                                            ? `<span style="font-weight: normal;">
+                                            ? `<span style="font-weight: normal;color: #ccc">
                                                 ${getPrefixActivityString(activity) + " "}
                                             </span>`
                                             : ""
-                                    }${escape(activity.name)}</p>
+                                    }${getActivityIcon(activity, theme)}${escape(activity.name)}</p>
                                         ${
                                             activity.details?.trim()
                                                 ? `
                                             <p style="
-                                                color: ${activityTheme === "dark" ? "#ccc" : "#777"};
+                                                color: ${
+                                                    getPrefixActivityString(activity)
+                                                        ? activityTheme === "dark"
+                                                            ? "#fff"
+                                                            : "#000"
+                                                        : activityTheme === "dark"
+                                                          ? "#ccc"
+                                                          : "#777"
+                                                };
                                                 overflow: hidden;
                                                 white-space: nowrap;
                                                 font-size: 0.85rem;
+                                                font-weight: ${getPrefixActivityString(activity) ? "bold" : "normal"};
                                                 text-overflow: ellipsis;
                                                 height: 15px;
                                                 margin: 7px 0;
