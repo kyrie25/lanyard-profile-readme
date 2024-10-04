@@ -742,7 +742,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     <p style="
                                         color: ${activityTheme === "dark" ? "#fff" : "#000"};
                                         font-size: 0.85rem;
-                                        font-weight: bold;
+                                        font-weight: ${getPrefixActivityString(activity) ? "normal" : "bold"};
                                         overflow: hidden;
                                         white-space: nowrap;
                                         text-overflow: ellipsis;
