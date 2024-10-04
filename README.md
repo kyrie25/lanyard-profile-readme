@@ -1,7 +1,5 @@
 # lanyard-profile-readme
 
-![demo](https://github.com/user-attachments/assets/577a760a-5a6e-43e2-94a3-0d5e09d75642)
-
 Pretty much the same as [upstream repo](https://github.com/cnrad/lanyard-profile-readme), with custom stylings.
 
 Some niche features are also added:
