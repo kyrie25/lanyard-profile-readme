@@ -1,4 +1,4 @@
-# lanyard-profile-readme
+![368399721494216706 (11)](https://github.com/user-attachments/assets/577a760a-5a6e-43e2-94a3-0d5e09d75642)# lanyard-profile-readme
 
 Pretty much the same as [upstream repo](https://github.com/cnrad/lanyard-profile-readme), with custom stylings.
 
@@ -68,9 +68,7 @@ Experiment with it and see if it fits your needs!
 
 - Avatar decorator are supported! It is enabled by default:
 
-![decoration](https://github.com/kyrie25/lanyard-profile-readme/assets/77577746/0fb9a445-1973-4a81-831f-03b0c9e10c69)
-
-![decoration-square](https://github.com/kyrie25/lanyard-profile-readme/assets/77577746/69e1db08-e9cf-4da2-94f4-d3232df7ad63)
+![decoration](https://github.com/user-attachments/assets/a97b1304-1563-409b-a214-1a73a6f456ae)
 
 If you wish to disable it (because the round decoration on square image look weird perhaps?), you can use `decoration=false`:
 
@@ -83,8 +81,7 @@ https://lanyard.kyrie25.me/api/368399721494216706?decoration=false
 ```url
 https://lanyard.kyrie25.me/api/368399721494216706?useDisplayName=true
 ```
-
-![display-name](https://github.com/kyrie25/lanyard-profile-readme/assets/77577746/a57e6d7a-ba42-4fc0-b3fd-752dde7800a5)
+![display-name](https://github.com/user-attachments/assets/e2cb3d50-4885-46b0-9176-774dc43e2445)
 
 ### Activity Customizations
 
@@ -94,7 +91,8 @@ https://lanyard.kyrie25.me/api/368399721494216706?useDisplayName=true
 https://lanyard.kyrie25.me/api/368399721494216706?animationDuration=4s
 ```
 
-![duration showcase](https://user-images.githubusercontent.com/77577746/223082326-0a3b1af6-099c-4e89-b320-52066aebb527.svg)
+![duration_showcase](https://github.com/user-attachments/assets/d224e42d-ba04-490e-b3b0-656b4a27b4b0)
+
 
 - Define activity color using `waveColor` and `waveSpotifyColor`
 
