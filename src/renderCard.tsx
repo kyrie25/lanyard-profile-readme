@@ -692,6 +692,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                             height: 80px;
                                             border: solid 0.5px #${waveColor};
                                             border-radius: ${imgBorderRadius};
+                                            object-fit: cover;
                                         "/>
                                     `
                                             : `
