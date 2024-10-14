@@ -324,10 +324,23 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     }
 
     let decor = "";
-    if (decoration === "true" && data.discord_user.avatar_decoration_data?.asset) {
-        decor = await encodeBase64(
-            `https://cdn.discordapp.com/avatar-decoration-presets/${data.discord_user.avatar_decoration_data.asset}.webp`,
-        );
+    if (decoration !== "false") {
+        if (data.discord_user.avatar_decoration_data?.asset) {
+            decor = await encodeBase64(
+                `https://cdn.discordapp.com/avatar-decoration-presets/${data.discord_user.avatar_decoration_data.asset}.webp`,
+            );
+        } else {
+            // Fetch decoration from Decor
+            const decorData = await axios
+                .get(encodeURI(`https://decor.fieryflames.dev/api/users?ids=${JSON.stringify([data.discord_user.id])}`))
+                .catch(() => null);
+
+            if (decorData.data?.[data.discord_user.id]) {
+                decor = await encodeBase64(
+                    `https://ugc.decor.fieryflames.dev/${decorData?.data?.[data.discord_user.id]}.png`,
+                );
+            }
+        }
     }
 
     let clanBadge: string | null = null;

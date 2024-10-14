@@ -64,9 +64,10 @@ Banners are **cached for 5 minutes** to avoid API rate limit.
 
 Experiment with it and see if it fits your needs!
 
-### Avatar Decorator
+### Avatar Decoration
 
-- Avatar decorator are supported! It is enabled by default:
+- Avatar decorations are supported!
+- Avatar decorations from Decor **are supported**, and Nitro decorations are prioritized over Decor decorations.
 
 ![decoration](https://github.com/user-attachments/assets/a97b1304-1563-409b-a214-1a73a6f456ae)
 
@@ -81,6 +82,7 @@ https://lanyard.kyrie25.me/api/368399721494216706?decoration=false
 ```url
 https://lanyard.kyrie25.me/api/368399721494216706?useDisplayName=true
 ```
+
 ![display-name](https://github.com/user-attachments/assets/e2cb3d50-4885-46b0-9176-774dc43e2445)
 
 ### Activity Customizations
