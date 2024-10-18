@@ -122,7 +122,7 @@ async function getLargeImage(asset: LanyardTypes.Assets | null, application_id?:
                 .catch(e => e)
         ).status !== 200
     ) {
-        return "https://lanyard.kyrie25.me/assets/unknown.png";
+        return "https://lanyard.kyrie25.dev/assets/unknown.png";
     }
 
     return `https://cdn.discordapp.com/app-icons/${application_id}/${data.data.avatar}.webp`;
@@ -710,7 +710,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                     `
                                             : `
                                     <img src="data:image/png;base64,${await encodeBase64(
-                                        `https://lanyard.kyrie25.me/assets/unknown.png`,
+                                        `https://lanyard.kyrie25.dev/assets/unknown.png`,
                                     )}" style="
                                         width: 70px;
                                         height: 70px;
@@ -928,7 +928,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                         const album = await encodeBase64(data.spotify.album_art_url);
                         if (album)
                             return `data:image/png;base64,${album}" style="border: solid 0.5px #${waveSpotifyColor};`;
-                        return 'https://lanyard.kyrie25.me/assets/unknown.png" style="filter: invert(100);';
+                        return 'https://lanyard.kyrie25.dev/assets/unknown.png" style="filter: invert(100);';
                     })()}
                         width: 80px;
                         height: 80px;

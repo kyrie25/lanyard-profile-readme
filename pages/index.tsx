@@ -14,7 +14,7 @@ export default function Home({ userCount }: { userCount: number }) {
 
     const copy = () => {
         navigator.clipboard.writeText(
-            `[![Discord Presence](https://lanyard.kyrie25.me/api/${userId})](https://discord.com/users/${userId})`,
+            `[![Discord Presence](https://lanyard.kyrie25.dev/api/${userId})](https://discord.com/users/${userId})`,
         );
         setCopyState("Copied!");
 
@@ -63,7 +63,7 @@ export default function Home({ userCount }: { userCount: number }) {
                     {userId ? (
                         <>
                             <Output>
-                                [![Discord Presence](https://lanyard.kyrie25.me/api/{userId}
+                                [![Discord Presence](https://lanyard.kyrie25.dev/api/{userId}
                                 )](https://discord.com/users/{userId})
                             </Output>
                             <ActionButton onClick={copy}>{copyState}</ActionButton>
@@ -100,7 +100,7 @@ export default function Home({ userCount }: { userCount: number }) {
 
 export async function getServerSideProps(ctx: any) {
     let userCount = await axios
-        .get("https://lanyard.kyrie25.me/api/getUserCount", { timeout: 1000 })
+        .get("https://lanyard.kyrie25.dev/api/getUserCount", { timeout: 1000 })
         .then(res => res.data.count)
         .catch(() => 1000);
 
