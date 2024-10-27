@@ -15,9 +15,13 @@ Credit to [@NYRI4](https://github.com/NYRI4) for the wave asset and original ani
 
 ```url
 https://lanyard.kyrie25.dev/api/368399721494216706
+https://lanyard.kyrie25.dev/api/368399721494216706?theme=light
 ```
 
-![img](https://lanyard.kyrie25.dev/api/368399721494216706)
+<div>
+    <img src="https://lanyard.kyrie25.dev/api/368399721494216706" />
+    <img src="https://lanyard.kyrie25.dev/api/368399721494216706?theme=light#" />
+</div>
 
 ## Options
 
