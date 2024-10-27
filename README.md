@@ -19,8 +19,9 @@ https://lanyard.kyrie25.dev/api/368399721494216706?theme=light
 ```
 
 <div>
-    <img src="https://lanyard.kyrie25.dev/api/368399721494216706" />
-    <img src="https://lanyard.kyrie25.dev/api/368399721494216706?theme=light#" />
+    <img src=https://github.com/user-attachments/assets/b695b87a-2462-4b48-a619-3c0bff84f6cc />
+    <img src=https://github.com/user-attachments/assets/e413b2f0-051a-4be1-bbe0-08e303550d22 />
+
 </div>
 
 ## Options
