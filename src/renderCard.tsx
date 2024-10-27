@@ -768,7 +768,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                                         margin: 7px 0;
                                     ">${
                                         getPrefixActivityString(activity)
-                                            ? `<span style="font-weight: normal;color: #ccc">
+                                            ? `<span style="font-weight: normal;color: ${theme === "dark" ? "#ccc" : "#777"};">
                                                 ${getPrefixActivityString(activity) + " "}
                                             </span>`
                                             : ""
