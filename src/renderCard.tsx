@@ -229,7 +229,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     if (params.hideClan === "true" || !data.discord_user.clan) hideClan = "true";
     if (params.decoration === "false") decoration = "false";
     if (params.theme === "light") {
-        backgroundColor = "#eee";
+        backgroundColor = "eeeeee";
         theme = "light";
         activityTheme = "light";
         spotifyTheme = "light";
