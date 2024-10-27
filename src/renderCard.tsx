@@ -233,6 +233,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
         theme = "light";
         activityTheme = "light";
         spotifyTheme = "light";
+        waveColor = "FFD1DC";
     }
     if (params.bg) backgroundColor = params.bg;
     let clanBackgroundColor = theme === "light" ? "f0f0f0" : "333";
