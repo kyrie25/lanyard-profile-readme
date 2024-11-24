@@ -320,7 +320,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                 data.discord_user.discriminator === "0"
                     ? Number(BigInt(data.discord_user.id) >> BigInt(22)) % 6
                     : Number(data.discord_user.discriminator) % 5
-            }.webp`,
+            }.png`,
         );
     }
 
