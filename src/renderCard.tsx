@@ -76,7 +76,7 @@ const getColorFilter = (hex: string) => {
 };
 
 // Get the blended color value between two colors with 10 midpoints
-const getBlendedFilter = (color1: string, color2: string, theme: string) => {
+const getBlendedColor = (color1: string, color2: string, theme: string) => {
     if (color1 === "transparent" || color2 === "transparent") return "brightness(0) saturate(100%)";
 
     const rgb1 = hexToRgb(color1);
@@ -94,10 +94,8 @@ const getBlendedFilter = (color1: string, color2: string, theme: string) => {
     const avgG = calculateBlend(rgb1[1], rgb2[1]);
     const avgB = calculateBlend(rgb1[2], rgb2[2]);
 
-    const color = new Color(avgR, avgG, avgB);
-    const solver = new Solver(color);
-    const result = solver.solve();
-    return result.filter;
+    // Convert to hex
+    return `${((1 << 24) + (avgR << 16) + (avgG << 8) + avgB).toString(16).slice(1)}`;
 };
 
 async function getLargeImage(asset: LanyardTypes.Assets | null, application_id?: string): Promise<string> {
@@ -389,8 +387,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
     // Take the highest one
     activity = Array.isArray(activities) ? activities[0] : activities;
 
-    return minify(
-        `
+    return `
             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml" width="400px" height="${
                 hideProfile === "true" ? "120px" : "200px"
             }">
@@ -654,31 +651,37 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                             <div style="position: relative; width: 100%; height: 21px;${waveColor === "transparent" ? "opacity: 0;" : ""}">
                                 <div style="
                                     position: absolute;
-                                    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIxIiB2aWV3Qm94PSIwIDAgMzYwIDIxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMCAyMC43MzI3VjcuNTgxN0MwIDcuNTgxNyA0Ny41MzEyIC0xLjQ2OTMyIDEwNi43MzQgMS4yMzgyNEMxNjkuMzEyIDIuMzk4NjMgMTkxLjY3MiAxMy42NTA4IDI3MS45NjkgMTQuNTQ0QzMyNS44MjggMTQuNTQ0IDM2MCA3LjczNjQyIDM2MCA3LjczNjQyVjIwLjczMjdIMFoiIGZpbGw9IiMxRTIyMzMiLz4KPC9zdmc+Cg==);
+                                    background: url(data:image/svg+xml;base64,${await encodeBase64(
+                                        minify(
+                                            `<svg width="360" height="21" viewBox="0 0 360 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M0 20.7327V7.5817C0 7.5817 47.5312 -1.46932 106.734 1.23824C169.312 2.39863 191.672 13.6508 271.969 14.544C325.828 14.544 360 7.73642 360 7.73642V20.7327H0Z" fill="#${waveColor}"/>
+                                            </svg>`,
+                                        ),
+                                    )});
                                     -webkit-animation: wave ${animationDuration} linear infinite;
                                     animation: wave ${animationDuration} linear infinite;
                                     -webkit-animation-delay: 0s;
                                     animation-delay: 0s;
                                     width: 100%;
                                     height: 21px;
-                                    z-index: 1;
-                                    filter: brightness(0) saturate(100%) ${getColorFilter(waveColor)}"
-                                ></div>
+                                    z-index: 1;"
+                                />
                                 <div style="
                                     position: absolute;
-                                    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIxIiB2aWV3Qm94PSIwIDAgMzYwIDIxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMCAyMC43MzI3VjcuNTgxN0MwIDcuNTgxNyA0Ny41MzEyIC0xLjQ2OTMyIDEwNi43MzQgMS4yMzgyNEMxNjkuMzEyIDIuMzk4NjMgMTkxLjY3MiAxMy42NTA4IDI3MS45NjkgMTQuNTQ0QzMyNS44MjggMTQuNTQ0IDM2MCA3LjczNjQyIDM2MCA3LjczNjQyVjIwLjczMjdIMFoiIGZpbGw9IiMxRTIyMzMiLz4KPC9zdmc+Cg==);
+                                    background: url(data:image/svg+xml;base64,${await encodeBase64(
+                                        minify(
+                                            `<svg width="360" height="21" viewBox="0 0 360 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M0 20.7327V7.5817C0 7.5817 47.5312 -1.46932 106.734 1.23824C169.312 2.39863 191.672 13.6508 271.969 14.544C325.828 14.544 360 7.73642 360 7.73642V20.7327H0Z" fill="#${getBlendedColor(waveColor, backgroundColor, activityTheme)}"/>
+                                            </svg>`,
+                                        ),
+                                    )});
                                     -webkit-animation: wave-reverse ${animationDuration} linear infinite;
                                     animation: wave-reverse ${animationDuration} linear infinite;
                                     -webkit-animation-delay: 0s;
                                     animation-delay: 0s;
                                     width: 100%;
-                                    height: 21px;
-                                    filter: brightness(0) saturate(100%) ${getBlendedFilter(
-                                        waveColor,
-                                        backgroundColor,
-                                        theme,
-                                    )}"
-                                ></div>
+                                    height: 21px;"
+                                />
                             </div>
                             <div style="
                                 display: flex;
@@ -889,31 +892,37 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                 <div style="position: relative; width: 100%; height: 21px;${waveSpotifyColor === "transparent" ? "opacity: 0;" : ""}">
                     <div style="
                         position: absolute;
-                        background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIxIiB2aWV3Qm94PSIwIDAgMzYwIDIxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMCAyMC43MzI3VjcuNTgxN0MwIDcuNTgxNyA0Ny41MzEyIC0xLjQ2OTMyIDEwNi43MzQgMS4yMzgyNEMxNjkuMzEyIDIuMzk4NjMgMTkxLjY3MiAxMy42NTA4IDI3MS45NjkgMTQuNTQ0QzMyNS44MjggMTQuNTQ0IDM2MCA3LjczNjQyIDM2MCA3LjczNjQyVjIwLjczMjdIMFoiIGZpbGw9IiMxRTIyMzMiLz4KPC9zdmc+Cg==);
+                        background: url(data:image/svg+xml;base64,${await encodeBase64(
+                            minify(
+                                `<svg width="360" height="21" viewBox="0 0 360 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M0 20.7327V7.5817C0 7.5817 47.5312 -1.46932 106.734 1.23824C169.312 2.39863 191.672 13.6508 271.969 14.544C325.828 14.544 360 7.73642 360 7.73642V20.7327H0Z" fill="#${waveSpotifyColor}"/>
+                                </svg>`,
+                            ),
+                        )});
                         -webkit-animation: wave ${animationDuration} linear infinite;
                         animation: wave ${animationDuration} linear infinite;
                         -webkit-animation-delay: 0s;
                         animation-delay: 0s;
                         width: 100%;
                         height: 21px;
-                        z-index: 1;
-                        filter: brightness(0) saturate(100%) ${getColorFilter(waveSpotifyColor)}"
-                    ></div>
+                        z-index: 1;"
+                    />
                     <div style="
                         position: absolute;
-                        background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIxIiB2aWV3Qm94PSIwIDAgMzYwIDIxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMCAyMC43MzI3VjcuNTgxN0MwIDcuNTgxNyA0Ny41MzEyIC0xLjQ2OTMyIDEwNi43MzQgMS4yMzgyNEMxNjkuMzEyIDIuMzk4NjMgMTkxLjY3MiAxMy42NTA4IDI3MS45NjkgMTQuNTQ0QzMyNS44MjggMTQuNTQ0IDM2MCA3LjczNjQyIDM2MCA3LjczNjQyVjIwLjczMjdIMFoiIGZpbGw9IiMxRTIyMzMiLz4KPC9zdmc+Cg==);
+                        background: url(data:image/svg+xml;base64,${await encodeBase64(
+                            minify(
+                                `<svg width="360" height="21" viewBox="0 0 360 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M0 20.7327V7.5817C0 7.5817 47.5312 -1.46932 106.734 1.23824C169.312 2.39863 191.672 13.6508 271.969 14.544C325.828 14.544 360 7.73642 360 7.73642V20.7327H0Z" fill="#${getBlendedColor(waveSpotifyColor, backgroundColor, spotifyTheme)}"/>
+                                </svg>`,
+                            ),
+                        )});
                         -webkit-animation: wave-reverse ${animationDuration} linear infinite;
                         animation: wave-reverse ${animationDuration} linear infinite;
                         -webkit-animation-delay: 0s;
                         animation-delay: 0s;
                         width: 100%;
-                        height: 21px;
-                        filter: brightness(0) saturate(100%) ${getBlendedFilter(
-                            waveSpotifyColor,
-                            backgroundColor,
-                            theme,
-                        )}"
-                    ></div>
+                        height: 21px;"
+                    />
                 </div>
                 <div style="
                     display: flex;
@@ -970,7 +979,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                             font-size: 0.85rem;
                             text-overflow: ellipsis;
                             color: ${spotifyTheme === "dark" ? "#ccc" : "#777"};
-                        ">By ${escape(data.spotify.artist)}</p>
+                        ">${escape(data.spotify.artist)}</p>
                         ${
                             hideTimestamp !== "true"
                                 ? `
@@ -1047,10 +1056,7 @@ const renderCard = async (body: LanyardTypes.Root, params: Parameters): Promise<
                     </div>
                 </foreignObject>
             </svg>
-        `
-            .trim()
-            .replace(/\n/g, ""),
-    );
+        `;
 };
 
 export default renderCard;
