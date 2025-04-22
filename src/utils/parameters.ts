@@ -177,7 +177,8 @@ export const PARAMETER_INFO: IParameterInfo = [
     parameter: "showBanner",
     type: "list",
     title: "Banner Type",
-    description: "Change your profile banner style",
+    description:
+      "Change your profile banner style.\n\nNote: This will dramatically increase the size of the image. If your image exceeds 5MB, it will not be served.",
     options: {
       list: [
         {
