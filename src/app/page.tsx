@@ -39,6 +39,10 @@ export default function Home() {
     validOptions.length > 0
       ? `?${validOptions
           .filter(option => options[option] !== undefined && options[option] !== null && options[option] !== "")
+          .filter(option => {
+            const paramInfo = PARAMETER_INFO.find(p => p.parameter === option);
+            return !paramInfo?.displayCondition || paramInfo.displayCondition(options);
+          })
           .map(option => `${option}=${options[option]}`)
           .join("&")}`
       : ""
@@ -186,7 +190,7 @@ export default function Home() {
           >
             <div className="grid-rows-auto mb-4 flex w-full flex-col gap-2.5 sm:grid sm:grid-cols-2">
               {PARAMETER_INFO.filter(item => item.type !== "boolean")
-                .filter(item => (item.displayCondition ? item.displayCondition(options) : true))
+                .filter(item => !item.displayCondition || item.displayCondition(options))
                 .map(item => {
                   return (
                     <div key={item.parameter} className="flex flex-col gap-1.5">
@@ -251,16 +255,17 @@ export default function Home() {
                             }
                             className={cn(
                               "relative h-8 w-full appearance-none rounded-md border border-white/10 bg-black px-2 py-0.5 text-sm transition-all duration-150 ease-out outline-none placeholder:text-white/30 focus:border-white/50 disabled:cursor-not-allowed disabled:opacity-50",
-                              // {
-                              //   "text-white/30": !options[item.parameter] || options[item.parameter] === "",
-                              // },
+                              {
+                                "text-white/30 placeholder:text-white/30 hover:text-white focus:text-white":
+                                  !options[item.parameter] || options[item.parameter] === "",
+                              },
                             )}
                           >
-                            <option value="" className="bg-background">
+                            <option value="" className="bg-black text-white">
                               None
                             </option>
                             {item.options.list.map(option => (
-                              <option value={option.value} key={option.value} className="bg-background">
+                              <option value={option.value} key={option.value} className="bg-black text-white">
                                 {option.name}
                               </option>
                             ))}
@@ -279,7 +284,7 @@ export default function Home() {
             {/* Separated for easier styling/readability */}
             <div className="sm:grid-rows-auto flex flex-col gap-2 sm:grid sm:grid-cols-2">
               {PARAMETER_INFO.filter(item => item.type === "boolean")
-                .filter(item => (item.displayCondition ? item.displayCondition(options) : true))
+                .filter(item => !item.displayCondition || item.displayCondition(options))
                 .map(item => {
                   return (
                     <div key={item.parameter} className="flex flex-row items-start gap-2.5 text-sm">

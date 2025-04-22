@@ -79,6 +79,9 @@ export const PARAMETER_INFO: IParameterInfo = [
       placeholder: "F1099A-B742B1-7754B1-3E589D-20537C-2A4858",
       omit: ["#"],
     },
+    displayCondition(options) {
+      return options.hideProfile !== "true";
+    },
   },
   {
     parameter: "waveColor",
@@ -90,6 +93,9 @@ export const PARAMETER_INFO: IParameterInfo = [
       placeholder: "7289DA",
       omit: ["#"],
     },
+    displayCondition(options) {
+      return options.hideActivity !== "true";
+    },
   },
   {
     parameter: "waveSpotifyColor",
@@ -99,6 +105,9 @@ export const PARAMETER_INFO: IParameterInfo = [
     options: {
       placeholder: "1DB954",
       omit: ["#"],
+    },
+    displayCondition(options) {
+      return options.hideActivity !== "true" && options.hideSpotify !== "true";
     },
   },
   {

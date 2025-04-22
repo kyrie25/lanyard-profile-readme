@@ -396,7 +396,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
   const svgHeight = (): string => {
     if (hideProfile) return "130";
     if (hideActivity === "true") return "80";
-    if (hideActivity === "whenNotUsed" && !activity && !data.listening_to_spotify) return "91";
+    if (hideActivity === "whenNotUsed" && !activity && !data.listening_to_spotify) return "80";
     if (hideSpotify && data.listening_to_spotify) return "200";
     return "200";
   };
@@ -405,7 +405,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
   const divHeight = (): string => {
     if (hideProfile) return "120";
     if (hideActivity === "true") return "80";
-    if (hideActivity === "whenNotUsed" && !activity && !data.listening_to_spotify) return "81";
+    if (hideActivity === "whenNotUsed" && !activity && !data.listening_to_spotify) return "80";
     if (hideSpotify && data.listening_to_spotify) return "200";
     return "200";
   };
