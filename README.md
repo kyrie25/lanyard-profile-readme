@@ -4,10 +4,10 @@ Pretty much the same as [upstream repo](https://github.com/cnrad/lanyard-profile
 
 Some niche features are also added:
 
--   [Banners are supported!](#banners)
--   `Time Left` are supported and displayed over `Elapsed Time` whenever possible.
--   Show large image of activities with only application icons. (e.g. CS2, BG3, Genshin, WuWa, etc.)
--   Allows displaying special activities.
+- [Banners are supported!](#banners)
+- `Time Left` are supported and displayed over `Elapsed Time` whenever possible.
+- Show large image of activities with only application icons. (e.g. CS2, BG3, Genshin, WuWa, etc.)
+- Allows displaying special activities.
 
 Please do consider giving this fork a star 🌟 if you liked it, it means a lot :)
 
@@ -21,7 +21,6 @@ https://lanyard.kyrie25.dev/api/368399721494216706?theme=light
 <div>
     <img src=https://github.com/user-attachments/assets/b695b87a-2462-4b48-a619-3c0bff84f6cc />
     <img src=https://github.com/user-attachments/assets/e413b2f0-051a-4be1-bbe0-08e303550d22 />
-
 </div>
 
 ## Options
@@ -30,8 +29,8 @@ https://lanyard.kyrie25.dev/api/368399721494216706?theme=light
 
 ### Banners
 
--   Banners are supported and can be enabled
--   Banner from USRBG **are supported**, and Nitro banners are prioritized over USRBG banners.
+- Banners are supported and can be enabled
+- Banner from USRBG **are supported**, and Nitro banners are prioritized over USRBG banners.
 
 ```url
 https://lanyard.kyrie25.dev/api/368399721494216706?showBanner=true
@@ -71,28 +70,11 @@ Experiment with it and see if it fits your needs!
 
 ### Avatar Decoration
 
--   Avatar decorations are supported!
--   Avatar decorations from Decor **are supported**, and Nitro decorations are prioritized over Decor decorations.
-
-![decoration](https://github.com/user-attachments/assets/a97b1304-1563-409b-a214-1a73a6f456ae)
-
-If you wish to disable it (because the round decoration on square image look weird perhaps?), you can use `decoration=false`:
-
-```url
-https://lanyard.kyrie25.dev/api/368399721494216706?decoration=false
-```
-
--   You can choose to use your display name instead of username using `useDisplayName=true`:
-
-```url
-https://lanyard.kyrie25.dev/api/368399721494216706?useDisplayName=true
-```
-
-![display-name](https://github.com/user-attachments/assets/e2cb3d50-4885-46b0-9176-774dc43e2445)
+- Avatar decorations from Decor **are supported**, and Nitro decorations are prioritized over Decor decorations.
 
 ### Activity Customizations
 
--   Use `animationDuration` to customize the speed of the wave animation (`0s` to disable)
+- Use `animationDuration` to customize the speed of the wave animation (`0s` to disable)
 
 ```url
 https://lanyard.kyrie25.dev/api/368399721494216706?animationDuration=4s
@@ -100,7 +82,7 @@ https://lanyard.kyrie25.dev/api/368399721494216706?animationDuration=4s
 
 ![duration_showcase](https://github.com/user-attachments/assets/d224e42d-ba04-490e-b3b0-656b4a27b4b0)
 
--   Define activity color using `waveColor` and `waveSpotifyColor`
+- Define activity color using `waveColor` and `waveSpotifyColor`
 
 ```url
 https://lanyard.kyrie25.dev/api/368399721494216706?waveColor=FF597B&waveSpotifyColor=FF597B
@@ -113,7 +95,7 @@ https://lanyard.kyrie25.dev/api/368399721494216706?waveColor=FF597B&waveSpotifyC
 You can also change the color of the text by specifying theme following the hex color code. \
 E.g. `waveColor=FF597B-light` will make the text darker.
 
--   Use custom gradient colors for your user name using `gradient`
+- Use custom gradient colors for your user name using `gradient`
 
 ```url
 https://lanyard.kyrie25.dev/api/368399721494216706?gradient=645CBB-A084DC-BFACE2-EBC7E6
@@ -121,13 +103,13 @@ https://lanyard.kyrie25.dev/api/368399721494216706?gradient=645CBB-A084DC-BFACE2
 
 ![gradient showcase](https://user-images.githubusercontent.com/77577746/223083367-828a7aba-dc1f-430d-89cf-a361c970e1cd.svg)
 
--   Change your profile picture/images style using `imgStyle` and `imgBorderRadius`
-    -   `imgStyle`: Defines style for your profile picture and activity small image.
-        -   Default: `circle`
-        -   Accepts: `circle`, `square`
-    -   `imgBorderRadius`: Define border radius for your profile picture, status indicator, and activity images.
-        -   Profile picture and activity small image unaffected if `imgStyle` is not `square` because, well, circle lol.
-        -   Default: `10px`
+- Change your profile picture/images style using `imgStyle` and `imgBorderRadius`
+  - `imgStyle`: Defines style for your profile picture and activity small image.
+    - Default: `circle`
+    - Accepts: `circle`, `square`
+  - `imgBorderRadius`: Define border radius for your profile picture, status indicator, and activity images.
+    - Profile picture and activity small image unaffected if `imgStyle` is not `square` because, well, circle lol.
+    - Default: `10px`
 
 ```url
 https://lanyard.kyrie25.dev/api/368399721494216706?imgStyle=square
