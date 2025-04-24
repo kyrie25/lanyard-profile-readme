@@ -111,6 +111,19 @@ export const PARAMETER_INFO: IParameterInfo = [
     },
   },
   {
+    parameter: "clanbg",
+    type: "string",
+    title: "Clan Background Color",
+    description: "Changes the background color of the clan tag to a hex color (no octothorpe). Can be set to 'transparent'.",
+    options: {
+      placeholder: "3F444F",
+      omit: ["#"],
+    },
+    displayCondition(options) {
+      return options.hideClan !== "true";
+    },
+  },
+  {
     parameter: "borderRadius",
     type: "string",
     title: "Border Radius",

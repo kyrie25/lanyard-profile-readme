@@ -228,7 +228,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
     waveColor = "FFD1DC";
   }
   if (params.bg) backgroundColor = params.bg;
-  let clanBackgroundColor: string = theme === "light" ? "#e0dede" : "#111214";
+  let clanBackgroundColor: string = theme === "light" ? "e0dede" : "3f444f";
   if (params.clanbg) clanBackgroundColor = params.clanbg;
   if (params.idleMessage) idleMessage = params.idleMessage;
   if (params.borderRadius) borderRadius = params.borderRadius;
@@ -631,7 +631,8 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                     {hideClan || (!data.discord_user.clan?.tag && !data.discord_user.clan?.badge) ? null : (
                       <span
                         style={{
-                          backgroundColor: `#${clanBackgroundColor}`,
+                          backgroundColor:
+                            clanBackgroundColor === "transparent" ? clanBackgroundColor : `#${clanBackgroundColor}`,
                           borderRadius: "0.375rem",
                           paddingLeft: "0.5rem",
                           paddingRight: "0.5rem",
