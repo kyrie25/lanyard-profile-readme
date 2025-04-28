@@ -449,14 +449,6 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
               100% {
                   background-position-x: 0;
               }
-          }
-          .hover-opacity:hover {
-              opacity: 0.25;
-          }
-          .transition {
-              transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
-              transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-              transition-duration: 200ms;
           }`}
         </style>
       </defs>
@@ -593,68 +585,75 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                   <div
                     style={{
                       display: "flex",
-                      flexDirection: "row",
+                      flexDirection: !userStatus || hideStatus ? "column" : "row",
                       height: "1.5rem",
                       gap: "5px",
                     }}
                   >
-                    <h1
+                    <div
                       style={{
-                        fontSize: "1.15rem",
-                        margin: "0 12px 0 0",
-                        whiteSpace: "nowrap",
+                        display: "flex",
+                        flexDirection: "row",
+                        height: "100%",
                       }}
                     >
-                      <span
+                      <h1
                         style={{
-                          backgroundImage: `linear-gradient(60deg, ${gradient})`,
-                          backgroundSize: "300%",
-                          WebkitBackgroundClip: "text",
-                          WebkitTextFillColor: "transparent",
+                          fontSize: "1.15rem",
+                          margin: "0 12px 0 0",
+                          whiteSpace: "nowrap",
                         }}
                       >
-                        {data.discord_user.username}
-                      </span>
-
-                      {!hideDiscrim && !showDisplayName ? (
                         <span
                           style={{
-                            color: theme === "dark" ? "#ccc" : "#666",
-                            fontWeight: "lighter",
+                            backgroundImage: `linear-gradient(60deg, ${gradient})`,
+                            backgroundSize: "300%",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
                           }}
                         >
-                          #{data.discord_user.discriminator}
+                          {data.discord_user.username}
                         </span>
-                      ) : null}
-                    </h1>
 
-                    {hideClan || (!data.discord_user.clan?.tag && !data.discord_user.clan?.badge) ? null : (
-                      <span
-                        style={{
-                          backgroundColor:
-                            clanBackgroundColor === "transparent" ? clanBackgroundColor : `#${clanBackgroundColor}`,
-                          borderRadius: "0.375rem",
-                          paddingLeft: "0.5rem",
-                          paddingRight: "0.5rem",
-                          marginLeft: "-6px",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "0.25rem",
-                          fontSize: "16px",
-                          fontWeight: 500,
-                          height: "100%",
-                        }}
-                      >
-                        <img src={`data:image/png;base64,${clanBadge!}`} alt="Clan Badge" />
-                        <p style={{ marginBottom: "1.1rem" }}>{data.discord_user.clan!.tag}</p>
-                      </span>
-                    )}
+                        {!hideDiscrim && !showDisplayName ? (
+                          <span
+                            style={{
+                              color: theme === "dark" ? "#ccc" : "#666",
+                              fontWeight: "lighter",
+                            }}
+                          >
+                            #{data.discord_user.discriminator}
+                          </span>
+                        ) : null}
+                      </h1>
+
+                      {hideClan || (!data.discord_user.clan?.tag && !data.discord_user.clan?.badge) ? null : (
+                        <span
+                          style={{
+                            backgroundColor:
+                              clanBackgroundColor === "transparent" ? clanBackgroundColor : `#${clanBackgroundColor}`,
+                            borderRadius: "0.375rem",
+                            paddingLeft: "0.5rem",
+                            paddingRight: "0.5rem",
+                            marginLeft: "-6px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.25rem",
+                            fontSize: "16px",
+                            fontWeight: 500,
+                            height: "100%",
+                          }}
+                        >
+                          <img src={`data:image/png;base64,${clanBadge!}`} alt="Clan Badge" />
+                          <p style={{ marginBottom: "1.1rem" }}>{data.discord_user.clan!.tag}</p>
+                        </span>
+                      )}
+                    </div>
 
                     {!!hideBadges ? null : (
                       <div
                         style={{
                           display: "flex",
-                          ...(userStatus && !hideStatus ? {} : { marginTop: "5px" }),
                         }}
                       >
                         {flags.map(v => (
