@@ -4,18 +4,37 @@ class Color {
   g!: number;
   b!: number;
 
-  constructor(r: number, g: number, b: number) {
-    this.set(r, g, b);
+  constructor(r: number | string, g?: number, b?: number) {
+    if (typeof r === "string") {
+      this.setFromHex(r);
+    } else if (!!r && !!g && !!b) {
+      this.set(r, g, b);
+    } else {
+      throw new Error("Invalid arguments: expected (r: number, g: number, b: number) or (hex: string)");
+    }
   }
 
-  toString() {
-    return `rgb(${Math.round(this.r)}, ${Math.round(this.g)}, ${Math.round(this.b)})`;
+  toString(opacity = 1) {
+    return `rgba(${Math.round(this.r)}, ${Math.round(this.g)}, ${Math.round(this.b)}, ${opacity})`;
   }
 
-  set(r: any, g: any, b: any) {
+  toHex() {
+    return `#${((1 << 24) + (this.r << 16) + (this.g << 8) + this.b).toString(16).slice(1)}`.toUpperCase();
+  }
+
+  set(r: number, g: number, b: number) {
     this.r = this.clamp(r);
     this.g = this.clamp(g);
     this.b = this.clamp(b);
+  }
+
+  setFromHex(hex: string) {
+    const rgb = hexToRgb(hex);
+    if (rgb) {
+      this.set(rgb[0], rgb[1], rgb[2]);
+    } else {
+      throw new Error(`Invalid hex color: ${hex}`);
+    }
   }
 
   hueRotate(angle = 0) {

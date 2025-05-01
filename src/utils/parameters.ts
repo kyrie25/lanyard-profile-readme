@@ -63,7 +63,8 @@ export const PARAMETER_INFO: IParameterInfo = [
     parameter: "bg",
     type: "string",
     title: "Background Color",
-    description: "Changes the background color to a hex color (no octothorpe). Can be set to 'transparent'.",
+    description:
+      "Changes the background color to a hex color (no octothorpe). Can be set to 'transparent'. Nameplate will respect transparency.",
     options: {
       placeholder: "101320",
       omit: ["#"],
@@ -114,7 +115,8 @@ export const PARAMETER_INFO: IParameterInfo = [
     parameter: "clanbg",
     type: "string",
     title: "Clan Background Color",
-    description: "Changes the background color of the clan tag to a hex color (no octothorpe). Can be set to 'transparent'.",
+    description:
+      "Changes the background color of the clan tag to a hex color (no octothorpe). Can be set to 'transparent'.",
     options: {
       placeholder: "3F444F",
       omit: ["#"],
@@ -244,10 +246,10 @@ export const PARAMETER_INFO: IParameterInfo = [
   {
     parameter: "animatedDecoration",
     type: "boolean",
-    title: "Disable Animated Avatar Decoration",
-    description: "Disables animated avatar decorations.",
+    title: "Enable Animated Avatar Decoration",
+    description: "Enables animated avatar decorations.",
     options: {
-      defaultBool: true,
+      defaultBool: false,
     },
   },
   {
@@ -255,6 +257,15 @@ export const PARAMETER_INFO: IParameterInfo = [
     type: "boolean",
     title: "Hide Avatar Decoration",
     description: "Hides any avatar decorations.",
+  },
+  {
+    parameter: "hideNameplate",
+    type: "boolean",
+    title: "Hide Nameplate",
+    description: "Hides the nameplate.",
+    displayCondition: (options: Record<string, any>) => {
+      return options.hideProfile !== "true";
+    },
   },
   {
     parameter: "hideStatus",

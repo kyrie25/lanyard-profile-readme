@@ -1,11 +1,11 @@
 "use server";
 
 import { Badges } from "#/public/assets/badges/BadgesEncoded";
-import { getFlags, renderToStaticMarkup } from "@/utils/helpers";
+import { getFlags, nameplates, renderToStaticMarkup } from "@/utils/helpers";
 import * as LanyardTypes from "@/utils/LanyardTypes";
 import { encodeBase64 } from "@/utils/toBase64";
 import { DetailedHTMLProps, HTMLAttributes } from "react";
-import { hexToRgb } from "./color";
+import { Color, hexToRgb } from "./color";
 import * as Icons from "react-icons/si";
 import redis from "./redis";
 
@@ -15,6 +15,7 @@ export type Parameters = {
   clanbg?: string;
   animated?: string;
   animatedDecoration?: string;
+  hideNameplate?: string;
   hideDiscrim?: string;
   hideStatus?: string;
   hideTimestamp?: string;
@@ -76,14 +77,14 @@ const formatTime = (timestamps: LanyardTypes.Timestamps2) => {
   return `${getFormatFromMs(difference)} ${end ? "left" : "elapsed"}`;
 };
 
-const getBlendedColor = (color1: string, color2: string, theme: string) => {
+const getBlendedColor = (color1: string, color2: string, theme: string, opacity = 1) => {
   if (color1 === "transparent") return "transparent";
   if (color2 === "transparent") color2 = "#fff";
 
   const rgb1 = hexToRgb(color1);
   const rgb2 = hexToRgb(color2);
   const midpoint = theme === "dark" ? 3 : 8;
-  if (rgb1?.length !== 3 || rgb2?.length !== 3) return;
+  if (rgb1?.length !== 3 || rgb2?.length !== 3) return "#fff";
 
   const calculateBlend = (a: number, b: number) => {
     const baseColor = a < b ? a : b;
@@ -95,8 +96,7 @@ const getBlendedColor = (color1: string, color2: string, theme: string) => {
   const avgG = calculateBlend(rgb1[1], rgb2[1]);
   const avgB = calculateBlend(rgb1[2], rgb2[2]);
 
-  // Convert to hex
-  return `${((1 << 24) + (avgR << 16) + (avgG << 8) + avgB).toString(16).slice(1)}`;
+  return new Color(avgR, avgG, avgB).toString(opacity);
 };
 
 function getActivityIcon(activity: LanyardTypes.Activity | string, theme: string) {
@@ -210,6 +210,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
   let hideDiscrim = parseBool(params.hideDiscrim);
   let showDisplayName = parseBool(params.showDisplayName) || parseBool(params.useDisplayName);
   let showBanner = parseBool(params.showBanner) || params.showBanner === "animated";
+  let hideNameplate = parseBool(params.hideNameplate);
 
   if (data.activities[0]?.emoji?.animated && !params.optimized) statusExtension = "gif";
   if (data.discord_user.avatar && data.discord_user.avatar.startsWith("a_") && !params.optimized)
@@ -352,6 +353,28 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
         );
       }
     }
+  }
+
+  let nameplateHex: string | undefined = undefined;
+  let nameplateBg: string | undefined = undefined;
+  let nameplateAsset: string | undefined = undefined;
+  const userNameplate = data.discord_user.collectibles?.nameplate;
+  if (!hideNameplate && !hideProfile && userNameplate && nameplates[userNameplate.palette]) {
+    const hex =
+      theme === "dark"
+        ? nameplates[userNameplate.palette].darkBackground
+        : nameplates[userNameplate.palette].lightBackground;
+    const color = new Color(hex);
+    nameplateHex = backgroundColor === "transparent" ? undefined : hex;
+    nameplateBg =
+      backgroundColor === "transparent"
+        ? undefined
+        : `linear-gradient(90deg, ${color.toString(0.1)} 0%, ${color.toString(0.4)} 100%)`;
+    nameplateAsset = await encodeBase64(
+      `https://cdn.discordapp.com/assets/collectibles/${userNameplate.asset}static.png`,
+      100,
+      false,
+    );
   }
 
   switch (data.discord_status) {
@@ -505,8 +528,23 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                 inset: 0,
                 display: "flex",
                 flexDirection: "row",
+                background: nameplateBg,
+                position: "relative",
+                borderRadius: hideActivity === "true" ? borderRadius : `${borderRadius} ${borderRadius} 0 0`,
               }}
             >
+              {nameplateAsset ? (
+                <img
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    right: 0,
+                    height: "100%",
+                    borderRadius: hideActivity === "true" ? borderRadius : `${borderRadius} ${borderRadius} 0 0`,
+                  }}
+                  src={`data:image/png;base64,${nameplateAsset}`}
+                />
+              ) : null}
               <div
                 style={{
                   display: "flex",
@@ -725,8 +763,24 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                   width: "100%",
                   height: "21px",
                   ...(waveColor === "transparent" ? { opacity: 0 } : {}),
+                  ...(nameplateBg ? { background: nameplateBg } : {}),
                 }}
               >
+                {nameplateAsset ? (
+                  <img
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                      zIndex: 0,
+                      height: "80px",
+                      objectFit: "cover",
+                      transform: "rotate(180deg) scaleX(-1)",
+                      maskImage: `linear-gradient(to bottom, transparent 0%, #000 100%)`,
+                    }}
+                    src={`data:image/png;base64,${nameplateAsset}`}
+                  />
+                ) : null}
                 <div
                   style={{
                     position: "absolute",
@@ -769,7 +823,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                         >
                           <path
                             d="M0 20.7327V7.5817C0 7.5817 47.5312 -1.46932 106.734 1.23824C169.312 2.39863 191.672 13.6508 271.969 14.544C325.828 14.544 360 7.73642 360 7.73642V20.7327H0Z"
-                            fill={`#${getBlendedColor(waveColor, backgroundColor, activityTheme)}`}
+                            fill={getBlendedColor(waveColor, nameplateHex ?? backgroundColor, activityTheme)}
                           />
                         </svg>,
                       ),
@@ -1012,8 +1066,24 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                   width: "100%",
                   height: "21px",
                   ...(waveSpotifyColor === "transparent" ? { opacity: 0 } : {}),
+                  ...(nameplateBg ? { background: nameplateBg } : {}),
                 }}
               >
+                {nameplateAsset ? (
+                  <img
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                      zIndex: 0,
+                      height: "80px",
+                      objectFit: "cover",
+                      transform: "rotate(180deg) scaleX(-1)",
+                      maskImage: `linear-gradient(to bottom, transparent 0%, #000 100%)`,
+                    }}
+                    src={`data:image/png;base64,${nameplateAsset}`}
+                  />
+                ) : null}
                 <div
                   style={{
                     position: "absolute",
@@ -1056,7 +1126,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                         >
                           <path
                             d="M0 20.7327V7.5817C0 7.5817 47.5312 -1.46932 106.734 1.23824C169.312 2.39863 191.672 13.6508 271.969 14.544C325.828 14.544 360 7.73642 360 7.73642V20.7327H0Z"
-                            fill={`#${getBlendedColor(waveSpotifyColor, backgroundColor, spotifyTheme)}`}
+                            fill={getBlendedColor(waveSpotifyColor, nameplateHex ?? backgroundColor, spotifyTheme)}
                           />
                         </svg>,
                       ),
@@ -1199,13 +1269,32 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
           {!activity && (!data.listening_to_spotify || hideSpotify) && hideActivity === "false" ? (
             <div
               style={{
+                position: "relative",
                 display: "flex",
                 flexDirection: "row",
                 height: "150px",
                 justifyContent: "center",
                 alignItems: "center",
+                background: nameplateBg,
+                overflow: "hidden",
               }}
             >
+              {nameplateAsset ? (
+                <div style={{ position: "absolute", top: -1, right: 0, height: "80px", width: "100%" }}>
+                  <img
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                      height: "80px",
+                      objectFit: "cover",
+                      transform: "rotate(180deg) scaleX(-1)",
+                      maskImage: `linear-gradient(to bottom, transparent 0%, #000 100%)`,
+                    }}
+                    src={`data:image/png;base64,${nameplateAsset}`}
+                  />
+                </div>
+              ) : null}
               <p
                 style={{
                   fontStyle: "italic",
@@ -1213,6 +1302,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                   color: theme === "dark" ? "#aaa" : "#444",
                   height: "auto",
                   textAlign: "center",
+                  zIndex: 1,
                 }}
               >
                 {idleMessage}
