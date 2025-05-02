@@ -552,6 +552,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                   flexDirection: "row",
                   height: "80px",
                   width: "80px",
+                  zIndex: 2,
                 }}
               >
                 {hideDecoration || !data.discord_user.avatar_decoration_data ? null : (
@@ -608,6 +609,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                 style={{
                   height: "80px",
                   width: "260px",
+                  zIndex: 2,
                 }}
               >
                 <div
