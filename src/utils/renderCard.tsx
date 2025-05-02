@@ -120,7 +120,6 @@ function getActivityIcon(activity: LanyardTypes.Activity | string, theme: string
         size={12}
         color={theme === "dark" ? "#fff" : "#000"}
         style={{
-          paddingRight: 4,
           paddingLeft: 2,
           top: 1,
           position: "relative",
@@ -947,8 +946,8 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                         {getPrefixActivityString(activity) + " "}
                       </span>
                     ) : null}
-                    {getActivityIcon(activity, theme)}
-                    {activity.name}
+                    {getActivityIcon(activity, theme)}{" "}
+                    <span style={{ color: spotifyTheme === "dark" ? "#fff" : "#000" }}>{activity.name}</span>
                   </p>
                   {activity.details ? (
                     <p
