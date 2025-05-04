@@ -5,7 +5,8 @@ export const encodeBase64 = async (url: string, size: number, sharpEnabled = tru
 
   try {
     response = await fetch(url, {
-      cache: "no-store",
+      // Since Discord generates different URLs for different images, there's no need to revalidate
+      cache: "force-cache",
     })
       .then(res => res.blob())
       .then(async blob => {
