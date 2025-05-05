@@ -321,7 +321,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
   }
 
   let clanBadge: string | null = null;
-  if (data.discord_user.clan) {
+  if (data.discord_user.clan?.badge) {
     clanBadge = await encodeBase64(
       `https://cdn.discordapp.com/clan-badges/${data.discord_user.clan.identity_guild_id}/${data.discord_user.clan.badge}.png?size=16`,
       16,
@@ -1154,11 +1154,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                 }}
               >
                 <img
-                  src={
-                    data.spotify.album_art_url
-                      ? `data:image/png;base64,${await encodeBase64(data.spotify.album_art_url, 80)}`
-                      : "https://lanyard.kyrie25.dev/assets/unknown.png"
-                  }
+                  src={`data:image/png;base64,${await encodeBase64(data.spotify.album_art_url ?? "https://lanyard.kyrie25.dev/assets/unknown.png", 80)}`}
                   alt="Spotify Album Art"
                   style={{
                     border: `solid 0.5px #${waveSpotifyColor}`,
@@ -1212,7 +1208,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                       color: spotifyTheme === "dark" ? "#ccc" : "#777",
                     }}
                   >
-                    {data.spotify.artist}
+                    {data.spotify.artist ?? data.spotify.album}
                   </p>
                   {!hideTimestamp ? (
                     <div

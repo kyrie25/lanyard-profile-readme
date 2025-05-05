@@ -22,8 +22,8 @@ export const encodeBase64 = async (url: string, size: number, sharpEnabled = tru
 
         return webpBuffer.toString("base64");
       });
-  } catch (e) {
-    console.log(e);
+  } catch (e: any) {
+    console.log(url, e.message);
   }
 
   return response;
