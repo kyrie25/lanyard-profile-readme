@@ -1273,6 +1273,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                 justifyContent: "center",
                 alignItems: "center",
                 background: nameplateBg,
+                borderRadius: `0 0 ${borderRadius} ${borderRadius}`,
                 overflow: "hidden",
               }}
             >
