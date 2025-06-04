@@ -40,6 +40,7 @@ export interface DiscordUser {
   global_name: string;
   display_name: string;
   clan: ClanTag | null;
+  primary_guild: ClanTag | null;
   avatar_decoration_data: AvatarDecoration | null;
   collectibles: Collectibles | null;
 }

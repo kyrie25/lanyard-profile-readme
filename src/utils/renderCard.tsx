@@ -218,6 +218,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
 
   if (!data.discord_user.avatar_decoration_data) hideDecoration = true;
   if (parseBool(params.hideDiscrim) || body.data.discord_user.discriminator === "0") hideDiscrim = true;
+  body.data.discord_user.clan = body.data.discord_user.clan || body.data.discord_user.primary_guild;
   if (!body.data.discord_user.clan) hideClan = true;
 
   if (params.theme === "light") {
