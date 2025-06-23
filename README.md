@@ -1,6 +1,6 @@
 # lanyard-profile-readme
 
-Pretty much the same as [upstream repo](https://github.com/cnrad/lanyard-profile-readme), with custom stylings.
+Pretty much the same as [upstream repo](https://github.com/cnrad/lanyard-profile-readme), with <ins>__opinionated__</ins> custom stylings.
 
 Some niche features are also added:
 
