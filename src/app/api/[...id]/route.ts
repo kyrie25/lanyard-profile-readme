@@ -37,26 +37,57 @@ export async function GET(req: NextRequest, options: { params: Promise<{ id: str
 
   let getUser: any = {};
 
-  getUser.data = await fetch(`https://api.lanyard.rest/v1/users/${userId}`, {
-    cache: "no-store",
-  }).then(async res => {
-    const data = await res.json();
+  // Implement fetch timeout using AbortController
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-    if (!data.success) {
-      getUser.error = data.error;
+  try {
+    getUser.data = await fetch(`https://api.lanyard.rest/v1/users/${userId}`, {
+      cache: "no-store",
+      signal: controller.signal,
+    }).then(async res => {
+      const data = await res.json();
+
+      if (!data.success) {
+        getUser.error = data.error;
+      }
+
+      return data;
+    });
+
+    if (getUser.error) {
+      return Response.json(
+        {
+          data: getUser.error,
+          success: false,
+        },
+        {
+          status: 400,
+        },
+      );
     }
+  } catch (error: any) {
+    if (error.name === "AbortError") {
+      getUser.data = { message: "Lanyard API timed out. Please try again later.", status: "error", code: 504 };
+    } else {
+      getUser.data = {
+        message: "Lanyard API error: " + (error.message || "Unknown error occurred."),
+        status: "error",
+        code: 500,
+      };
+    }
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
-    return data;
-  });
-
-  if (getUser.error) {
+  if (getUser.data?.status === "error") {
     return Response.json(
       {
-        data: getUser.error,
+        data: getUser.data.message || "An error occurred while fetching the user data.",
         success: false,
       },
       {
-        status: 400,
+        status: getUser.data?.code || 500,
       },
     );
   }
