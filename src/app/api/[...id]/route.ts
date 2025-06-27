@@ -40,9 +40,9 @@ export async function GET(req: NextRequest, options: { params: Promise<{ id: str
   // Implement fetch timeout using AbortController
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
-
+  const url = `https://api.lanyard.rest/v1/users/${userId}`;
   try {
-    getUser.data = await fetch(`https://api.lanyard.rest/v1/users/${userId}`, {
+    getUser.data = await fetch(url, {
       cache: "no-store",
       signal: controller.signal,
     }).then(async res => {
@@ -83,7 +83,9 @@ export async function GET(req: NextRequest, options: { params: Promise<{ id: str
   if (getUser.data?.status === "error") {
     return Response.json(
       {
-        data: getUser.data.message || "An error occurred while fetching the user data.",
+        data:
+          (getUser.data.message || "An error occurred while fetching the user data.") +
+          ` Try accessing the Lanyard API directly at ${url}. If the API is still working, please open an issue on the GitHub repository.`,
         success: false,
       },
       {
