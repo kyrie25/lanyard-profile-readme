@@ -513,7 +513,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
             inset: 0,
             backgroundColor: banner ? "transparent" : `#${backgroundColor}`,
             color: theme === "dark" ? "#fff" : "#000",
-            fontFamily: `'Century Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`,
+            fontFamily: `-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Century Gothic', Roboto, Helvetica, Arial, sans-serif`,
             fontSize: "16px",
             display: "flex",
             flexDirection: "column",
