@@ -117,7 +117,7 @@ export async function GET(req: NextRequest, options: { params: Promise<{ id: str
         response_length: resLength,
         message:
           "Bandwidth isn't free, this service will not embed large images. If you have animated banners enabled, disable them or set banner to `true`. If you have an animated avatar, please compress it or set the `animated` parameter to false. If you have an avatar decoration, set the `animatedDecoration` parameter to false.",
-        docs: "https://github.com/cnrad/lanyard-profile-readme",
+        docs: "https://github.com/kyrie25/lanyard-profile-readme",
       },
       {
         status: 500,
