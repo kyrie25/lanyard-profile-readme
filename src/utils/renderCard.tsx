@@ -779,6 +779,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                       objectFit: "cover",
                       transform: "rotate(180deg) scaleX(-1)",
                       maskImage: `linear-gradient(to bottom, transparent 0%, #000 100%)`,
+                      filter: "blur(5px)",
                     }}
                     src={`data:image/png;base64,${nameplateAsset}`}
                   />
@@ -1082,6 +1083,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                       objectFit: "cover",
                       transform: "rotate(180deg) scaleX(-1)",
                       maskImage: `linear-gradient(to bottom, transparent 0%, #000 100%)`,
+                      filter: "blur(5px)",
                     }}
                     src={`data:image/png;base64,${nameplateAsset}`}
                   />
@@ -1289,6 +1291,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                       objectFit: "cover",
                       transform: "rotate(180deg) scaleX(-1)",
                       maskImage: `linear-gradient(to bottom, transparent 0%, #000 100%)`,
+                      filter: "blur(5px)",
                     }}
                     src={`data:image/png;base64,${nameplateAsset}`}
                   />
