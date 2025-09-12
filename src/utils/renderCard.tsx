@@ -490,7 +490,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
             }}
           >
             <img
-              src={`data:image/png;base64,${await encodeBase64(banner, 400, false)}`}
+              src={`data:image/png;base64,${await encodeBase64(banner, 400)}`}
               alt="User Banner"
               style={{
                 width: "400px",
