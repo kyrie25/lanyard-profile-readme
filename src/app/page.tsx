@@ -76,6 +76,34 @@ export default function Home() {
     };
   }, [isOptionsOpen]);
 
+  useEffect(() => {
+    if (userId.length < 1 || !isSnowflake(userId)) return;
+    fetch(url)
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(data => {
+            throw new Error(data?.data?.message || "An unknown error occurred, please try again later.");
+          });
+        }
+        return res;
+      })
+      .catch(err => {
+        setUserError(
+          err.message !== "User is not being monitored by Lanyard" ? (
+            (err.message ?? "An unknown error occurred, please try again later.")
+          ) : (
+            <>
+              User is not monitored by Lanyard, please join{" "}
+              <Link href="https://discord.gg/lanyard" target="_blank" className="inline underline">
+                the server
+              </Link>{" "}
+              and try again.
+            </>
+          ),
+        );
+      });
+  }, [userId]);
+
   return (
     <>
       <main className="flex min-h-screen max-w-[100vw] flex-col items-center max-sm:px-4">
@@ -127,19 +155,6 @@ export default function Home() {
                 alt="Your Lanyard Banner"
                 className={cn({ hidden: !isLoaded })}
                 onLoad={() => setIsLoaded(true)}
-                onError={() =>
-                  userId.length > 0 && isSnowflake(userId)
-                    ? setUserError(
-                        <>
-                          User is not monitored by Lanyard, please join{" "}
-                          <Link href="https://discord.gg/lanyard" target="_blank" className="inline underline">
-                            the server
-                          </Link>{" "}
-                          and try again.
-                        </>,
-                      )
-                    : null
-                }
               />
               {!isLoaded && (
                 <div className="flex h-[224px] w-full items-center justify-center rounded-xl border border-white/10 bg-gray-50/5 px-16 text-center font-mono text-sm text-white/25">
