@@ -71,4 +71,14 @@ export const nameplates = {
     lightBackground: "#63CD5A",
     name: "Clover",
   },
+  lemon: {
+    darkBackground: "#F6CD12",
+    lightBackground: "#FED400",
+    name: "Lemon",
+  },
+  white: {
+    darkBackground: "#FFFFFF",
+    lightBackground: "#FFFFFF",
+    name: "White",
+  },
 };
