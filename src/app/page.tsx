@@ -102,7 +102,7 @@ export default function Home() {
           ),
         );
       });
-  }, [userId]);
+  }, [userId, url]);
 
   return (
     <>
@@ -148,6 +148,7 @@ export default function Home() {
             ) : null}
 
             <div className="mt-2 flex flex-col gap-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={url}
                 height={280}

@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use server";
 
 import { Badges } from "#/public/assets/badges/BadgesEncoded";
@@ -902,6 +903,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                     borderRadius: hideActivity === "true" ? borderRadius : `${borderRadius} ${borderRadius} 0 0`,
                   }}
                   src={`data:image/png;base64,${nameplateAsset}`}
+                  alt="User Nameplate"
                 />
               ) : null}
               <div
@@ -1157,6 +1159,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                       maskImage: `linear-gradient(to bottom, transparent 25%, #000 100%)`,
                     }}
                     src={`data:image/png;base64,${nameplateAsset}`}
+                    alt="User Nameplate"
                   />
                 ) : null}
                 <div
@@ -1460,6 +1463,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                       maskImage: `linear-gradient(to bottom, transparent 25%, #000 100%)`,
                     }}
                     src={`data:image/png;base64,${nameplateAsset}`}
+                    alt="User Nameplate"
                   />
                 ) : null}
                 <div
@@ -1667,6 +1671,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                       maskImage: `linear-gradient(to bottom, transparent 25%, #000 100%)`,
                     }}
                     src={`data:image/png;base64,${nameplateAsset}`}
+                    alt="User Nameplate"
                   />
                 </div>
               ) : null}
