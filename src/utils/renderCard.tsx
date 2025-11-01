@@ -1,13 +1,22 @@
 "use server";
 
 import { Badges } from "#/public/assets/badges/BadgesEncoded";
-import { getFlags, nameplates, renderToStaticMarkup } from "@/utils/helpers";
+import {
+  getDisplayNameStyleClassname,
+  getDisplayNameStyleEffectVars,
+  getFlags,
+  nameplates,
+  renderToStaticMarkup,
+  fetchUserBanner,
+  getAvatarUrl,
+  getClanBadgeUrl,
+  fetchAvatarDecoration,
+} from "@/utils/helpers";
 import * as LanyardTypes from "@/utils/LanyardTypes";
 import { encodeBase64 } from "@/utils/toBase64";
 import { DetailedHTMLProps, HTMLAttributes } from "react";
 import { Color, hexToRgb } from "./color";
 import * as Icons from "react-icons/si";
-import redis from "./redis";
 
 export type Parameters = {
   theme?: string;
@@ -40,6 +49,7 @@ export type Parameters = {
   imgBorderRadius?: string;
   showBanner?: string;
   bannerFilter?: string;
+  forceGradient?: string;
 };
 
 const parseBool = (string: string | undefined): boolean => (string === "true" ? true : false);
@@ -173,29 +183,58 @@ function getPrefixActivityString(activity: LanyardTypes.Activity) {
   }
 }
 
-async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<string> {
-  let { data } = body;
+type ParsedConfig = {
+  avatarExtension: string;
+  statusExtension: string;
+  backgroundColor: string;
+  theme: "dark" | "light";
+  activityTheme: "dark" | "light";
+  spotifyTheme: "dark" | "light";
+  borderRadius: string;
+  idleMessage: string;
+  animationDuration: string;
+  waveColor: string;
+  waveSpotifyColor: string;
+  gradient: string;
+  imgStyle: string;
+  imgBorderRadius: string;
+  statusRadius: number;
+  clanBackgroundColor: string;
+  bannerFilter: string;
+  hideStatus: boolean;
+  hideTimestamp: boolean;
+  hideBadges: boolean;
+  hideProfile: boolean;
+  hideActivity: string;
+  hideSpotify: boolean;
+  hideClan: boolean;
+  hideDecoration: boolean;
+  ignoreAppId: string[];
+  hideDiscrim: boolean;
+  showDisplayName: boolean;
+  showBanner: boolean | "animated";
+  hideNameplate: boolean;
+  forceGradient: boolean;
+};
 
-  let avatarBorderColor: string = "#747F8D",
-    avatarExtension: string = "webp",
-    statusExtension: string = "webp",
-    activity: any = false,
-    backgroundColor: string = "101320",
-    theme = "dark",
-    activityTheme = "dark",
-    spotifyTheme = "dark",
-    borderRadius = "10px",
-    idleMessage = "I'm not currently doing anything!",
-    animationDuration = "8s",
-    waveColor = "7289da",
-    waveSpotifyColor = "1DB954",
-    gradient =
-      "rgb(241, 9, 154), rgb(183, 66, 177), rgb(119, 84, 177), rgb(62, 88, 157), rgb(32, 83, 124), rgb(42, 72, 88)",
-    imgStyle = "circle",
-    imgBorderRadius = "10px",
-    statusRadius = 4,
-    banner = "",
-    bannerFilter = "";
+function parseCardParameters(params: Parameters, data: LanyardTypes.Data): ParsedConfig {
+  let avatarExtension: string = "webp";
+  let statusExtension: string = "webp";
+  let backgroundColor: string = "101320";
+  let theme: "dark" | "light" = "dark";
+  let activityTheme: "dark" | "light" = "dark";
+  let spotifyTheme: "dark" | "light" = "dark";
+  let borderRadius = "10px";
+  let idleMessage = "I'm not currently doing anything!";
+  let animationDuration = "8s";
+  let waveColor = "7289da";
+  let waveSpotifyColor = "1DB954";
+  let gradient =
+    "rgb(241, 9, 154), rgb(183, 66, 177), rgb(119, 84, 177), rgb(62, 88, 157), rgb(32, 83, 124), rgb(42, 72, 88)";
+  let imgStyle = "circle";
+  let imgBorderRadius = "10px";
+  let statusRadius = 4;
+  let bannerFilter = "";
 
   let hideStatus = parseBool(params.hideStatus);
   let hideTimestamp = parseBool(params.hideTimestamp);
@@ -208,8 +247,9 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
   let ignoreAppId = parseAppId(params.ignoreAppId);
   let hideDiscrim = parseBool(params.hideDiscrim);
   let showDisplayName = parseBool(params.showDisplayName) || parseBool(params.useDisplayName);
-  let showBanner = parseBool(params.showBanner) || params.showBanner === "animated";
+  let showBanner: boolean | "animated" = parseBool(params.showBanner) || params.showBanner === "animated";
   let hideNameplate = parseBool(params.hideNameplate);
+  let forceGradient = parseBool(params.forceGradient);
 
   if (data.activities[0]?.emoji?.animated && !params.optimized) statusExtension = "gif";
   if (data.discord_user.avatar && data.discord_user.avatar.startsWith("a_") && !params.optimized)
@@ -217,9 +257,9 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
   if (params.animated === "false") avatarExtension = "webp";
 
   if (!data.discord_user.avatar_decoration_data) hideDecoration = true;
-  if (parseBool(params.hideDiscrim) || body.data.discord_user.discriminator === "0") hideDiscrim = true;
-  body.data.discord_user.clan = body.data.discord_user.clan || body.data.discord_user.primary_guild;
-  if (!body.data.discord_user.clan) hideClan = true;
+  if (parseBool(params.hideDiscrim) || data.discord_user.discriminator === "0") hideDiscrim = true;
+  data.discord_user.clan ||= data.discord_user.primary_guild;
+  if (!data.discord_user.clan) hideClan = true;
 
   if (params.theme === "light") {
     backgroundColor = "eee";
@@ -235,14 +275,14 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
   if (params.borderRadius) borderRadius = params.borderRadius;
   if (params.animationDuration) animationDuration = params.animationDuration;
   if (params.waveColor) {
-    const [color, theme] = params.waveColor.split("-");
+    const [color, themeParam] = params.waveColor.split("-");
     waveColor = color;
-    if (theme === "light" || theme === "dark") activityTheme = theme;
+    if (themeParam === "light" || themeParam === "dark") activityTheme = themeParam;
   }
   if (params.waveSpotifyColor) {
-    const [color, theme] = params.waveSpotifyColor.split("-");
+    const [color, themeParam] = params.waveSpotifyColor.split("-");
     waveSpotifyColor = color;
-    if (theme === "light" || theme === "dark") spotifyTheme = theme;
+    if (themeParam === "light" || themeParam === "dark") spotifyTheme = themeParam;
   }
   if (params.gradient) {
     if (params.gradient.includes("-")) gradient = "#" + params.gradient.replaceAll("-", ", #");
@@ -256,105 +296,86 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
       statusRadius = Number(imgBorderRadius.replace("px", "")) / conversionValue;
     }
   }
-  if (showDisplayName && data.discord_user.global_name) data.discord_user.username = data.discord_user.global_name;
+  if (params.bannerFilter) bannerFilter = params.bannerFilter;
 
-  if (showBanner) {
-    banner = (await redis.get(`banner-${data.discord_user.id}`).catch(() => null)) || "";
+  return {
+    avatarExtension,
+    statusExtension,
+    backgroundColor,
+    theme,
+    activityTheme,
+    spotifyTheme,
+    borderRadius,
+    idleMessage,
+    animationDuration,
+    waveColor,
+    waveSpotifyColor,
+    gradient,
+    imgStyle,
+    imgBorderRadius,
+    statusRadius,
+    clanBackgroundColor,
+    bannerFilter,
+    hideStatus,
+    hideTimestamp,
+    hideBadges,
+    hideProfile,
+    hideActivity,
+    hideSpotify,
+    hideClan,
+    hideDecoration,
+    ignoreAppId,
+    hideDiscrim,
+    showDisplayName,
+    showBanner,
+    hideNameplate,
+    forceGradient,
+  };
+}
 
-    if (!banner) {
-      const userData = await fetch(`${process.env.DISCORD_API_ENDPOINT}/${data.discord_user.id}`)
-        .then(res => (res.ok ? res.json() : null))
-        .catch(() => null);
+type UserAssets = {
+  avatar: string;
+  banner: string;
+  clanBadge: string | null;
+  avatarDecoration: string | null;
+  nameplateHex: string | undefined;
+  nameplateBg: string | undefined;
+  nameplateAsset: string | undefined;
+};
 
-      if (userData?.banner) {
-        const animatedBanner = params.showBanner === "animated" && userData.banner.startsWith("a_");
-        banner = `https://cdn.discordapp.com/banners/${data.discord_user.id}/${userData.banner}.${animatedBanner ? "gif?size=256" : "webp?size=1024"}`;
+async function prepareUserAssets(
+  data: LanyardTypes.Data,
+  config: ParsedConfig,
+  params: Parameters,
+): Promise<UserAssets> {
+  const { avatarExtension, backgroundColor, theme, hideDecoration, hideProfile, hideNameplate, showBanner } = config;
 
-        // Cache for 5 minutes
-        await redis.set(`banner-${data.discord_user.id}`, userData.banner, "EX", 300).catch(() => null);
-      } else {
-        // Fetch banner from USRBG
-        const usrbg = await fetch("https://usrbg.is-hardly.online/users")
-          .then(res => (res.ok ? res.json() : null))
-          .catch(() => null);
-        if (usrbg?.users?.[data.discord_user.id]) {
-          const {
-            endpoint,
-            bucket,
-            prefix,
-            users: { [data.discord_user.id]: etag },
-          } = usrbg;
-          banner = `${endpoint}/${bucket}/${prefix}${data.discord_user.id}?${etag}`;
+  // Fetch banner
+  const banner = await fetchUserBanner(data.discord_user.id, showBanner);
 
-          // Cache for 5 minutes
-          await redis.set(`banner-${data.discord_user.id}`, banner, "EX", 300).catch(() => null);
-        }
-      }
-    } else {
-      // If cache is an URL, it's from USRBG
-      try {
-        new URL(banner);
-      } catch {
-        const animatedBanner = params.showBanner === "animated" && banner.startsWith("a_");
-        banner = `https://cdn.discordapp.com/banners/${data.discord_user.id}/${banner}.${animatedBanner ? "gif?size=256" : "webp?size=1024"}`;
-      }
-    }
-  }
-  if (params.bannerFilter && banner) bannerFilter = params.bannerFilter;
+  // Fetch and encode avatar
+  const avatar = await encodeBase64(
+    getAvatarUrl(data.discord_user, avatarExtension),
+    avatarExtension === "gif" ? 64 : data.discord_user.avatar ? 128 : 100,
+  );
 
-  let avatar: string;
-  if (data.discord_user.avatar) {
-    avatar = await encodeBase64(
-      `https://cdn.discordapp.com/avatars/${data.discord_user.id}/${
-        data.discord_user.avatar
-      }.${avatarExtension}?size=${avatarExtension === "gif" ? "64" : "256"}`,
-      avatarExtension === "gif" ? 64 : 128,
-    );
-  } else {
-    avatar = await encodeBase64(
-      `https://cdn.discordapp.com/embed/avatars/${
-        data.discord_user.discriminator === "0"
-          ? Number(BigInt(data.discord_user.id) >> BigInt(22)) % 6
-          : Number(data.discord_user.discriminator) % 5
-      }.png`,
-      100,
-    );
-  }
-
+  // Fetch and encode clan badge
   let clanBadge: string | null = null;
-  if (data.discord_user.clan?.badge) {
-    clanBadge = await encodeBase64(
-      `https://cdn.discordapp.com/clan-badges/${data.discord_user.clan.identity_guild_id}/${data.discord_user.clan.badge}.png?size=16`,
-      16,
-    );
+  const clanBadgeUrl = getClanBadgeUrl(data.discord_user);
+  if (clanBadgeUrl) {
+    clanBadge = await encodeBase64(clanBadgeUrl, 16);
   }
 
+  // Fetch and encode avatar decoration
   let avatarDecoration: string | null = null;
   if (!hideDecoration) {
-    if (data.discord_user.avatar_decoration_data?.asset) {
-      avatarDecoration = await encodeBase64(
-        `https://cdn.discordapp.com/avatar-decoration-presets/${data.discord_user.avatar_decoration_data.asset}.png?size=64&passthrough=${params.animatedDecoration || "false"}`,
-        100,
-        false,
-      );
-    } else {
-      // Fetch decoration from Decor
-      const decorData = await fetch(
-        encodeURI(`https://decor.fieryflames.dev/api/users?ids=${JSON.stringify([data.discord_user.id])}`),
-      )
-        .then(res => (res.ok ? res.json() : null))
-        .catch(() => null);
-
-      if (decorData[data.discord_user.id]) {
-        avatarDecoration = await encodeBase64(
-          `https://ugc.decor.fieryflames.dev/${decorData?.[data.discord_user.id]}.png`,
-          100,
-          false,
-        );
-      }
+    const decorationUrl = await fetchAvatarDecoration(data.discord_user, params.animatedDecoration);
+    if (decorationUrl) {
+      avatarDecoration = await encodeBase64(decorationUrl, 100, false);
     }
   }
 
+  // Process nameplate
   let nameplateHex: string | undefined = undefined;
   let nameplateBg: string | undefined = undefined;
   let nameplateAsset: string | undefined = undefined;
@@ -377,20 +398,125 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
     );
   }
 
-  switch (data.discord_status) {
+  return {
+    avatar,
+    banner,
+    clanBadge,
+    avatarDecoration,
+    nameplateHex,
+    nameplateBg,
+    nameplateAsset,
+  };
+}
+
+function getAvatarBorderColor(status: string): string {
+  switch (status) {
     case "online":
-      avatarBorderColor = "#43B581";
-      break;
+      return "#43B581";
     case "idle":
-      avatarBorderColor = "#FAA61A";
-      break;
+      return "#FAA61A";
     case "dnd":
-      avatarBorderColor = "#F04747";
-      break;
+      return "#F04747";
     case "offline":
-      avatarBorderColor = "#747F8D";
-      break;
+    default:
+      return "#747F8D";
   }
+}
+
+function processActivities(data: LanyardTypes.Data, ignoreAppId: string[]): LanyardTypes.Activity | false {
+  const activities = data.activities
+    .filter(activity => [0, 1, 2, 3, 5].includes(activity.type))
+    .filter(activity => !ignoreAppId.includes(activity.application_id ?? ""))
+    .filter(activity => !data.listening_to_spotify || activity.type !== 2)
+    .sort((a, b) => a.type - b.type);
+
+  return Array.isArray(activities) ? activities[0] : activities;
+}
+
+function calculateDimensions(
+  hideProfile: boolean,
+  hideActivity: string,
+  activity: any,
+  listeningToSpotify: boolean,
+  hideSpotify: boolean,
+): { svgHeight: string; divHeight: string } {
+  let svgHeight: string;
+  let divHeight: string;
+
+  if (hideProfile) {
+    svgHeight = "130";
+    divHeight = "120";
+  } else if (hideActivity === "true") {
+    svgHeight = "80";
+    divHeight = "80";
+  } else if (hideActivity === "whenNotUsed" && !activity && !listeningToSpotify) {
+    svgHeight = "80";
+    divHeight = "80";
+  } else if (hideSpotify && listeningToSpotify) {
+    svgHeight = "200";
+    divHeight = "200";
+  } else {
+    svgHeight = "200";
+    divHeight = "200";
+  }
+
+  return { svgHeight, divHeight };
+}
+
+async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<string> {
+  let { data } = body;
+
+  // Parse all configuration parameters
+  const config = parseCardParameters(params, data);
+  const {
+    avatarExtension,
+    statusExtension,
+    backgroundColor,
+    theme,
+    activityTheme,
+    spotifyTheme,
+    borderRadius,
+    idleMessage,
+    animationDuration,
+    waveColor,
+    waveSpotifyColor,
+    gradient,
+    imgStyle,
+    imgBorderRadius,
+    statusRadius,
+    clanBackgroundColor,
+    bannerFilter,
+    hideStatus,
+    hideTimestamp,
+    hideBadges,
+    hideProfile,
+    hideActivity,
+    hideSpotify,
+    hideDecoration,
+    ignoreAppId,
+    hideDiscrim,
+    showDisplayName,
+    showBanner,
+    hideNameplate,
+    forceGradient,
+  } = config;
+
+  let { hideClan } = config;
+  let activity: any = false;
+
+  // Apply data mutations
+  if (!data.discord_user.avatar_decoration_data) config.hideDecoration = true;
+  if (parseBool(params.hideDiscrim) || body.data.discord_user.discriminator === "0") config.hideDiscrim = true;
+  body.data.discord_user.clan = body.data.discord_user.clan || body.data.discord_user.primary_guild;
+  if (!body.data.discord_user.clan) hideClan = true;
+  if (showDisplayName && data.discord_user.global_name) data.discord_user.username = data.discord_user.global_name;
+
+  // Prepare all user assets
+  const assets = await prepareUserAssets(data, config, params);
+  const { avatar, banner, clanBadge, avatarDecoration, nameplateHex, nameplateBg, nameplateAsset } = assets;
+
+  // Calculate avatar border color based on status
+  const avatarBorderColor = getAvatarBorderColor(data.discord_status);
 
   let userStatus: Record<string, any> | null = null;
   if (data.activities[0] && data.activities[0].type === 4) userStatus = data.activities[0];
@@ -404,41 +530,24 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
   )
     flags.push("Nitro");
 
-  const activities = data.activities
-    // Filter only type 0
-    .filter(activity => [0, 1, 2, 3, 5].includes(activity.type))
-    // Filter ignored app ID
-    .filter(activity => !ignoreAppId.includes(activity.application_id ?? ""))
-    .filter(activity => !data.listening_to_spotify || activity.type !== 2)
-    .sort((a, b) => a.type - b.type);
+  // Process activities to get the primary activity
+  activity = processActivities(data, ignoreAppId);
 
-  // Take the highest one
-  activity = Array.isArray(activities) ? activities[0] : activities;
-
-  // Calculate height of parent SVG element
-  const svgHeight = (): string => {
-    if (hideProfile) return "130";
-    if (hideActivity === "true") return "80";
-    if (hideActivity === "whenNotUsed" && !activity && !data.listening_to_spotify) return "80";
-    if (hideSpotify && data.listening_to_spotify) return "200";
-    return "200";
-  };
-
-  // Calculate height of main div element
-  const divHeight = (): string => {
-    if (hideProfile) return "120";
-    if (hideActivity === "true") return "80";
-    if (hideActivity === "whenNotUsed" && !activity && !data.listening_to_spotify) return "80";
-    if (hideSpotify && data.listening_to_spotify) return "200";
-    return "200";
-  };
+  // Calculate dimensions
+  const { svgHeight, divHeight } = calculateDimensions(
+    hideProfile,
+    hideActivity,
+    activity,
+    data.listening_to_spotify,
+    hideSpotify,
+  );
 
   const ForeignDiv = (props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> & { xmlns: string }) => (
     <div {...props}>{props.children}</div>
   );
 
   const renderedSVG = (
-    <svg xmlns="http://www.w3.org/2000/svg" width="400px" height={svgHeight()}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="400px" height={svgHeight}>
       <defs>
         <style>
           {`@-webkit-keyframes wave {
@@ -472,10 +581,260 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
               100% {
                   background-position-x: 0;
               }
+          }
+
+          :root {
+              --white-500: hsl(0 calc(1*0%) 100% /1);
+              --white-500-hsl: 0 calc(var(--saturation-factor, 1)* 0%) 100%;
+              --saturation-factor: 1;
+          }
+
+          .username > *, .username > :before {
+              animation-iteration-count: infinite !important;
+          }
+
+          .solid {
+              color: var(--custom-display-name-styles-main-color)
+          }
+
+          .gradient {
+              background: linear-gradient(to bottom right,var(--custom-display-name-styles-gradient-start-color) 10%,var(--custom-display-name-styles-gradient-end-color) 90%);
+              background-clip: text;
+              -webkit-background-clip: text;
+              background-size: 100% auto;
+              -webkit-text-fill-color: transparent;
+              position: relative;
+              z-index: 0
+          }
+
+          .neon {
+              paint-order: stroke fill;
+              -webkit-text-stroke-width: calc(1px + .04em);
+              -webkit-text-stroke-color: hsl(from var(--custom-display-name-styles-main-color) h calc(s * 1.2) calc(min(60, l + 10 * clamp(0, (60 - l), 1))));
+              color: var(--white-500);
+              position: relative;
+              z-index: 0;
+              -webkit-padding-start: calc(1px + .04em);
+              padding-inline-start:calc(1px + .04em);-webkit-margin-start: calc(-1px - .04em);
+              margin-inline-start:calc(-1px - .04em);margin-bottom: calc(-1px - .04em);
+              padding-bottom: calc(1px + .04em)
+          }
+
+          .neonGlow {
+              color: transparent;
+              height: 100%;
+              inset: 0;
+              overflow: hidden;
+              position: absolute;
+              text-overflow: ellipsis;
+              width: 100%;
+              background: linear-gradient(to bottom left,var(--custom-display-name-styles-light-2-color) 0,var(--custom-display-name-styles-light-2-color) 6%,var(--custom-display-name-styles-main-color) 20%,var(--custom-display-name-styles-light-1-color) 50%,var(--custom-display-name-styles-light-2-color) 56%,var(--custom-display-name-styles-main-color) 70%,var(--custom-display-name-styles-light-1-color) 100%);
+              background-clip: text;
+              background-position: 100% 0;
+              background-size: 200% 200%;
+              -webkit-text-fill-color: transparent;
+              color: var(--custom-display-name-styles-main-color);
+              filter: blur(calc(1px + .12em));
+              opacity: .8;
+              -webkit-text-stroke-width: calc(1px + .04em);
+              -webkit-text-stroke-color: transparent;
+              perspective: 1px;
+              z-index: -1
+          }
+
+          .toon {
+              --custom-toon-stroke-color: hsl(from var(--custom-display-name-styles-main-color) h s calc(max(12, l * 0.4)));
+              --custom-toon-stroke-width: calc(1.6px + 0.04em);
+              --custom-toon-margin: calc(var(--custom-toon-stroke-width)*-1);
+              paint-order: stroke fill;
+              position: relative;
+              -webkit-text-stroke-width: var(--custom-toon-stroke-width);
+              -webkit-text-stroke-color: var(--custom-toon-stroke-color);
+              color: var(--custom-toon-stroke-color);
+              -webkit-padding-start: var(--custom-toon-stroke-width);
+              padding-bottom: var(--custom-toon-stroke-width);
+              padding-inline-start:var(--custom-toon-stroke-width);-webkit-padding-end: var(--custom-toon-stroke-width);
+              padding-inline-end:var(--custom-toon-stroke-width);-webkit-margin-start: var(--custom-toon-margin);
+              margin-inline-start:var(--custom-toon-margin);margin-bottom: var(--custom-toon-margin);
+              -webkit-margin-end: var(--custom-toon-margin);
+              margin-inline-end:var(--custom-toon-margin);transition: color 266ms cubic-bezier(.43,.21,.27,.78)
+          }
+
+          .toon:before {
+              background: linear-gradient(180deg,var(--white-500) 0,var(--custom-display-name-styles-light-2-color) 8%,var(--custom-display-name-styles-light-1-color) 15%,var(--custom-display-name-styles-main-color) 25%,var(--custom-display-name-styles-light-2-color) 45%,var(--custom-display-name-styles-main-color) 55%,var(--white-500) 75%,var(--custom-display-name-styles-light-2-color) 83%,var(--custom-display-name-styles-light-1-color) 90%,var(--custom-display-name-styles-main-color) 100%);
+              background-clip: text;
+              -webkit-background-clip: text;
+              background-size: 100% 400%;
+              content: attr(data-username-with-effects);
+              inset: 0;
+              padding-inline:var(--custom-toon-stroke-width);padding-bottom: var(--custom-toon-margin);
+              position: absolute;
+              -webkit-text-fill-color: transparent;
+              -webkit-text-stroke-width: 0;
+              -webkit-text-stroke-color: transparent;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              transition: opacity 266ms cubic-bezier(.43,.21,.27,.78);
+              white-space: var(--custom-display-name-styles-wrap)
+          }
+
+          .pop {
+              --custom-pop-stroke-width: 0;
+              --custom-pop-bottom-translate_3d: 0.08em;
+              color: var(--white-500);
+              paint-order: stroke fill;
+              position: relative;
+              -webkit-text-stroke-color: var(--custom-display-name-styles-dark-2-color);
+              margin-bottom: calc(var(--custom-pop-stroke-width)*-1 - var(--custom-pop-bottom-translate_3d));
+              padding-bottom: calc(var(--custom-pop-stroke-width) + var(--custom-pop-bottom-translate_3d));
+              padding-inline-start:var(--custom-pop-stroke-width)}
+
+          .pop,.pop:before {
+              -webkit-text-stroke-width:var(--custom-pop-stroke-width);
+              -webkit-padding-start: var(--custom-pop-stroke-width);
+              -webkit-margin-start: calc(var(--custom-pop-stroke-width)*-1);
+              margin-inline-start:calc(var(--custom-pop-stroke-width)*-1)}
+
+          .pop:before {
+              bottom:calc(var(--custom-pop-bottom-translate_3d)*-1 - var(--custom-pop-stroke-width));
+              color: var(--custom-display-name-styles-main-color);
+              content: attr(data-username-with-effects);
+              padding-inline-start:var(--custom-pop-stroke-width);position: absolute;
+              top: 0;
+              width: calc(100% - var(--custom-pop-stroke-width));
+              z-index: -1;
+              -webkit-text-stroke-color: transparent;
+              background: linear-gradient(to bottom left,var(--custom-display-name-styles-light-1-color) 0,var(--custom-display-name-styles-light-1-color) 6%,var(--custom-display-name-styles-main-color) 20%,var(--custom-display-name-styles-main-color) 50%,var(--custom-display-name-styles-light-1-color) 56%,var(--custom-display-name-styles-main-color) 70%,var(--custom-display-name-styles-main-color) 100%);
+              background-clip: text;
+              -webkit-background-clip: text;
+              background-position: 100% 0;
+              background-size: 200% 200%;
+              transform: translate3d(0,var(--custom-pop-bottom-translate_3d),0);
+              -webkit-text-fill-color: transparent;
+              overflow: hidden;
+              text-decoration: none !important;
+              text-overflow: ellipsis;
+              white-space: var(--custom-display-name-styles-wrap)
+          }
+
+          .pop:before {
+              text-decoration: underline;
+              -webkit-text-decoration-color: var(--custom-display-name-styles-main-color);
+              text-decoration-color: var(--custom-display-name-styles-main-color);
+              text-underline-offset: calc(var(--custom-pop-bottom-translate_3d))
+          }
+
+          .neon {
+              animation: neon-flicker-animation 4s cubic-bezier(.24,.31,.36,.93);
+              animation-direction: normal;
+              animation-fill-mode: forwards
+          }
+
+          .neonGlow {
+              animation: neon-glow-flicker-animation 1666ms linear;
+              animation-direction: normal;
+              animation-fill-mode: forwards
+          }
+
+          .toon:before {
+              animation: toon-animation 4s cubic-bezier(.44,.29,.48,1);
+              animation-direction: normal;
+              animation-fill-mode: forwards
+          }
+
+          .pop {
+              animation: pop-animation-main 4s cubic-bezier(.44,.29,.48,1);
+              animation-direction: normal;
+              animation-fill-mode: forwards
+          }
+
+          .pop:before {
+              animation: pop-animation-shadow 4s cubic-bezier(.44,.29,.48,1);
+              animation-direction: normal;
+              animation-fill-mode: forwards
+          }
+
+          @keyframes pop-animation-main {
+              0% {
+                  transform: translateZ(0)
+              }
+
+              18% {
+                  perspective: 1px;
+                  transform: translate3d(0,-.05em,0)
+              }
+
+              35% {
+                  perspective: 1px;
+                  transform: translate3d(0,.08em,0)
+              }
+
+              50%,to {
+                  perspective: 1px;
+                  transform: translateZ(0)
+              }
+          }
+
+          @keyframes pop-animation-shadow {
+              0% {
+                  background-position: 100% 0;
+                  perspective: 1px;
+                  transform: translate3d(0,.08em,0)
+              }
+
+              18% {
+                  perspective: 1px;
+                  transform: translate3d(0,.13em,0)
+              }
+
+              35% {
+                  perspective: 1px;
+                  transform: translateZ(0)
+              }
+
+              50%,to {
+                  background-position: 0 100%;
+                  perspective: 1px;
+                  transform: translate3d(0,.08em,0)
+              }
+          }
+
+          @keyframes toon-animation {
+              0%,5% {
+                  background-position: 50% 0
+              }
+
+              55%,to {
+                  background-position: 50% 100%
+              }
+          }
+
+          @keyframes neon-flicker-animation {
+              0%,15%,18%,20%,23%,25%,50% {
+                  color: var(--white-500)
+              }
+
+              16%,22%,28% {
+                  color: hsl(from var(--custom-display-name-styles-main-color) h calc(min(1, s) * ((s * 1.1) + 10)) 85)
+              }
+
+              51%,to {
+                  color: var(--white-500)
+              }
+          }
+
+          @keyframes neon-glow-flicker-animation {
+              0% {
+                  background-position: 100% 0
+              }
+
+              to {
+                  background-position: 0 100%
+              }
           }`}
         </style>
       </defs>
-      <foreignObject x="0" y="0" width="400" height={svgHeight()}>
+      <foreignObject x="0" y="0" width="400" height={svgHeight}>
         {banner ? (
           <ForeignDiv
             xmlns="http://www.w3.org/1999/xhtml"
@@ -509,7 +868,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
           style={{
             position: "absolute",
             width: "400px",
-            height: `${divHeight()}px`,
+            height: `${divHeight}px`,
             inset: 0,
             backgroundColor: banner ? "transparent" : `#${backgroundColor}`,
             color: theme === "dark" ? "#fff" : "#000",
@@ -638,22 +997,39 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                       }}
                     >
                       <h1
+                        className="username"
                         style={{
                           fontSize: "1.15rem",
                           margin: "0 12px 0 0",
                           whiteSpace: "nowrap",
+                          ...getDisplayNameStyleEffectVars(data.discord_user.display_name_styles),
                         }}
                       >
-                        <span
-                          style={{
-                            backgroundImage: `linear-gradient(60deg, ${gradient})`,
-                            backgroundSize: "300%",
-                            WebkitBackgroundClip: "text",
-                            WebkitTextFillColor: "transparent",
-                          }}
-                        >
-                          {data.discord_user.username}
-                        </span>
+                        {!forceGradient && data.discord_user.display_name_styles ? (
+                          <>
+                            <span
+                              data-username-with-effects={data.discord_user.username}
+                              className={getDisplayNameStyleClassname(data.discord_user.display_name_styles)}
+                            >
+                              {data.discord_user.username}
+                            </span>
+                            {data.discord_user.display_name_styles?.effect_id ===
+                            LanyardTypes.DisplayNameStyleEffectID.NEON ? (
+                              <span className="neonGlow">{data.discord_user.username}</span>
+                            ) : null}
+                          </>
+                        ) : (
+                          <span
+                            style={{
+                              backgroundImage: `linear-gradient(60deg, ${gradient})`,
+                              backgroundSize: "300%",
+                              WebkitBackgroundClip: "text",
+                              WebkitTextFillColor: "transparent",
+                            }}
+                          >
+                            {data.discord_user.username}
+                          </span>
+                        )}
 
                         {!hideDiscrim && !showDisplayName ? (
                           <span
@@ -778,8 +1154,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                       height: "80px",
                       objectFit: "cover",
                       transform: "rotate(180deg) scaleX(-1)",
-                      maskImage: `linear-gradient(to bottom, transparent 0%, #000 100%)`,
-                      filter: "blur(5px)",
+                      maskImage: `linear-gradient(to bottom, transparent 25%, #000 100%)`,
                     }}
                     src={`data:image/png;base64,${nameplateAsset}`}
                   />
@@ -1082,8 +1457,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                       height: "80px",
                       objectFit: "cover",
                       transform: "rotate(180deg) scaleX(-1)",
-                      maskImage: `linear-gradient(to bottom, transparent 0%, #000 100%)`,
-                      filter: "blur(5px)",
+                      maskImage: `linear-gradient(to bottom, transparent 25%, #000 100%)`,
                     }}
                     src={`data:image/png;base64,${nameplateAsset}`}
                   />
@@ -1290,8 +1664,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                       height: "80px",
                       objectFit: "cover",
                       transform: "rotate(180deg) scaleX(-1)",
-                      maskImage: `linear-gradient(to bottom, transparent 0%, #000 100%)`,
-                      filter: "blur(5px)",
+                      maskImage: `linear-gradient(to bottom, transparent 25%, #000 100%)`,
                     }}
                     src={`data:image/png;base64,${nameplateAsset}`}
                   />

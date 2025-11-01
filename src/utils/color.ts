@@ -1,16 +1,16 @@
 // https://codepen.io/sosuke/pen/Pjoqqp
-class Color {
+export class Color {
   r!: number;
   g!: number;
   b!: number;
 
-  constructor(r: number | string, g?: number, b?: number) {
+  constructor(r?: number | string, g?: number, b?: number) {
     if (typeof r === "string") {
       this.setFromHex(r);
     } else if (!!r && !!g && !!b) {
       this.set(r, g, b);
     } else {
-      throw new Error("Invalid arguments: expected (r: number, g: number, b: number) or (hex: string)");
+      this.set(0, 0, 0);
     }
   }
 
@@ -26,6 +26,16 @@ class Color {
     this.r = this.clamp(r);
     this.g = this.clamp(g);
     this.b = this.clamp(b);
+
+    return this;
+  }
+
+  setFromInt(rgb: number) {
+    this.r = (rgb >> 16) & 0xff;
+    this.g = (rgb >> 8) & 0xff;
+    this.b = rgb & 0xff;
+
+    return this;
   }
 
   setFromHex(hex: string) {
@@ -35,6 +45,8 @@ class Color {
     } else {
       throw new Error(`Invalid hex color: ${hex}`);
     }
+
+    return this;
   }
 
   hueRotate(angle = 0) {
@@ -53,6 +65,8 @@ class Color {
       0.715 - cos * 0.715 + sin * 0.715,
       0.072 + cos * 0.928 + sin * 0.072,
     ]);
+
+    return this;
   }
 
   grayscale(value = 1) {
@@ -67,6 +81,8 @@ class Color {
       0.7152 - 0.7152 * (1 - value),
       0.0722 + 0.9278 * (1 - value),
     ]);
+
+    return this;
   }
 
   sepia(value = 1) {
@@ -81,6 +97,8 @@ class Color {
       0.534 - 0.534 * (1 - value),
       0.131 + 0.869 * (1 - value),
     ]);
+
+    return this;
   }
 
   saturate(value = 1) {
@@ -95,6 +113,8 @@ class Color {
       0.715 - 0.715 * value,
       0.072 + 0.928 * value,
     ]);
+
+    return this;
   }
 
   multiply(matrix: number[]) {
@@ -104,25 +124,33 @@ class Color {
     this.r = newR;
     this.g = newG;
     this.b = newB;
+
+    return this;
   }
 
   brightness(value = 1) {
     this.linear(value);
+    return this;
   }
   contrast(value = 1) {
     this.linear(value, -(0.5 * value) + 0.5);
+    return this;
   }
 
   linear(slope = 1, intercept = 0) {
     this.r = this.clamp(this.r * slope + intercept * 255);
     this.g = this.clamp(this.g * slope + intercept * 255);
     this.b = this.clamp(this.b * slope + intercept * 255);
+
+    return this;
   }
 
   invert(value = 1) {
     this.r = this.clamp((value + (this.r / 255) * (1 - 2 * value)) * 255);
     this.g = this.clamp((value + (this.g / 255) * (1 - 2 * value)) * 255);
     this.b = this.clamp((value + (this.b / 255) * (1 - 2 * value)) * 255);
+
+    return this;
   }
 
   hsl() {
@@ -177,7 +205,7 @@ class Color {
   }
 }
 
-class Solver {
+export class Solver {
   target: {
     r: number;
     g: number;
@@ -316,7 +344,7 @@ class Solver {
   }
 }
 
-function hexToRgb(hex: string) {
+export function hexToRgb(hex: string) {
   // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
   const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
   hex = hex.replace(shorthandRegex, (m: any, r: any, g: any, b: any) => {
@@ -327,4 +355,56 @@ function hexToRgb(hex: string) {
   return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : null;
 }
 
-export { hexToRgb, Solver, Color };
+export function generateColorShades(hex: string): {
+  main: string;
+  light1: string;
+  light2: string;
+  dark1: string;
+  dark2: string;
+} {
+  // Normalize input to #rrggbb
+  const mainHex = hex.startsWith("#") ? hex : `#${hex}`;
+
+  // Use Color class to get HSL components (h in 0..360, s/l in 0..1)
+  const c = new Color(mainHex);
+  const { h, s, l } = c.hsl();
+
+  const clamp = (v: number) => Math.max(0, Math.min(1, v));
+
+  // HSL -> RGB conversion (h in degrees 0..360, s/l in 0..1) returning [r,g,b] 0..255
+  const hslToRgb = (hh: number, ss: number, ll: number) => {
+    const hNorm = (((hh % 360) + 360) % 360) / 360; // 0..1
+    if (ss === 0) {
+      const val = Math.round(ll * 255);
+      return [val, val, val];
+    }
+    const q = ll < 0.5 ? ll * (1 + ss) : ll + ss - ll * ss;
+    const p = 2 * ll - q;
+    const hue2rgb = (p: number, q: number, t: number) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+    const r = Math.round(hue2rgb(p, q, hNorm + 1 / 3) * 255);
+    const g = Math.round(hue2rgb(p, q, hNorm) * 255);
+    const b = Math.round(hue2rgb(p, q, hNorm - 1 / 3) * 255);
+    return [r, g, b];
+  };
+
+  const makeHexFromL = (newL: number) => {
+    const [r, g, b] = hslToRgb(h, s, clamp(newL));
+    const col = new Color(r, g, b);
+    return col.toHex().toLowerCase();
+  };
+
+  return {
+    main: mainHex.toLowerCase(),
+    light1: makeHexFromL(Math.min(1, 1.2 * l)),
+    light2: makeHexFromL(Math.min(1, 1.6 * l)),
+    dark1: makeHexFromL(Math.max(0, 0.6 * l)),
+    dark2: makeHexFromL(Math.max(0, 0.2 * l)),
+  };
+}

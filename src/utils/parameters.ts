@@ -73,9 +73,9 @@ export const PARAMETER_INFO: IParameterInfo = [
   {
     parameter: "gradient",
     type: "string",
-    title: "Gradient Username Color",
+    title: "Fallback Username Gradient",
     description:
-      "Changes the gradient color of the username using hex colors (no octothorpe). Each color is separated by a dash.\n\nSingle colors are also accepted.",
+      "Changes the gradient color of the username using hex colors (no octothorpe). Each color is separated by a dash.\n\nSingle colors are also accepted.\n\nBy default, Nitro display name styles will override this effect and it will only be used as fallback.\nTo force the gradient effect, enable the `Force Username Gradient` option.",
     options: {
       placeholder: "F1099A-B742B1-7754B1-3E589D-20537C-2A4858",
       omit: ["#"],
@@ -250,6 +250,15 @@ export const PARAMETER_INFO: IParameterInfo = [
     description: "Enables animated avatar decorations.",
     options: {
       defaultBool: false,
+    },
+  },
+  {
+    parameter: "forceGradient",
+    type: "boolean",
+    title: "Force Username Gradient",
+    description: "Forces the custom username gradient even if Nitro display name styles are set.",
+    displayCondition(options) {
+      return options.hideProfile !== "true";
     },
   },
   {

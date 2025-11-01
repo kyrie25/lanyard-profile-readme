@@ -43,6 +43,7 @@ export interface DiscordUser {
   primary_guild: ClanTag | null;
   avatar_decoration_data: AvatarDecoration | null;
   collectibles: Collectibles | null;
+  display_name_styles: DisplayNameStyles | null;
 }
 
 export interface ClanTag {
@@ -108,4 +109,19 @@ export interface Nameplate {
   asset: string;
   expires_at: number | null;
   palette: keyof typeof Nameplates;
+}
+
+export interface DisplayNameStyles {
+  colors: number[];
+  effect_id: DisplayNameStyleEffectID;
+  font_id: number;
+}
+
+export enum DisplayNameStyleEffectID {
+  SOLID = 1,
+  GRADIENT = 2,
+  NEON = 3,
+  TOON = 4,
+  POP = 5,
+  GLOW = 6,
 }

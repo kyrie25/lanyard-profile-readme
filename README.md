@@ -1,10 +1,11 @@
 # lanyard-profile-readme
 
-Pretty much the same as [upstream repo](https://github.com/cnrad/lanyard-profile-readme), with <ins>__opinionated__</ins> custom stylings.
+Pretty much the same as [upstream repo](https://github.com/cnrad/lanyard-profile-readme), with <ins>**opinionated**</ins> custom stylings.
 
 Some niche features are also added:
 
 - [Banners are supported!](#banners)
+- Discord profile decorations/effects (e.g. Display Name Styles, Avatar Decorations, Nameplates) are supported.
 - `Time Left` are supported and displayed over `Elapsed Time` whenever possible.
 - Show large image of activities with only application icons. (e.g. CS2, BG3, Genshin, WuWa, etc.)
 - Allows displaying special activities.
@@ -26,17 +27,6 @@ https://lanyard.kyrie25.dev/api/368399721494216706?theme=light
 ## Options
 
 **Everything from [upstream](https://github.com/cnrad/lanyard-profile-readme#options)**, in addition with my own below:
-
-### Nameplates
-
-- Nameplates are supported and enabled by default.
-- Animated nameplates are **not supported**, as Discord uses WebM for animated assets, making it costly and time-consuming to convert to PNG. (this may change in the future)
-
-If you wish to disable it, you can use `hideNameplate=true`.
-
-```url
-https://lanyard.kyrie25.dev/api/368399721494216706?hideNameplate=true
-```
 
 ### Banners
 
@@ -70,6 +60,28 @@ Banners are disabled by default because not every card will look good with it. I
 Banners are **cached for 5 minutes** to avoid API rate limit.
 
 Experiment with it and see if it fits your needs!
+
+### Display Name Styles
+
+- Nitro Display Name Styles are **supported**.
+- If you have Display Name Styles enabled, it will override any custom gradient specified using the `gradient` parameter.
+  - This is a breaking change from the previous behavior when Discord hadn't implement Display Name Styles.
+- You can use `forceGradient=true` to force the custom gradient even if you have Display Name Styles enabled.
+
+```url
+https://lanyard.kyrie25.dev/api/368399721494216706?gradient=FF597B-FF8A5C&forceGradient=true
+```
+
+### Nameplates
+
+- Nameplates are supported and enabled by default.
+- Animated nameplates are **not supported**, as Discord uses WebM for animated assets, making it costly and time-consuming to convert to PNG. (this may change in the future)
+
+If you wish to disable it, you can use `hideNameplate=true`.
+
+```url
+https://lanyard.kyrie25.dev/api/368399721494216706?hideNameplate=true
+```
 
 ### Avatar Decoration
 
