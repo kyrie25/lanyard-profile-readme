@@ -1,16 +1,15 @@
 "use server";
 import type { LanyardTypes } from "@/types/lanyard";
-
 type DiscordUser = LanyardTypes.DiscordUser;
 type Assets = LanyardTypes.Assets;
 import redis from "@/utils/redis";
 
 export async function getUserCount() {
-  let users = await redis.hgetall("users");
+  const users = await redis.hgetall("users");
   if (!users) {
     return 0;
   }
-  let count = Object.keys(users);
+  const count = Object.keys(users);
 
   return count.length;
 }

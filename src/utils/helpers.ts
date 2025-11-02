@@ -27,7 +27,7 @@ import("react-dom/server").then(module => {
 });
 
 export const getFlags = (flag: number): string[] => {
-  let flags: string[] = [];
+  const flags: string[] = [];
 
   // In the order they appear on profiles
   if (flag & 1) flags.push("Discord_Employee"); // 1 << 0
@@ -156,16 +156,16 @@ export const parseAppId = (string: string | undefined): Array<string> => {
 };
 
 export const getFormatFromMs = (ms: number) => {
-  let daysDifference = Math.floor(ms / 60 / 60 / 24);
+  const daysDifference = Math.floor(ms / 60 / 60 / 24);
   ms -= daysDifference * 60 * 60 * 24;
 
-  let hoursDifference = Math.floor(ms / 60 / 60);
+  const hoursDifference = Math.floor(ms / 60 / 60);
   ms -= hoursDifference * 60 * 60;
 
-  let minutesDifference = Math.floor(ms / 60);
+  const minutesDifference = Math.floor(ms / 60);
   ms -= minutesDifference * 60;
 
-  let secondsDifference = Math.floor(ms);
+  const secondsDifference = Math.floor(ms);
 
   return `${hoursDifference >= 1 ? ("0" + hoursDifference).slice(-2) + ":" : ""}${("0" + minutesDifference).slice(
     -2,
@@ -175,9 +175,9 @@ export const getFormatFromMs = (ms: number) => {
 export const formatTime = (timestamps: Timestamps2) => {
   const { start, end } = timestamps;
   // End timestamps is prioritized over start timestamps and displayed accordingly.
-  let startTime = new Date(end || start).getTime();
-  let endTime = Number(new Date());
-  let difference = end ? (startTime - endTime) / 1000 : (endTime - startTime) / 1000;
+  const startTime = new Date(end || start).getTime();
+  const endTime = Number(new Date());
+  const difference = end ? (startTime - endTime) / 1000 : (endTime - startTime) / 1000;
   if (difference < 0) return `00:00 ${end ? "left" : "elapsed"}`;
 
   return `${getFormatFromMs(difference)} ${end ? "left" : "elapsed"}`;
@@ -263,20 +263,20 @@ export function parseCardParameters(params: API.Parameters, data: Data): API.Par
   let statusRadius = 4;
   let bannerFilter = "";
 
-  let hideStatus = parseBool(params.hideStatus);
-  let hideTimestamp = parseBool(params.hideTimestamp);
-  let hideBadges = parseBool(params.hideBadges);
-  let hideProfile = parseBool(params.hideProfile);
-  let hideActivity = params.hideActivity ?? "false";
-  let hideSpotify = parseBool(params.hideSpotify);
+  const hideStatus = parseBool(params.hideStatus);
+  const hideTimestamp = parseBool(params.hideTimestamp);
+  const hideBadges = parseBool(params.hideBadges);
+  const hideProfile = parseBool(params.hideProfile);
+  const hideActivity = params.hideActivity ?? "false";
+  const hideSpotify = parseBool(params.hideSpotify);
   let hideClan = parseBool(params.hideClan);
   let hideDecoration = parseBool(params.hideDecoration);
-  let ignoreAppId = parseAppId(params.ignoreAppId);
+  const ignoreAppId = parseAppId(params.ignoreAppId);
   let hideDiscrim = parseBool(params.hideDiscrim);
-  let showDisplayName = parseBool(params.showDisplayName) || parseBool(params.useDisplayName);
-  let showBanner: boolean | "animated" = parseBool(params.showBanner) || params.showBanner === "animated";
-  let hideNameplate = parseBool(params.hideNameplate);
-  let forceGradient = parseBool(params.forceGradient);
+  const showDisplayName = parseBool(params.showDisplayName) || parseBool(params.useDisplayName);
+  const showBanner: boolean | "animated" = parseBool(params.showBanner) || params.showBanner === "animated";
+  const hideNameplate = parseBool(params.hideNameplate);
+  const forceGradient = parseBool(params.forceGradient);
 
   if (data.activities[0]?.emoji?.animated && !params.optimized) statusExtension = "gif";
   if (data.discord_user.avatar && data.discord_user.avatar.startsWith("a_") && !params.optimized)

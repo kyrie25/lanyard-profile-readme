@@ -36,7 +36,7 @@ export async function GET(req: NextRequest, options: { params: Promise<{ id: str
       },
     );
 
-  let getUser: any = {};
+  const getUser: any = {};
 
   // Implement fetch timeout using AbortController
   const controller = new AbortController();
@@ -101,11 +101,9 @@ export async function GET(req: NextRequest, options: { params: Promise<{ id: str
   };
 
   try {
-    let user = await redis.hget("users", userId);
+    const user = await redis.hget("users", userId);
     if (!user) await redis.hset("users", userId, "true");
-  } catch {
-    null;
-  }
+  } catch {}
 
   const body = await renderCard(getUser.data, params);
   const resLength = Buffer.byteLength(body.toString());

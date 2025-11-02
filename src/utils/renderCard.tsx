@@ -23,7 +23,6 @@ import {
 } from "@/utils/helpers";
 import { getLargeImage } from "@/utils/actions";
 import { encodeBase64 } from "@/utils/toBase64";
-
 import type { API } from "@/types/api";
 import type { LanyardTypes } from "@/types/lanyard";
 
@@ -63,12 +62,11 @@ function getActivityIcon(activity: Activity | string, theme: string) {
 }
 
 async function renderCard(body: Root, params: API.Parameters): Promise<string> {
-  let { data } = body;
+  const { data } = body;
 
   // Parse all configuration parameters
   const config = parseCardParameters(params, data);
   const {
-    avatarExtension,
     statusExtension,
     backgroundColor,
     theme,
@@ -95,8 +93,6 @@ async function renderCard(body: Root, params: API.Parameters): Promise<string> {
     ignoreAppId,
     hideDiscrim,
     showDisplayName,
-    showBanner,
-    hideNameplate,
     forceGradient,
   } = config;
 
@@ -120,7 +116,7 @@ async function renderCard(body: Root, params: API.Parameters): Promise<string> {
   let userStatus: Record<string, any> | null = null;
   if (data.activities[0] && data.activities[0].type === 4) userStatus = data.activities[0];
 
-  let flags: string[] = getFlags(data.discord_user.public_flags);
+  const flags: string[] = getFlags(data.discord_user.public_flags);
   if (
     (data.discord_user.avatar && data.discord_user.avatar.includes("a_")) ||
     userStatus?.emoji?.id ||

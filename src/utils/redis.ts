@@ -16,7 +16,7 @@ if (process.env.REDIS_URL) {
     {},
     {
       get: (_, prop: string) => {
-        return async (...argv: any) => {
+        return async () => {
           if (prop === "exists") {
             return 0;
           }
