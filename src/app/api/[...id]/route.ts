@@ -1,6 +1,7 @@
 import redis from "@/utils/redis";
-import renderCard, { Parameters } from "@/utils/renderCard";
+import renderCard from "@/utils/renderCard";
 import { isSnowflake } from "@/utils/snowflake";
+import type { API } from "@/types/api";
 import { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -94,7 +95,7 @@ export async function GET(req: NextRequest, options: { params: Promise<{ id: str
     );
   }
 
-  const params: Parameters = {
+  const params: API.Parameters = {
     ...Object.fromEntries(req.nextUrl.searchParams.entries()),
     optimized: OPTIMIZE_FOR_VERCEL,
   };

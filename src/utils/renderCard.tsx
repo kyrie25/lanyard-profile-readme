@@ -1,116 +1,36 @@
 /* eslint-disable @next/next/no-img-element */
 "use server";
 
+import { DetailedHTMLProps, HTMLAttributes } from "react";
+import * as Icons from "react-icons/si";
 import { Badges } from "#/public/assets/badges/BadgesEncoded";
 import {
   getDisplayNameStyleClassname,
   getDisplayNameStyleEffectVars,
   getFlags,
-  nameplates,
   renderToStaticMarkup,
-  fetchUserBanner,
-  getAvatarUrl,
-  getClanBadgeUrl,
-  fetchAvatarDecoration,
+  parseCardParameters,
+  prepareUserAssets,
+  getAvatarBorderColor,
+  processActivities,
+  calculateDimensions,
+  parseBool,
+  formatTime,
+  getFormatFromMs,
+  getBlendedColor,
+  getPrefixActivityString,
+  DisplayNameStyleEffectID,
 } from "@/utils/helpers";
-import * as LanyardTypes from "@/utils/LanyardTypes";
+import { getLargeImage } from "@/utils/actions";
 import { encodeBase64 } from "@/utils/toBase64";
-import { DetailedHTMLProps, HTMLAttributes } from "react";
-import { Color, hexToRgb } from "./color";
-import * as Icons from "react-icons/si";
 
-export type Parameters = {
-  theme?: string;
-  bg?: string;
-  clanbg?: string;
-  animated?: string;
-  animatedDecoration?: string;
-  hideNameplate?: string;
-  hideDiscrim?: string;
-  hideStatus?: string;
-  hideTimestamp?: string;
-  hideBadges?: string;
-  hideProfile?: string;
-  hideActivity?: string;
-  hideSpotify?: string;
-  hideClan?: string;
-  hideDecoration?: string;
-  ignoreAppId?: string;
-  showDisplayName?: string;
-  // For the sake of backwards compatibility;
-  useDisplayName?: string;
-  borderRadius?: string;
-  idleMessage?: string;
-  optimized: boolean;
-  animationDuration?: string;
-  waveColor?: string;
-  waveSpotifyColor?: string;
-  gradient?: string;
-  imgStyle?: string;
-  imgBorderRadius?: string;
-  showBanner?: string;
-  bannerFilter?: string;
-  forceGradient?: string;
-};
+import type { API } from "@/types/api";
+import type { LanyardTypes } from "@/types/lanyard";
 
-const parseBool = (string: string | undefined): boolean => (string === "true" ? true : false);
+type Activity = LanyardTypes.Activity;
+type Root = LanyardTypes.Root;
 
-const parseAppId = (string: string | undefined): Array<string> => {
-  if (string === undefined) return [];
-  return string.split(",");
-};
-
-const getFormatFromMs = (ms: number) => {
-  let daysDifference = Math.floor(ms / 60 / 60 / 24);
-  ms -= daysDifference * 60 * 60 * 24;
-
-  let hoursDifference = Math.floor(ms / 60 / 60);
-  ms -= hoursDifference * 60 * 60;
-
-  let minutesDifference = Math.floor(ms / 60);
-  ms -= minutesDifference * 60;
-
-  let secondsDifference = Math.floor(ms);
-
-  return `${hoursDifference >= 1 ? ("0" + hoursDifference).slice(-2) + ":" : ""}${("0" + minutesDifference).slice(
-    -2,
-  )}:${("0" + secondsDifference).slice(-2)}`;
-};
-
-const formatTime = (timestamps: LanyardTypes.Timestamps2) => {
-  const { start, end } = timestamps;
-  // End timestamps is prioritized over start timestamps and displayed accordingly.
-  let startTime = new Date(end || start).getTime();
-  let endTime = Number(new Date());
-  let difference = end ? (startTime - endTime) / 1000 : (endTime - startTime) / 1000;
-  if (difference < 0) return `00:00 ${end ? "left" : "elapsed"}`;
-
-  return `${getFormatFromMs(difference)} ${end ? "left" : "elapsed"}`;
-};
-
-const getBlendedColor = (color1: string, color2: string, theme: string, opacity = 1) => {
-  if (color1 === "transparent") return "transparent";
-  if (color2 === "transparent") color2 = "#fff";
-
-  const rgb1 = hexToRgb(color1);
-  const rgb2 = hexToRgb(color2);
-  const midpoint = theme === "dark" ? 3 : 8;
-  if (rgb1?.length !== 3 || rgb2?.length !== 3) return "#fff";
-
-  const calculateBlend = (a: number, b: number) => {
-    const baseColor = a < b ? a : b;
-    const difference = Math.abs(a - b);
-    return baseColor + Math.floor(difference / 11) * midpoint;
-  };
-
-  const avgR = calculateBlend(rgb1[0], rgb2[0]);
-  const avgG = calculateBlend(rgb1[1], rgb2[1]);
-  const avgB = calculateBlend(rgb1[2], rgb2[2]);
-
-  return new Color(avgR, avgG, avgB).toString(opacity);
-};
-
-function getActivityIcon(activity: LanyardTypes.Activity | string, theme: string) {
+function getActivityIcon(activity: Activity | string, theme: string) {
   const iconList = Object.keys(Icons);
   const icon =
     typeof activity === "string"
@@ -142,329 +62,7 @@ function getActivityIcon(activity: LanyardTypes.Activity | string, theme: string
   return "";
 }
 
-async function getLargeImage(asset: LanyardTypes.Assets | null, application_id?: string): Promise<string> {
-  if (asset?.large_image) {
-    return asset.large_image.startsWith("mp:external/")
-      ? `https://media.discordapp.net/external/${asset.large_image.replace(
-          "mp:external/",
-          "",
-        )}${asset.large_image.includes(".gif") ? "?width=160&height=160" : ""}`
-      : asset.large_image.startsWith("mp:attachments/")
-        ? `https://media.discordapp.net/attachments/${asset.large_image.replace("mp:attachments/", "")}${asset.large_image.includes(".gif") ? "&width=160&height=160" : ""}`
-        : `https://cdn.discordapp.com/app-assets/${application_id}/${asset.large_image}.webp`;
-  }
-
-  const res = await fetch(`${process.env.DISCORD_API_ENDPOINT}/${application_id}`);
-  const data = res.ok ? await res.json() : null;
-
-  if (
-    !data?.id ||
-    (await fetch(`https://cdn.discordapp.com/app-icons/${application_id}/${data.avatar}.webp`, { method: "HEAD" }))
-      .status !== 200
-  ) {
-    return "https://lanyard.kyrie25.dev/assets/unknown.png";
-  }
-
-  return `https://cdn.discordapp.com/app-icons/${application_id}/${data.avatar}.webp`;
-}
-
-function getPrefixActivityString(activity: LanyardTypes.Activity) {
-  switch (activity.type) {
-    case 1:
-      return "Streaming";
-    case 2:
-      return "Listening to";
-    case 3:
-      return "Watching";
-    case 5:
-      return "Competing in";
-    case 0:
-    default:
-      return "";
-  }
-}
-
-type ParsedConfig = {
-  avatarExtension: string;
-  statusExtension: string;
-  backgroundColor: string;
-  theme: "dark" | "light";
-  activityTheme: "dark" | "light";
-  spotifyTheme: "dark" | "light";
-  borderRadius: string;
-  idleMessage: string;
-  animationDuration: string;
-  waveColor: string;
-  waveSpotifyColor: string;
-  gradient: string;
-  imgStyle: string;
-  imgBorderRadius: string;
-  statusRadius: number;
-  clanBackgroundColor: string;
-  bannerFilter: string;
-  hideStatus: boolean;
-  hideTimestamp: boolean;
-  hideBadges: boolean;
-  hideProfile: boolean;
-  hideActivity: string;
-  hideSpotify: boolean;
-  hideClan: boolean;
-  hideDecoration: boolean;
-  ignoreAppId: string[];
-  hideDiscrim: boolean;
-  showDisplayName: boolean;
-  showBanner: boolean | "animated";
-  hideNameplate: boolean;
-  forceGradient: boolean;
-};
-
-function parseCardParameters(params: Parameters, data: LanyardTypes.Data): ParsedConfig {
-  let avatarExtension: string = "webp";
-  let statusExtension: string = "webp";
-  let backgroundColor: string = "101320";
-  let theme: "dark" | "light" = "dark";
-  let activityTheme: "dark" | "light" = "dark";
-  let spotifyTheme: "dark" | "light" = "dark";
-  let borderRadius = "10px";
-  let idleMessage = "I'm not currently doing anything!";
-  let animationDuration = "8s";
-  let waveColor = "7289da";
-  let waveSpotifyColor = "1DB954";
-  let gradient =
-    "rgb(241, 9, 154), rgb(183, 66, 177), rgb(119, 84, 177), rgb(62, 88, 157), rgb(32, 83, 124), rgb(42, 72, 88)";
-  let imgStyle = "circle";
-  let imgBorderRadius = "10px";
-  let statusRadius = 4;
-  let bannerFilter = "";
-
-  let hideStatus = parseBool(params.hideStatus);
-  let hideTimestamp = parseBool(params.hideTimestamp);
-  let hideBadges = parseBool(params.hideBadges);
-  let hideProfile = parseBool(params.hideProfile);
-  let hideActivity = params.hideActivity ?? "false";
-  let hideSpotify = parseBool(params.hideSpotify);
-  let hideClan = parseBool(params.hideClan);
-  let hideDecoration = parseBool(params.hideDecoration);
-  let ignoreAppId = parseAppId(params.ignoreAppId);
-  let hideDiscrim = parseBool(params.hideDiscrim);
-  let showDisplayName = parseBool(params.showDisplayName) || parseBool(params.useDisplayName);
-  let showBanner: boolean | "animated" = parseBool(params.showBanner) || params.showBanner === "animated";
-  let hideNameplate = parseBool(params.hideNameplate);
-  let forceGradient = parseBool(params.forceGradient);
-
-  if (data.activities[0]?.emoji?.animated && !params.optimized) statusExtension = "gif";
-  if (data.discord_user.avatar && data.discord_user.avatar.startsWith("a_") && !params.optimized)
-    avatarExtension = "gif";
-  if (params.animated === "false") avatarExtension = "webp";
-
-  if (!data.discord_user.avatar_decoration_data) hideDecoration = true;
-  if (parseBool(params.hideDiscrim) || data.discord_user.discriminator === "0") hideDiscrim = true;
-  data.discord_user.clan ||= data.discord_user.primary_guild;
-  if (!data.discord_user.clan) hideClan = true;
-
-  if (params.theme === "light") {
-    backgroundColor = "eee";
-    theme = "light";
-    activityTheme = "light";
-    spotifyTheme = "light";
-    waveColor = "FFD1DC";
-  }
-  if (params.bg) backgroundColor = params.bg;
-  let clanBackgroundColor: string = theme === "light" ? "e0dede" : "3f444f";
-  if (params.clanbg) clanBackgroundColor = params.clanbg;
-  if (params.idleMessage) idleMessage = params.idleMessage;
-  if (params.borderRadius) borderRadius = params.borderRadius;
-  if (params.animationDuration) animationDuration = params.animationDuration;
-  if (params.waveColor) {
-    const [color, themeParam] = params.waveColor.split("-");
-    waveColor = color;
-    if (themeParam === "light" || themeParam === "dark") activityTheme = themeParam;
-  }
-  if (params.waveSpotifyColor) {
-    const [color, themeParam] = params.waveSpotifyColor.split("-");
-    waveSpotifyColor = color;
-    if (themeParam === "light" || themeParam === "dark") spotifyTheme = themeParam;
-  }
-  if (params.gradient) {
-    if (params.gradient.includes("-")) gradient = "#" + params.gradient.replaceAll("-", ", #");
-    else gradient = `#${params.gradient}, #${params.gradient}`;
-  }
-  if (params.imgStyle) imgStyle = params.imgStyle;
-  if (params.imgBorderRadius) {
-    imgBorderRadius = params.imgBorderRadius;
-    if (imgBorderRadius.includes("px")) {
-      const conversionValue = 10 / 4;
-      statusRadius = Number(imgBorderRadius.replace("px", "")) / conversionValue;
-    }
-  }
-  if (params.bannerFilter) bannerFilter = params.bannerFilter;
-
-  return {
-    avatarExtension,
-    statusExtension,
-    backgroundColor,
-    theme,
-    activityTheme,
-    spotifyTheme,
-    borderRadius,
-    idleMessage,
-    animationDuration,
-    waveColor,
-    waveSpotifyColor,
-    gradient,
-    imgStyle,
-    imgBorderRadius,
-    statusRadius,
-    clanBackgroundColor,
-    bannerFilter,
-    hideStatus,
-    hideTimestamp,
-    hideBadges,
-    hideProfile,
-    hideActivity,
-    hideSpotify,
-    hideClan,
-    hideDecoration,
-    ignoreAppId,
-    hideDiscrim,
-    showDisplayName,
-    showBanner,
-    hideNameplate,
-    forceGradient,
-  };
-}
-
-type UserAssets = {
-  avatar: string;
-  banner: string;
-  clanBadge: string | null;
-  avatarDecoration: string | null;
-  nameplateHex: string | undefined;
-  nameplateBg: string | undefined;
-  nameplateAsset: string | undefined;
-};
-
-async function prepareUserAssets(
-  data: LanyardTypes.Data,
-  config: ParsedConfig,
-  params: Parameters,
-): Promise<UserAssets> {
-  const { avatarExtension, backgroundColor, theme, hideDecoration, hideProfile, hideNameplate, showBanner } = config;
-
-  // Fetch banner
-  const banner = await fetchUserBanner(data.discord_user.id, showBanner);
-
-  // Fetch and encode avatar
-  const avatar = await encodeBase64(
-    getAvatarUrl(data.discord_user, avatarExtension),
-    avatarExtension === "gif" ? 64 : data.discord_user.avatar ? 128 : 100,
-  );
-
-  // Fetch and encode clan badge
-  let clanBadge: string | null = null;
-  const clanBadgeUrl = getClanBadgeUrl(data.discord_user);
-  if (clanBadgeUrl) {
-    clanBadge = await encodeBase64(clanBadgeUrl, 16);
-  }
-
-  // Fetch and encode avatar decoration
-  let avatarDecoration: string | null = null;
-  if (!hideDecoration) {
-    const decorationUrl = await fetchAvatarDecoration(data.discord_user, params.animatedDecoration);
-    if (decorationUrl) {
-      avatarDecoration = await encodeBase64(decorationUrl, 100, false);
-    }
-  }
-
-  // Process nameplate
-  let nameplateHex: string | undefined = undefined;
-  let nameplateBg: string | undefined = undefined;
-  let nameplateAsset: string | undefined = undefined;
-  const userNameplate = data.discord_user.collectibles?.nameplate;
-  if (!hideNameplate && !hideProfile && userNameplate && nameplates[userNameplate.palette]) {
-    const hex =
-      theme === "dark"
-        ? nameplates[userNameplate.palette].darkBackground
-        : nameplates[userNameplate.palette].lightBackground;
-    const color = new Color(hex);
-    nameplateHex = backgroundColor === "transparent" ? undefined : hex;
-    nameplateBg =
-      backgroundColor === "transparent"
-        ? undefined
-        : `linear-gradient(90deg, ${color.toString(0.1)} 0%, ${color.toString(0.4)} 100%)`;
-    nameplateAsset = await encodeBase64(
-      `https://cdn.discordapp.com/assets/collectibles/${userNameplate.asset}static.png`,
-      100,
-      false,
-    );
-  }
-
-  return {
-    avatar,
-    banner,
-    clanBadge,
-    avatarDecoration,
-    nameplateHex,
-    nameplateBg,
-    nameplateAsset,
-  };
-}
-
-function getAvatarBorderColor(status: string): string {
-  switch (status) {
-    case "online":
-      return "#43B581";
-    case "idle":
-      return "#FAA61A";
-    case "dnd":
-      return "#F04747";
-    case "offline":
-    default:
-      return "#747F8D";
-  }
-}
-
-function processActivities(data: LanyardTypes.Data, ignoreAppId: string[]): LanyardTypes.Activity | false {
-  const activities = data.activities
-    .filter(activity => [0, 1, 2, 3, 5].includes(activity.type))
-    .filter(activity => !ignoreAppId.includes(activity.application_id ?? ""))
-    .filter(activity => !data.listening_to_spotify || activity.type !== 2)
-    .sort((a, b) => a.type - b.type);
-
-  return Array.isArray(activities) ? activities[0] : activities;
-}
-
-function calculateDimensions(
-  hideProfile: boolean,
-  hideActivity: string,
-  activity: any,
-  listeningToSpotify: boolean,
-  hideSpotify: boolean,
-): { svgHeight: string; divHeight: string } {
-  let svgHeight: string;
-  let divHeight: string;
-
-  if (hideProfile) {
-    svgHeight = "130";
-    divHeight = "120";
-  } else if (hideActivity === "true") {
-    svgHeight = "80";
-    divHeight = "80";
-  } else if (hideActivity === "whenNotUsed" && !activity && !listeningToSpotify) {
-    svgHeight = "80";
-    divHeight = "80";
-  } else if (hideSpotify && listeningToSpotify) {
-    svgHeight = "200";
-    divHeight = "200";
-  } else {
-    svgHeight = "200";
-    divHeight = "200";
-  }
-
-  return { svgHeight, divHeight };
-}
-
-async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<string> {
+async function renderCard(body: Root, params: API.Parameters): Promise<string> {
   let { data } = body;
 
   // Parse all configuration parameters
@@ -1015,8 +613,7 @@ async function renderCard(body: LanyardTypes.Root, params: Parameters): Promise<
                             >
                               {data.discord_user.username}
                             </span>
-                            {data.discord_user.display_name_styles?.effect_id ===
-                            LanyardTypes.DisplayNameStyleEffectID.NEON ? (
+                            {data.discord_user.display_name_styles?.effect_id === DisplayNameStyleEffectID.NEON ? (
                               <span className="neonGlow">{data.discord_user.username}</span>
                             ) : null}
                           </>
