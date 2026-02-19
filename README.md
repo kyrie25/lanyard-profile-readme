@@ -8,7 +8,7 @@ Some niche features are also added:
 - Discord profile decorations/effects (e.g. [Display Name Styles](#display-name-styles), [Avatar Decoration](#avatar-decoration), [Nameplates](#nameplates)) are supported.
 - `Time Left` are supported and displayed over `Elapsed Time` whenever possible.
 - Show large image of activities with only application icons. (e.g. CS2, BG3, Genshin, WuWa, etc.)
-- Allows displaying special activities.
+- Able to display special activities (`Listening to`, `Watching`, etc.)
 
 Please do consider giving this fork a star 🌟 if you liked it, it means a lot :)
 
