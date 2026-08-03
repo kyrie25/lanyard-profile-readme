@@ -1,7 +1,7 @@
 import redis from "@/utils/redis";
-import renderCard from "@/utils/renderCard";
 import { isSnowflake } from "@/utils/snowflake";
 import type { CardParameters } from "@/features/card/config/schema";
+import { renderCard } from "@/features/card/server/render-card";
 import { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";

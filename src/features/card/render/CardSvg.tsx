@@ -1,36 +1,34 @@
 /* eslint-disable @next/next/no-img-element */
-"use server";
 
 import type { CSSProperties, DetailedHTMLProps, HTMLAttributes } from "react";
 import * as Icons from "react-icons/si";
 import { Badges } from "#/public/assets/badges/BadgesEncoded";
-import { parseCardParameters } from "@/features/card/config/schema";
-import type { CardParameters } from "@/features/card/config/schema";
 import { DisplayNameStyleEffectID } from "@/features/card/domain/constants";
+import type { CardRenderContext } from "@/features/card/render/types";
 import {
   getDisplayNameStyleClassname,
   getDisplayNameStyleEffectVars,
-  getFlags,
-  prepareUserAssets,
-  getAvatarBorderColor,
-  processActivities,
-  calculateDimensions,
   formatTime,
   getFormatFromMs,
   getBlendedColor,
   getPrefixActivityString,
 } from "@/utils/helpers";
-import { getLargeImage } from "@/utils/actions";
-import { encodeBase64 } from "@/utils/toBase64";
 import type { LanyardTypes } from "@/types/lanyard";
 
 type Activity = LanyardTypes.Activity;
-type Root = LanyardTypes.Root;
-type RenderToStaticMarkup = typeof import("react-dom/server").renderToStaticMarkup;
+type ForeignDivProps = DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> & { xmlns: string };
 
-const renderToStaticMarkupPromise: Promise<RenderToStaticMarkup> = import("react-dom/server").then(
-  module => module.renderToStaticMarkup,
-);
+const WAVE_PATH =
+  "M0 20.7327V7.5817C0 7.5817 47.5312 -1.46932 106.734 1.23824C169.312 2.39863 191.672 13.6508 271.969 14.544C325.828 14.544 360 7.73642 360 7.73642V20.7327H0Z";
+
+function getWaveDataUri(fill: string): string {
+  const svg = `<svg width="360" height="21" viewBox="0 0 360 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="${WAVE_PATH}" fill="${fill}"/></svg>`;
+  return `url(data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")})`;
+}
+
+function ForeignDiv(props: ForeignDivProps) {
+  return <div {...props}>{props.children}</div>;
+}
 
 function getActivityIcon(activity: Activity | string, theme: string) {
   const iconList = Object.keys(Icons);
@@ -64,14 +62,9 @@ function getActivityIcon(activity: Activity | string, theme: string) {
   return "";
 }
 
-async function renderCard(body: Root, params: CardParameters): Promise<string> {
-  const renderToStaticMarkup = await renderToStaticMarkupPromise;
-  const { data } = body;
-
-  // Parse all configuration parameters
-  const config = parseCardParameters(params, data);
+function CardSvg({ context }: { context: CardRenderContext }) {
+  const { data, activity, userStatus, avatarBorderColor, dimensions, config, assets, flags, renderedAt } = context;
   const {
-    statusExtension,
     backgroundColor,
     theme,
     activityTheme,
@@ -94,55 +87,13 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
     hideActivity,
     hideSpotify,
     hideDecoration,
-    ignoreAppId,
     hideDiscrim,
     showDisplayName,
     forceGradient,
   } = config;
-
-  let { hideClan } = config;
-  let activity: any = false;
-
-  // Apply data mutations
-  if (!data.discord_user.avatar_decoration_data) config.hideDecoration = true;
-  body.data.discord_user.clan = body.data.discord_user.clan || body.data.discord_user.primary_guild;
-  if (!body.data.discord_user.clan) hideClan = true;
-  if (showDisplayName && data.discord_user.global_name) data.discord_user.username = data.discord_user.global_name;
-
-  // Prepare all user assets
-  const assets = await prepareUserAssets(data, config, params);
+  const { hideClan } = config;
+  const { svgHeight, divHeight } = dimensions;
   const { avatar, banner, clanBadge, avatarDecoration, nameplateHex, nameplateBg, nameplateAsset } = assets;
-
-  // Calculate avatar border color based on status
-  const avatarBorderColor = getAvatarBorderColor(data.discord_status);
-
-  let userStatus: Record<string, any> | null = null;
-  if (data.activities[0] && data.activities[0].type === 4) userStatus = data.activities[0];
-
-  const flags: string[] = getFlags(data.discord_user.public_flags);
-  if (
-    (data.discord_user.avatar && data.discord_user.avatar.includes("a_")) ||
-    userStatus?.emoji?.id ||
-    data.discord_user.avatar_decoration_data ||
-    banner
-  )
-    flags.push("Nitro");
-
-  // Process activities to get the primary activity
-  activity = processActivities(data, ignoreAppId);
-
-  // Calculate dimensions
-  const { svgHeight, divHeight } = calculateDimensions(
-    hideProfile,
-    hideActivity,
-    activity,
-    data.listening_to_spotify,
-    hideSpotify,
-  );
-
-  const ForeignDiv = (props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> & { xmlns: string }) => (
-    <div {...props}>{props.children}</div>
-  );
 
   const nameplateReflectionMask = "linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.55) 28%, transparent 72%)";
   const nameplateReflectionStyle: CSSProperties = {
@@ -462,7 +413,7 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
             }}
           >
             <img
-              src={`data:image/png;base64,${await encodeBase64(banner, 400)}`}
+              src={`data:image/png;base64,${banner}`}
               alt="User Banner"
               style={{
                 width: "400px",
@@ -715,12 +666,9 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
                       textOverflow: "ellipsis",
                     }}
                   >
-                    {userStatus.emoji?.id ? (
+                    {assets.statusEmoji ? (
                       <img
-                        src={`data:image/png;base64,${await encodeBase64(
-                          `https://cdn.discordapp.com/emojis/${userStatus.emoji.id}.${statusExtension}`,
-                          32,
-                        )}`}
+                        src={`data:image/png;base64,${assets.statusEmoji}`}
                         alt="User Status Emoji"
                         style={{
                           width: "15px",
@@ -767,22 +715,7 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
                 <div
                   style={{
                     position: "absolute",
-                    background: `url(data:image/svg+xml;base64,${Buffer.from(
-                      renderToStaticMarkup(
-                        <svg
-                          width="360"
-                          height="21"
-                          viewBox="0 0 360 21"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M0 20.7327V7.5817C0 7.5817 47.5312 -1.46932 106.734 1.23824C169.312 2.39863 191.672 13.6508 271.969 14.544C325.828 14.544 360 7.73642 360 7.73642V20.7327H0Z"
-                            fill={`#${waveColor}`}
-                          />
-                        </svg>,
-                      ),
-                    ).toString("base64")})`,
+                    background: getWaveDataUri(`#${waveColor}`),
                     WebkitAnimation: `wave ${animationDuration} linear infinite`,
                     animation: `wave ${animationDuration} linear infinite`,
                     WebkitAnimationDelay: "0s",
@@ -795,22 +728,9 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
                 <div
                   style={{
                     position: "absolute",
-                    background: `url(data:image/svg+xml;base64,${Buffer.from(
-                      renderToStaticMarkup(
-                        <svg
-                          width="360"
-                          height="21"
-                          viewBox="0 0 360 21"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M0 20.7327V7.5817C0 7.5817 47.5312 -1.46932 106.734 1.23824C169.312 2.39863 191.672 13.6508 271.969 14.544C325.828 14.544 360 7.73642 360 7.73642V20.7327H0Z"
-                            fill={getBlendedColor(waveColor, nameplateHex ?? backgroundColor, activityTheme)}
-                          />
-                        </svg>,
-                      ),
-                    ).toString("base64")})`,
+                    background: getWaveDataUri(
+                      getBlendedColor(waveColor, nameplateHex ?? backgroundColor, activityTheme),
+                    ),
                     WebkitAnimation: `wave-reverse ${animationDuration} linear infinite`,
                     animation: `wave-reverse ${animationDuration} linear infinite`,
                     WebkitAnimationDelay: "0s",
@@ -839,12 +759,9 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
                     height: "auto",
                   }}
                 >
-                  {activity.assets?.large_image || activity.application_id ? (
+                  {!assets.usesUnknownActivityImage ? (
                     <img
-                      src={`data:image/png;base64,${await encodeBase64(
-                        await getLargeImage(activity.assets, activity.application_id),
-                        196,
-                      )}`}
+                      src={`data:image/png;base64,${assets.activityLargeImage}`}
                       alt="Activity Large Image"
                       style={{
                         width: "80px",
@@ -856,10 +773,7 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
                     />
                   ) : (
                     <img
-                      src={`data:image/png;base64,${await encodeBase64(
-                        `https://lanyard.kyrie25.dev/assets/unknown.png`,
-                        64,
-                      )}`}
+                      src={`data:image/png;base64,${assets.activityLargeImage}`}
                       alt="Unknown Icon"
                       style={{
                         width: "70px",
@@ -870,22 +784,9 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
                     />
                   )}
 
-                  {activity.assets?.small_image ? (
+                  {assets.activitySmallImage ? (
                     <img
-                      src={`data:image/png;base64,${await encodeBase64(
-                        activity.assets.small_image.startsWith("mp:external/")
-                          ? `https://media.discordapp.net/external/${activity.assets.small_image.replace(
-                              "mp:external/",
-                              "",
-                            )}${activity.assets.small_image.includes(".gif") ? "?width=50&height=50" : ""}`
-                          : activity.assets.small_image.startsWith("mp:attachments/")
-                            ? `https://media.discordapp.net/attachments/${activity.assets.small_image.replace(
-                                "mp:attachments/",
-                                "",
-                              )}${activity.assets.small_image.includes(".gif") ? "&width=50&height=50" : ""}`
-                            : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${activity.assets.small_image}.webp`,
-                        64,
-                      )}`}
+                      src={`data:image/png;base64,${assets.activitySmallImage}`}
                       alt="Activity Small Image"
                       style={{
                         width: "30px",
@@ -984,7 +885,7 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
                         <span style={{ color: activityTheme === "dark" ? "#fff" : "#000" }}>
                           {getFormatFromMs(
                             Math.min(
-                              Date.now() - activity.timestamps.start,
+                              renderedAt - activity.timestamps.start,
                               activity.timestamps.end - activity.timestamps.start,
                             ) / 1000,
                           )}
@@ -1004,7 +905,7 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
                             style={{
                               width: `${Math.min(
                                 100,
-                                ((Date.now() - activity.timestamps.start) /
+                                ((renderedAt - activity.timestamps.start) /
                                   (activity.timestamps.end - activity.timestamps.start)) *
                                   100,
                               )}%`,
@@ -1030,7 +931,7 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
                           margin: "7px 0",
                         }}
                       >
-                        {formatTime(activity.timestamps)}
+                        {formatTime(activity.timestamps, renderedAt)}
                       </p>
                     )
                   ) : null}
@@ -1062,22 +963,7 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
                 <div
                   style={{
                     position: "absolute",
-                    background: `url(data:image/svg+xml;base64,${Buffer.from(
-                      renderToStaticMarkup(
-                        <svg
-                          width="360"
-                          height="21"
-                          viewBox="0 0 360 21"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M0 20.7327V7.5817C0 7.5817 47.5312 -1.46932 106.734 1.23824C169.312 2.39863 191.672 13.6508 271.969 14.544C325.828 14.544 360 7.73642 360 7.73642V20.7327H0Z"
-                            fill={`#${waveSpotifyColor}`}
-                          />
-                        </svg>,
-                      ),
-                    ).toString("base64")})`,
+                    background: getWaveDataUri(`#${waveSpotifyColor}`),
                     WebkitAnimation: `wave ${animationDuration} linear infinite`,
                     animation: `wave ${animationDuration} linear infinite`,
                     WebkitAnimationDelay: "0s",
@@ -1090,22 +976,9 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
                 <div
                   style={{
                     position: "absolute",
-                    background: `url(data:image/svg+xml;base64,${Buffer.from(
-                      renderToStaticMarkup(
-                        <svg
-                          width="360"
-                          height="21"
-                          viewBox="0 0 360 21"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M0 20.7327V7.5817C0 7.5817 47.5312 -1.46932 106.734 1.23824C169.312 2.39863 191.672 13.6508 271.969 14.544C325.828 14.544 360 7.73642 360 7.73642V20.7327H0Z"
-                            fill={getBlendedColor(waveSpotifyColor, nameplateHex ?? backgroundColor, spotifyTheme)}
-                          />
-                        </svg>,
-                      ),
-                    ).toString("base64")})`,
+                    background: getWaveDataUri(
+                      getBlendedColor(waveSpotifyColor, nameplateHex ?? backgroundColor, spotifyTheme),
+                    ),
                     WebkitAnimation: `wave-reverse ${animationDuration} linear infinite`,
                     animation: `wave-reverse ${animationDuration} linear infinite`,
                     WebkitAnimationDelay: "0s",
@@ -1128,7 +1001,7 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
                 }}
               >
                 <img
-                  src={`data:image/png;base64,${await encodeBase64(data.spotify.album_art_url ?? "https://lanyard.kyrie25.dev/assets/unknown.png", 80)}`}
+                  src={`data:image/png;base64,${assets.spotifyAlbumArt}`}
                   alt="Spotify Album Art"
                   style={{
                     border: `solid 0.5px #${waveSpotifyColor}`,
@@ -1136,7 +1009,7 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
                     height: "80px",
                     borderRadius: imgBorderRadius,
                     marginRight: "15px",
-                    ...(data.spotify.album_art_url ? {} : { filter: "invert(100)" }),
+                    ...(assets.usesUnknownSpotifyImage ? { filter: "invert(100)" } : {}),
                   }}
                 />
                 <div
@@ -1198,7 +1071,7 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
                       <span style={{ color: spotifyTheme === "dark" ? "#fff" : "#000" }}>
                         {getFormatFromMs(
                           Math.min(
-                            Date.now() - data.spotify.timestamps.start,
+                            renderedAt - data.spotify.timestamps.start,
                             data.spotify.timestamps.end - data.spotify.timestamps.start,
                           ) / 1000,
                         )}
@@ -1218,7 +1091,7 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
                           style={{
                             width: `${Math.min(
                               100,
-                              ((Date.now() - data.spotify.timestamps.start) /
+                              ((renderedAt - data.spotify.timestamps.start) /
                                 (data.spotify.timestamps.end - data.spotify.timestamps.start)) *
                                 100,
                             )}%`,
@@ -1279,7 +1152,7 @@ async function renderCard(body: Root, params: CardParameters): Promise<string> {
     </svg>
   );
 
-  return renderToStaticMarkup(renderedSVG);
+  return renderedSVG;
 }
 
-export default renderCard;
+export default CardSvg;

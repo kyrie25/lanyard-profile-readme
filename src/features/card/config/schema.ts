@@ -73,16 +73,6 @@ export interface ParsedCardConfig {
   forceGradient: boolean;
 }
 
-export interface UserAssets {
-  avatar: string;
-  banner: string;
-  clanBadge: string | null;
-  avatarDecoration: string | null;
-  nameplateHex?: string;
-  nameplateBg?: string;
-  nameplateAsset?: string;
-}
-
 export type ParameterDefinition = { deprecated?: boolean } & (
   | {
       parameter: CardParameterKey;

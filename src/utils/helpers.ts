@@ -1,13 +1,8 @@
-import { DisplayNameStyleEffectID, NAMEPLATES } from "@/features/card/domain/constants";
-import type { CardParameters, ParsedCardConfig, UserAssets } from "@/features/card/config/schema";
+import { DisplayNameStyleEffectID } from "@/features/card/domain/constants";
 import { Color, hexToRgb, generateColorShades } from "@/utils/color";
-import { fetchUserBanner, fetchAvatarDecoration } from "@/utils/actions";
-import { encodeBase64 } from "@/utils/toBase64";
 import type { LanyardTypes } from "@/types/lanyard";
 
-type DiscordUser = LanyardTypes.DiscordUser;
 type DisplayNameStyles = LanyardTypes.DisplayNameStyles;
-type Data = LanyardTypes.Data;
 type Activity = LanyardTypes.Activity;
 type Timestamps2 = LanyardTypes.Timestamps2;
 
@@ -92,12 +87,11 @@ export const getFormatFromMs = (ms: number) => {
   )}:${("0" + secondsDifference).slice(-2)}`;
 };
 
-export const formatTime = (timestamps: Timestamps2) => {
+export const formatTime = (timestamps: Timestamps2, now = Date.now()) => {
   const { start, end } = timestamps;
   // End timestamps is prioritized over start timestamps and displayed accordingly.
   const startTime = new Date(end || start).getTime();
-  const endTime = Number(new Date());
-  const difference = end ? (startTime - endTime) / 1000 : (endTime - startTime) / 1000;
+  const difference = end ? (startTime - now) / 1000 : (now - startTime) / 1000;
   if (difference < 0) return `00:00 ${end ? "left" : "elapsed"}`;
 
   return `${getFormatFromMs(difference)} ${end ? "left" : "elapsed"}`;
@@ -139,147 +133,4 @@ export function getPrefixActivityString(activity: Activity) {
     default:
       return "";
   }
-}
-
-/**
- * Get avatar URL for a Discord user
- */
-export function getAvatarUrl(discordUser: DiscordUser, avatarExtension: string): string {
-  if (discordUser.avatar) {
-    return `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.${avatarExtension}?size=${avatarExtension === "gif" ? "64" : "256"}`;
-  } else {
-    return `https://cdn.discordapp.com/embed/avatars/${
-      discordUser.discriminator === "0"
-        ? Number(BigInt(discordUser.id) >> BigInt(22)) % 6
-        : Number(discordUser.discriminator) % 5
-    }.png`;
-  }
-}
-
-/**
- * Get clan badge URL for a Discord user
- */
-export function getClanBadgeUrl(discordUser: DiscordUser): string | null {
-  if (!discordUser.clan?.badge) return null;
-  return `https://cdn.discordapp.com/clan-badges/${discordUser.clan.identity_guild_id}/${discordUser.clan.badge}.png?size=16`;
-}
-
-export async function prepareUserAssets(
-  data: Data,
-  config: ParsedCardConfig,
-  params: CardParameters,
-): Promise<UserAssets> {
-  const { avatarExtension, backgroundColor, theme, hideDecoration, hideProfile, hideNameplate, showBanner } = config;
-
-  // Fetch banner
-  const banner = await fetchUserBanner(data.discord_user.id, showBanner);
-
-  // Fetch and encode avatar
-  const avatar = await encodeBase64(
-    getAvatarUrl(data.discord_user, avatarExtension),
-    avatarExtension === "gif" ? 64 : data.discord_user.avatar ? 128 : 100,
-  );
-
-  // Fetch and encode clan badge
-  let clanBadge: string | null = null;
-  const clanBadgeUrl = getClanBadgeUrl(data.discord_user);
-  if (clanBadgeUrl) {
-    clanBadge = await encodeBase64(clanBadgeUrl, 16);
-  }
-
-  // Fetch and encode avatar decoration
-  let avatarDecoration: string | null = null;
-  if (!hideDecoration) {
-    const decorationUrl = await fetchAvatarDecoration(data.discord_user, params.animatedDecoration);
-    if (decorationUrl) {
-      avatarDecoration = await encodeBase64(decorationUrl, 100, false);
-    }
-  }
-
-  // Process nameplate
-  let nameplateHex: string | undefined = undefined;
-  let nameplateBg: string | undefined = undefined;
-  let nameplateAsset: string | undefined = undefined;
-  const userNameplate = data.discord_user.collectibles?.nameplate;
-  if (!hideNameplate && !hideProfile && userNameplate) {
-    const hex =
-      theme === "dark"
-        ? NAMEPLATES[userNameplate.palette].darkBackground
-        : NAMEPLATES[userNameplate.palette].lightBackground;
-    const color = new Color(hex);
-    nameplateHex = backgroundColor === "transparent" ? undefined : hex;
-    nameplateBg =
-      backgroundColor === "transparent"
-        ? undefined
-        : `linear-gradient(90deg, ${color.toString(0.1)} 0%, ${color.toString(0.4)} 100%)`;
-    nameplateAsset = await encodeBase64(
-      `https://cdn.discordapp.com/assets/collectibles/${userNameplate.asset}static.png`,
-      100,
-      false,
-    );
-  }
-
-  return {
-    avatar,
-    banner,
-    clanBadge,
-    avatarDecoration,
-    nameplateHex,
-    nameplateBg,
-    nameplateAsset,
-  };
-}
-
-export function getAvatarBorderColor(status: string): string {
-  switch (status) {
-    case "online":
-      return "#43B581";
-    case "idle":
-      return "#FAA61A";
-    case "dnd":
-      return "#F04747";
-    case "offline":
-    default:
-      return "#747F8D";
-  }
-}
-
-export function processActivities(data: Data, ignoreAppId: string[]): Activity | false {
-  const activities = data.activities
-    .filter((activity: Activity) => [0, 1, 2, 3, 5].includes(activity.type))
-    .filter((activity: Activity) => !ignoreAppId.includes(activity.application_id ?? ""))
-    .filter((activity: Activity) => !data.listening_to_spotify || activity.type !== 2)
-    .sort((a: Activity, b: Activity) => a.type - b.type);
-
-  return Array.isArray(activities) ? activities[0] : activities;
-}
-
-export function calculateDimensions(
-  hideProfile: boolean,
-  hideActivity: string,
-  activity: any,
-  listeningToSpotify: boolean,
-  hideSpotify: boolean,
-): { svgHeight: string; divHeight: string } {
-  let svgHeight: string;
-  let divHeight: string;
-
-  if (hideProfile) {
-    svgHeight = "130";
-    divHeight = "120";
-  } else if (hideActivity === "true") {
-    svgHeight = "80";
-    divHeight = "80";
-  } else if (hideActivity === "whenNotUsed" && !activity && !listeningToSpotify) {
-    svgHeight = "80";
-    divHeight = "80";
-  } else if (hideSpotify && listeningToSpotify) {
-    svgHeight = "200";
-    divHeight = "200";
-  } else {
-    svgHeight = "200";
-    divHeight = "200";
-  }
-
-  return { svgHeight, divHeight };
 }

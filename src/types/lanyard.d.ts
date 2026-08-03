@@ -91,6 +91,7 @@ export namespace LanyardTypes {
 
   export interface Party {
     id: string;
+    size?: [number, number];
   }
 
   export interface Assets {

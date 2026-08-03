@@ -2,7 +2,13 @@ import { presenceFixture } from "./fixtures/presence";
 
 import { describe, expect, it } from "vitest";
 import { parseAppId, parseBool, parseCardParameters } from "@/features/card/config/schema";
-import { calculateDimensions, getAvatarUrl, getFormatFromMs, processActivities } from "@/utils/helpers";
+import {
+  getCardDimensions,
+  normalizeCardData,
+  selectPrimaryActivity,
+} from "@/features/card/domain/model";
+import { getAvatarUrl } from "@/features/card/server/load-assets";
+import { getFormatFromMs } from "@/utils/helpers";
 
 describe("card helpers", () => {
   it("parses boolean and app-id parameters", () => {
@@ -36,19 +42,43 @@ describe("card helpers", () => {
 
   it("selects the first supported non-Spotify activity", () => {
     const data = structuredClone(presenceFixture.data);
-    expect(processActivities(data, [])).toMatchObject({ id: "activity", type: 0 });
-    expect(processActivities(data, ["fixture-app"])).toBeUndefined();
+    expect(selectPrimaryActivity(data, [])).toMatchObject({ id: "activity", type: 0 });
+    expect(selectPrimaryActivity(data, ["fixture-app"])).toBeNull();
   });
 
   it("calculates stable card dimensions", () => {
-    expect(calculateDimensions(false, "true", false, false, false)).toEqual({ svgHeight: "80", divHeight: "80" });
-    expect(calculateDimensions(false, "false", false, false, false)).toEqual({ svgHeight: "200", divHeight: "200" });
-    expect(calculateDimensions(true, "false", false, false, false)).toEqual({ svgHeight: "130", divHeight: "120" });
+    const data = structuredClone(presenceFixture.data);
+    const activity = selectPrimaryActivity(data, []);
+
+    expect(getCardDimensions(parseCardParameters({ optimized: false, hideActivity: "true" }, data), activity, data)).toEqual({
+      svgHeight: "80",
+      divHeight: "80",
+    });
+    expect(getCardDimensions(parseCardParameters({ optimized: false }, data), activity, data)).toEqual({
+      svgHeight: "200",
+      divHeight: "200",
+    });
+    expect(getCardDimensions(parseCardParameters({ optimized: false, hideProfile: "true" }, data), activity, data)).toEqual({
+      svgHeight: "130",
+      divHeight: "120",
+    });
   });
 
   it("builds Discord avatar URLs", () => {
     expect(getAvatarUrl(presenceFixture.data.discord_user, "webp")).toContain(
       "/avatars/368399721494216706/fixture-avatar.webp",
     );
+  });
+
+  it("normalizes presence data immutably with an injected render time", () => {
+    const body = structuredClone(presenceFixture);
+    const original = structuredClone(body);
+    const config = parseCardParameters({ optimized: false, showDisplayName: "true" }, body.data);
+    const normalized = normalizeCardData(body, config, 1_700_000_000_000);
+
+    expect(body).toEqual(original);
+    expect(normalized.renderedAt).toBe(1_700_000_000_000);
+    expect(normalized.data.discord_user.username).toBe(body.data.discord_user.global_name);
+    expect(normalized.data.discord_user.clan).toEqual(body.data.discord_user.primary_guild);
   });
 });
