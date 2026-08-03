@@ -1,6 +1,6 @@
 //thanks alistair @ uwu.red
 
-import type { nameplates as Nameplates, DisplayNameStyleEffectID } from "@/utils/helpers";
+import type { DisplayNameStyleEffectID, NameplatePalette } from "@/features/card/domain/constants";
 
 export namespace LanyardTypes {
   export interface Root {
@@ -109,7 +109,7 @@ export namespace LanyardTypes {
     sku_id: number;
     asset: string;
     expires_at: number | null;
-    palette: keyof typeof Nameplates;
+    palette: NameplatePalette;
   }
 
   export interface DisplayNameStyles {

@@ -6,7 +6,8 @@ import useSWR from "swr";
 import { getUserCount } from "@/utils/actions";
 import { isSnowflake } from "@/utils/snowflake";
 import Link from "next/link";
-import { PARAMETER_INFO } from "@/utils/parameters";
+import { CARD_PARAMETER_INFO } from "@/features/card/config/schema";
+import type { CardParameterKey, ConfiguratorOptions } from "@/features/card/config/schema";
 import * as Icon from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
 import { cn, filterLetters } from "@/lib/utils";
@@ -19,7 +20,7 @@ export default function Home() {
   const [copyState, setCopyState] = useState("Copy");
   const [outputType, setOutputType] = useState<"markdown" | "html" | "url">("markdown");
   const [isLoaded, setIsLoaded] = useState(false);
-  const [options, setOptions] = useState<Record<string, string | boolean>>({});
+  const [options, setOptions] = useState<ConfiguratorOptions>({});
 
   const userCount = useSWR("getUserCount", getUserCount);
 
@@ -32,7 +33,7 @@ export default function Home() {
     if (userId.length > 0 && !isSnowflake(userId)) return setUserError("Invalid Discord ID");
   }
 
-  const validOptions = Object.keys(options).filter(
+  const validOptions = (Object.keys(options) as CardParameterKey[]).filter(
     option => options[option] !== undefined && options[option] !== null && options[option] !== "",
   );
   const url = `${ORIGIN_URL}/api/${userId}${
@@ -40,7 +41,7 @@ export default function Home() {
       ? `?${validOptions
           .filter(option => options[option] !== undefined && options[option] !== null && options[option] !== "")
           .filter(option => {
-            const paramInfo = PARAMETER_INFO.find(p => p.parameter === option);
+            const paramInfo = CARD_PARAMETER_INFO.find(p => p.parameter === option);
             return !paramInfo?.displayCondition || paramInfo.displayCondition(options);
           })
           .map(option => `${option}=${options[option]}`)
@@ -205,7 +206,7 @@ export default function Home() {
             )}
           >
             <div className="grid-rows-auto mb-4 flex w-full flex-col gap-2.5 sm:grid sm:grid-cols-2">
-              {PARAMETER_INFO.filter(item => item.type !== "boolean")
+              {CARD_PARAMETER_INFO.filter(item => item.type !== "boolean")
                 .filter(item => !item.displayCondition || item.displayCondition(options))
                 .map(item => {
                   return (
@@ -243,12 +244,7 @@ export default function Home() {
                           className="relative h-8 w-full appearance-none rounded-md border border-white/10 bg-transparent px-2 py-0.5 text-sm transition-all duration-150 ease-out outline-none placeholder:text-white/30 focus:border-white/50 disabled:cursor-not-allowed disabled:opacity-50"
                           placeholder={item.options?.placeholder || "..."}
                           onChange={e => {
-                            const filteredValue = encodeURIComponent(
-                              filterLetters(
-                                e.target.value,
-                                (PARAMETER_INFO.find(p => p.parameter === item.parameter) as any).options.omit,
-                              ),
-                            );
+                            const filteredValue = encodeURIComponent(filterLetters(e.target.value, item.options?.omit));
 
                             setOptions(prev => ({
                               ...prev,
@@ -299,7 +295,7 @@ export default function Home() {
 
             {/* Separated for easier styling/readability */}
             <div className="sm:grid-rows-auto flex flex-col gap-2 sm:grid sm:grid-cols-2">
-              {PARAMETER_INFO.filter(item => item.type === "boolean")
+              {CARD_PARAMETER_INFO.filter(item => item.type === "boolean")
                 .filter(item => !item.displayCondition || item.displayCondition(options))
                 .map(item => {
                   return (
@@ -333,9 +329,7 @@ export default function Home() {
                       <p
                         className="text-gray-300"
                         style={{
-                          textDecoration: PARAMETER_INFO.find(p => p.parameter === item.parameter)?.deprecated
-                            ? "line-through"
-                            : "none",
+                          textDecoration: item.deprecated ? "line-through" : "none",
                         }}
                       >
                         {item.title}

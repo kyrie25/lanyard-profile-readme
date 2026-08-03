@@ -1,15 +1,8 @@
 import { presenceFixture } from "./fixtures/presence";
 
 import { describe, expect, it } from "vitest";
-import {
-  calculateDimensions,
-  getAvatarUrl,
-  getFormatFromMs,
-  parseAppId,
-  parseBool,
-  parseCardParameters,
-  processActivities,
-} from "@/utils/helpers";
+import { parseAppId, parseBool, parseCardParameters } from "@/features/card/config/schema";
+import { calculateDimensions, getAvatarUrl, getFormatFromMs, processActivities } from "@/utils/helpers";
 
 describe("card helpers", () => {
   it("parses boolean and app-id parameters", () => {
@@ -38,7 +31,7 @@ describe("card helpers", () => {
       hideClan: false,
       showBanner: false,
     });
-    expect(data.discord_user.clan).toEqual(data.discord_user.primary_guild);
+    expect(data.discord_user.clan).toBeNull();
   });
 
   it("selects the first supported non-Spotify activity", () => {

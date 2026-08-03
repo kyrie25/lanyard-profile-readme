@@ -1,30 +1,15 @@
-import type { renderToStaticMarkup as _renderToStaticMarkup } from "react-dom/server";
+import { DisplayNameStyleEffectID, NAMEPLATES } from "@/features/card/domain/constants";
+import type { CardParameters, ParsedCardConfig, UserAssets } from "@/features/card/config/schema";
 import { Color, hexToRgb, generateColorShades } from "@/utils/color";
 import { fetchUserBanner, fetchAvatarDecoration } from "@/utils/actions";
 import { encodeBase64 } from "@/utils/toBase64";
 import type { LanyardTypes } from "@/types/lanyard";
-import type { API } from "@/types/api";
 
 type DiscordUser = LanyardTypes.DiscordUser;
 type DisplayNameStyles = LanyardTypes.DisplayNameStyles;
 type Data = LanyardTypes.Data;
 type Activity = LanyardTypes.Activity;
 type Timestamps2 = LanyardTypes.Timestamps2;
-
-export enum DisplayNameStyleEffectID {
-  UNKNOWN,
-  SOLID,
-  GRADIENT,
-  NEON,
-  TOON,
-  POP,
-  GLOW,
-}
-
-export let renderToStaticMarkup: typeof _renderToStaticMarkup;
-import("react-dom/server").then(module => {
-  renderToStaticMarkup = module.renderToStaticMarkup;
-});
 
 export const getFlags = (flag: number): string[] => {
   const flags: string[] = [];
@@ -44,64 +29,6 @@ export const getFlags = (flag: number): string[] => {
   if (flag & 512) flags.push("Early_Supporter"); // 1 << 9
 
   return flags;
-};
-
-export const nameplates = {
-  crimson: {
-    darkBackground: "#900007",
-    lightBackground: "#E7040F",
-    name: "Crimson",
-  },
-  berry: {
-    darkBackground: "#893A99",
-    lightBackground: "#B11FCF",
-    name: "Berry",
-  },
-  sky: {
-    darkBackground: "#0080B7",
-    lightBackground: "#56CCFF",
-    name: "Sky",
-  },
-  teal: {
-    darkBackground: "#086460",
-    lightBackground: "#7DEED7",
-    name: "Teal",
-  },
-  forest: {
-    darkBackground: "#2D5401",
-    lightBackground: "#6AA624",
-    name: "Forest",
-  },
-  bubblegum: {
-    darkBackground: "#DC3E97",
-    lightBackground: "#F957B3",
-    name: "BubbleGum",
-  },
-  violet: {
-    darkBackground: "#730BC8",
-    lightBackground: "#972FED",
-    name: "Violet",
-  },
-  cobalt: {
-    darkBackground: "#0131C2",
-    lightBackground: "#4278FF",
-    name: "Cobalt",
-  },
-  clover: {
-    darkBackground: "#047B20",
-    lightBackground: "#63CD5A",
-    name: "Clover",
-  },
-  lemon: {
-    darkBackground: "#F6CD12",
-    lightBackground: "#FED400",
-    name: "Lemon",
-  },
-  white: {
-    darkBackground: "#FFFFFF",
-    lightBackground: "#FFFFFF",
-    name: "White",
-  },
 };
 
 export function getDisplayNameStyleClassname({ effect_id }: DisplayNameStyles): string {
@@ -147,13 +74,6 @@ export function getDisplayNameStyleEffectVars(styles: DisplayNameStyles | null):
     "--custom-display-name-styles-dark-2-color": colorShades.dark2,
   };
 }
-
-export const parseBool = (string: string | undefined): boolean => (string === "true" ? true : false);
-
-export const parseAppId = (string: string | undefined): Array<string> => {
-  if (string === undefined) return [];
-  return string.split(",");
-};
 
 export const getFormatFromMs = (ms: number) => {
   const daysDifference = Math.floor(ms / 60 / 60 / 24);
@@ -244,127 +164,11 @@ export function getClanBadgeUrl(discordUser: DiscordUser): string | null {
   return `https://cdn.discordapp.com/clan-badges/${discordUser.clan.identity_guild_id}/${discordUser.clan.badge}.png?size=16`;
 }
 
-export function parseCardParameters(params: API.Parameters, data: Data): API.ParsedConfig {
-  let avatarExtension: string = "webp";
-  let statusExtension: string = "webp";
-  let backgroundColor: string = "101320";
-  let theme: "dark" | "light" = "dark";
-  let activityTheme: "dark" | "light" = "dark";
-  let spotifyTheme: "dark" | "light" = "dark";
-  let borderRadius = "10px";
-  let idleMessage = "I'm not currently doing anything!";
-  let animationDuration = "8s";
-  let waveColor = "7289da";
-  let waveSpotifyColor = "1DB954";
-  let gradient =
-    "rgb(241, 9, 154), rgb(183, 66, 177), rgb(119, 84, 177), rgb(62, 88, 157), rgb(32, 83, 124), rgb(42, 72, 88)";
-  let imgStyle = "circle";
-  let imgBorderRadius = "10px";
-  let statusRadius = 4;
-  let bannerFilter = "";
-
-  const hideStatus = parseBool(params.hideStatus);
-  const hideTimestamp = parseBool(params.hideTimestamp);
-  const hideBadges = parseBool(params.hideBadges);
-  const hideProfile = parseBool(params.hideProfile);
-  const hideActivity = params.hideActivity ?? "false";
-  const hideSpotify = parseBool(params.hideSpotify);
-  let hideClan = parseBool(params.hideClan);
-  let hideDecoration = parseBool(params.hideDecoration);
-  const ignoreAppId = parseAppId(params.ignoreAppId);
-  let hideDiscrim = parseBool(params.hideDiscrim);
-  const showDisplayName = parseBool(params.showDisplayName) || parseBool(params.useDisplayName);
-  const showBanner: boolean | "animated" = parseBool(params.showBanner) || params.showBanner === "animated";
-  const hideNameplate = parseBool(params.hideNameplate);
-  const forceGradient = parseBool(params.forceGradient);
-
-  if (data.activities[0]?.emoji?.animated && !params.optimized) statusExtension = "gif";
-  if (data.discord_user.avatar && data.discord_user.avatar.startsWith("a_") && !params.optimized)
-    avatarExtension = "gif";
-  if (params.animated === "false") avatarExtension = "webp";
-
-  if (!data.discord_user.avatar_decoration_data) hideDecoration = true;
-  if (parseBool(params.hideDiscrim) || data.discord_user.discriminator === "0") hideDiscrim = true;
-  data.discord_user.clan ||= data.discord_user.primary_guild;
-  if (!data.discord_user.clan) hideClan = true;
-
-  if (params.theme === "light") {
-    backgroundColor = "eee";
-    theme = "light";
-    activityTheme = "light";
-    spotifyTheme = "light";
-    waveColor = "FFD1DC";
-  }
-  if (params.bg) backgroundColor = params.bg;
-  let clanBackgroundColor: string = theme === "light" ? "e0dede" : "3f444f";
-  if (params.clanbg) clanBackgroundColor = params.clanbg;
-  if (params.idleMessage) idleMessage = params.idleMessage;
-  if (params.borderRadius) borderRadius = params.borderRadius;
-  if (params.animationDuration) animationDuration = params.animationDuration;
-  if (params.waveColor) {
-    const [color, themeParam] = params.waveColor.split("-");
-    waveColor = color;
-    if (themeParam === "light" || themeParam === "dark") activityTheme = themeParam;
-  }
-  if (params.waveSpotifyColor) {
-    const [color, themeParam] = params.waveSpotifyColor.split("-");
-    waveSpotifyColor = color;
-    if (themeParam === "light" || themeParam === "dark") spotifyTheme = themeParam;
-  }
-  if (params.gradient) {
-    if (params.gradient.includes("-")) gradient = "#" + params.gradient.replaceAll("-", ", #");
-    else gradient = `#${params.gradient}, #${params.gradient}`;
-  }
-  if (params.imgStyle) imgStyle = params.imgStyle;
-  if (params.imgBorderRadius) {
-    imgBorderRadius = params.imgBorderRadius;
-    if (imgBorderRadius.includes("px")) {
-      const conversionValue = 10 / 4;
-      statusRadius = Number(imgBorderRadius.replace("px", "")) / conversionValue;
-    }
-  }
-  if (params.bannerFilter) bannerFilter = params.bannerFilter;
-
-  return {
-    avatarExtension,
-    statusExtension,
-    backgroundColor,
-    theme,
-    activityTheme,
-    spotifyTheme,
-    borderRadius,
-    idleMessage,
-    animationDuration,
-    waveColor,
-    waveSpotifyColor,
-    gradient,
-    imgStyle,
-    imgBorderRadius,
-    statusRadius,
-    clanBackgroundColor,
-    bannerFilter,
-    hideStatus,
-    hideTimestamp,
-    hideBadges,
-    hideProfile,
-    hideActivity,
-    hideSpotify,
-    hideClan,
-    hideDecoration,
-    ignoreAppId,
-    hideDiscrim,
-    showDisplayName,
-    showBanner,
-    hideNameplate,
-    forceGradient,
-  };
-}
-
 export async function prepareUserAssets(
   data: Data,
-  config: API.ParsedConfig,
-  params: API.Parameters,
-): Promise<API.UserAssets> {
+  config: ParsedCardConfig,
+  params: CardParameters,
+): Promise<UserAssets> {
   const { avatarExtension, backgroundColor, theme, hideDecoration, hideProfile, hideNameplate, showBanner } = config;
 
   // Fetch banner
@@ -397,11 +201,11 @@ export async function prepareUserAssets(
   let nameplateBg: string | undefined = undefined;
   let nameplateAsset: string | undefined = undefined;
   const userNameplate = data.discord_user.collectibles?.nameplate;
-  if (!hideNameplate && !hideProfile && userNameplate && nameplates[userNameplate.palette as keyof typeof nameplates]) {
+  if (!hideNameplate && !hideProfile && userNameplate) {
     const hex =
       theme === "dark"
-        ? nameplates[userNameplate.palette as keyof typeof nameplates].darkBackground
-        : nameplates[userNameplate.palette as keyof typeof nameplates].lightBackground;
+        ? NAMEPLATES[userNameplate.palette].darkBackground
+        : NAMEPLATES[userNameplate.palette].lightBackground;
     const color = new Color(hex);
     nameplateHex = backgroundColor === "transparent" ? undefined : hex;
     nameplateBg =

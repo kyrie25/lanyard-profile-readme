@@ -1,4 +1,8 @@
-export type Parameters = {
+import type { LanyardTypes } from "@/types/lanyard";
+
+type Data = LanyardTypes.Data;
+
+export type CardParameters = {
   theme?: string;
   bg?: string;
   clanbg?: string;
@@ -13,52 +17,100 @@ export type Parameters = {
   hideSpotify?: string;
   hideClan?: string;
   hideDecoration?: string;
+  hideNameplate?: string;
   ignoreAppId?: string;
   showDisplayName?: string;
+  useDisplayName?: string;
   borderRadius?: string;
   idleMessage?: string;
+  animationDuration?: string;
+  waveColor?: string;
+  waveSpotifyColor?: string;
+  gradient?: string;
+  imgStyle?: string;
+  imgBorderRadius?: string;
+  showBanner?: string;
+  bannerFilter?: string;
+  forceGradient?: string;
+  optimized: boolean;
 };
 
-export type IParameterInfo = Array<
-  { deprecated?: boolean } & (
-    | {
-        parameter: string;
-        type: "boolean";
-        title: string;
-        description?: string;
-        options?: {
-          defaultBool?: boolean;
-        };
-        displayCondition?: (options: Record<string, any>) => boolean;
-      }
-    | {
-        parameter: string;
-        type: "string";
-        title: string;
-        description?: string;
-        options?: {
-          placeholder?: string;
-          omit?: string[];
-        };
-        displayCondition?: (options: Record<string, any>) => boolean;
-      }
-    | {
-        parameter: string;
-        type: "list";
-        title: string;
-        description?: string;
-        options: {
-          list: Array<{
-            name: string;
-            value: string;
-          }>;
-        };
-        displayCondition?: (options: Record<string, any>) => boolean;
-      }
-  )
->;
+export type HideActivityMode = "false" | "true" | "whenNotUsed";
+export type CardParameterKey = Exclude<keyof CardParameters, "optimized" | "useDisplayName">;
+export type ConfiguratorOptions = Partial<Record<CardParameterKey, string>>;
 
-export const PARAMETER_INFO: IParameterInfo = [
+export interface ParsedCardConfig {
+  avatarExtension: string;
+  statusExtension: string;
+  backgroundColor: string;
+  theme: "dark" | "light";
+  activityTheme: "dark" | "light";
+  spotifyTheme: "dark" | "light";
+  borderRadius: string;
+  idleMessage: string;
+  animationDuration: string;
+  waveColor: string;
+  waveSpotifyColor: string;
+  gradient: string;
+  imgStyle: string;
+  imgBorderRadius: string;
+  statusRadius: number;
+  clanBackgroundColor: string;
+  bannerFilter: string;
+  hideStatus: boolean;
+  hideTimestamp: boolean;
+  hideBadges: boolean;
+  hideProfile: boolean;
+  hideActivity: HideActivityMode;
+  hideSpotify: boolean;
+  hideClan: boolean;
+  hideDecoration: boolean;
+  ignoreAppId: string[];
+  hideDiscrim: boolean;
+  showDisplayName: boolean;
+  showBanner: boolean | "animated";
+  hideNameplate: boolean;
+  forceGradient: boolean;
+}
+
+export interface UserAssets {
+  avatar: string;
+  banner: string;
+  clanBadge: string | null;
+  avatarDecoration: string | null;
+  nameplateHex?: string;
+  nameplateBg?: string;
+  nameplateAsset?: string;
+}
+
+export type ParameterDefinition = { deprecated?: boolean } & (
+  | {
+      parameter: CardParameterKey;
+      type: "boolean";
+      title: string;
+      description?: string;
+      options?: { defaultBool?: boolean };
+      displayCondition?: (options: ConfiguratorOptions) => boolean;
+    }
+  | {
+      parameter: CardParameterKey;
+      type: "string";
+      title: string;
+      description?: string;
+      options?: { placeholder?: string; omit?: string[] };
+      displayCondition?: (options: ConfiguratorOptions) => boolean;
+    }
+  | {
+      parameter: CardParameterKey;
+      type: "list";
+      title: string;
+      description?: string;
+      options: { list: Array<{ name: string; value: string }> };
+      displayCondition?: (options: ConfiguratorOptions) => boolean;
+    }
+);
+
+export const CARD_PARAMETER_INFO = [
   {
     parameter: "bg",
     type: "string",
@@ -224,7 +276,7 @@ export const PARAMETER_INFO: IParameterInfo = [
     options: {
       placeholder: "brightness(0.8) blur(2px)",
     },
-    displayCondition: (options: Record<string, any>) => {
+    displayCondition: options => {
       return options.showBanner === "true" || options.showBanner === "animated";
     },
   },
@@ -272,7 +324,7 @@ export const PARAMETER_INFO: IParameterInfo = [
     type: "boolean",
     title: "Hide Nameplate",
     description: "Hides the nameplate.",
-    displayCondition: (options: Record<string, any>) => {
+    displayCondition: options => {
       return options.hideProfile !== "true";
     },
   },
@@ -325,4 +377,120 @@ export const PARAMETER_INFO: IParameterInfo = [
     description: "Hides your discriminator. (DEPRECATED, RIP)",
     deprecated: true,
   },
-] as IParameterInfo;
+] satisfies readonly ParameterDefinition[];
+
+export const parseBool = (value: string | undefined): boolean => value === "true";
+
+export const parseAppId = (value: string | undefined): string[] => (value ? value.split(",") : []);
+
+export function parseCardParameters(params: CardParameters, data: Data): ParsedCardConfig {
+  let avatarExtension = "webp";
+  let statusExtension = "webp";
+  let backgroundColor = "101320";
+  let theme: ParsedCardConfig["theme"] = "dark";
+  let activityTheme: ParsedCardConfig["activityTheme"] = "dark";
+  let spotifyTheme: ParsedCardConfig["spotifyTheme"] = "dark";
+  let borderRadius = "10px";
+  let idleMessage = "I'm not currently doing anything!";
+  let animationDuration = "8s";
+  let waveColor = "7289da";
+  let waveSpotifyColor = "1DB954";
+  let gradient =
+    "rgb(241, 9, 154), rgb(183, 66, 177), rgb(119, 84, 177), rgb(62, 88, 157), rgb(32, 83, 124), rgb(42, 72, 88)";
+  let imgStyle = "circle";
+  let imgBorderRadius = "10px";
+  let statusRadius = 4;
+  let bannerFilter = "";
+
+  const hideStatus = parseBool(params.hideStatus);
+  const hideTimestamp = parseBool(params.hideTimestamp);
+  const hideBadges = parseBool(params.hideBadges);
+  const hideProfile = parseBool(params.hideProfile);
+  const hideActivity: HideActivityMode =
+    params.hideActivity === "true" || params.hideActivity === "whenNotUsed" ? params.hideActivity : "false";
+  const hideSpotify = parseBool(params.hideSpotify);
+  let hideClan = parseBool(params.hideClan);
+  let hideDecoration = parseBool(params.hideDecoration);
+  const ignoreAppId = parseAppId(params.ignoreAppId);
+  const hideDiscrim = parseBool(params.hideDiscrim) || data.discord_user.discriminator === "0";
+  const showDisplayName = parseBool(params.showDisplayName) || parseBool(params.useDisplayName);
+  const showBanner: boolean | "animated" = parseBool(params.showBanner) || params.showBanner === "animated";
+  const hideNameplate = parseBool(params.hideNameplate);
+  const forceGradient = parseBool(params.forceGradient);
+
+  if (data.activities[0]?.emoji?.animated && !params.optimized) statusExtension = "gif";
+  if (data.discord_user.avatar?.startsWith("a_") && !params.optimized) avatarExtension = "gif";
+  if (params.animated === "false") avatarExtension = "webp";
+  if (!data.discord_user.avatar_decoration_data) hideDecoration = true;
+  if (!data.discord_user.clan && !data.discord_user.primary_guild) hideClan = true;
+
+  if (params.theme === "light") {
+    backgroundColor = "eee";
+    theme = "light";
+    activityTheme = "light";
+    spotifyTheme = "light";
+    waveColor = "FFD1DC";
+  }
+  if (params.bg) backgroundColor = params.bg;
+
+  let clanBackgroundColor = theme === "light" ? "e0dede" : "3f444f";
+  if (params.clanbg) clanBackgroundColor = params.clanbg;
+  if (params.idleMessage) idleMessage = params.idleMessage;
+  if (params.borderRadius) borderRadius = params.borderRadius;
+  if (params.animationDuration) animationDuration = params.animationDuration;
+  if (params.waveColor) {
+    const [color, themeParam] = params.waveColor.split("-");
+    waveColor = color;
+    if (themeParam === "light" || themeParam === "dark") activityTheme = themeParam;
+  }
+  if (params.waveSpotifyColor) {
+    const [color, themeParam] = params.waveSpotifyColor.split("-");
+    waveSpotifyColor = color;
+    if (themeParam === "light" || themeParam === "dark") spotifyTheme = themeParam;
+  }
+  if (params.gradient) {
+    gradient = params.gradient.includes("-")
+      ? `#${params.gradient.replaceAll("-", ", #")}`
+      : `#${params.gradient}, #${params.gradient}`;
+  }
+  if (params.imgStyle) imgStyle = params.imgStyle;
+  if (params.imgBorderRadius) {
+    imgBorderRadius = params.imgBorderRadius;
+    if (imgBorderRadius.includes("px")) statusRadius = Number(imgBorderRadius.replace("px", "")) / (10 / 4);
+  }
+  if (params.bannerFilter) bannerFilter = params.bannerFilter;
+
+  return {
+    avatarExtension,
+    statusExtension,
+    backgroundColor,
+    theme,
+    activityTheme,
+    spotifyTheme,
+    borderRadius,
+    idleMessage,
+    animationDuration,
+    waveColor,
+    waveSpotifyColor,
+    gradient,
+    imgStyle,
+    imgBorderRadius,
+    statusRadius,
+    clanBackgroundColor,
+    bannerFilter,
+    hideStatus,
+    hideTimestamp,
+    hideBadges,
+    hideProfile,
+    hideActivity,
+    hideSpotify,
+    hideClan,
+    hideDecoration,
+    ignoreAppId,
+    hideDiscrim,
+    showDisplayName,
+    showBanner,
+    hideNameplate,
+    forceGradient,
+  };
+}

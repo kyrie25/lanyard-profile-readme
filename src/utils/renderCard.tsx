@@ -4,30 +4,33 @@
 import type { CSSProperties, DetailedHTMLProps, HTMLAttributes } from "react";
 import * as Icons from "react-icons/si";
 import { Badges } from "#/public/assets/badges/BadgesEncoded";
+import { parseCardParameters } from "@/features/card/config/schema";
+import type { CardParameters } from "@/features/card/config/schema";
+import { DisplayNameStyleEffectID } from "@/features/card/domain/constants";
 import {
   getDisplayNameStyleClassname,
   getDisplayNameStyleEffectVars,
   getFlags,
-  renderToStaticMarkup,
-  parseCardParameters,
   prepareUserAssets,
   getAvatarBorderColor,
   processActivities,
   calculateDimensions,
-  parseBool,
   formatTime,
   getFormatFromMs,
   getBlendedColor,
   getPrefixActivityString,
-  DisplayNameStyleEffectID,
 } from "@/utils/helpers";
 import { getLargeImage } from "@/utils/actions";
 import { encodeBase64 } from "@/utils/toBase64";
-import type { API } from "@/types/api";
 import type { LanyardTypes } from "@/types/lanyard";
 
 type Activity = LanyardTypes.Activity;
 type Root = LanyardTypes.Root;
+type RenderToStaticMarkup = typeof import("react-dom/server").renderToStaticMarkup;
+
+const renderToStaticMarkupPromise: Promise<RenderToStaticMarkup> = import("react-dom/server").then(
+  module => module.renderToStaticMarkup,
+);
 
 function getActivityIcon(activity: Activity | string, theme: string) {
   const iconList = Object.keys(Icons);
@@ -61,7 +64,8 @@ function getActivityIcon(activity: Activity | string, theme: string) {
   return "";
 }
 
-async function renderCard(body: Root, params: API.Parameters): Promise<string> {
+async function renderCard(body: Root, params: CardParameters): Promise<string> {
+  const renderToStaticMarkup = await renderToStaticMarkupPromise;
   const { data } = body;
 
   // Parse all configuration parameters
@@ -101,7 +105,6 @@ async function renderCard(body: Root, params: API.Parameters): Promise<string> {
 
   // Apply data mutations
   if (!data.discord_user.avatar_decoration_data) config.hideDecoration = true;
-  if (parseBool(params.hideDiscrim) || body.data.discord_user.discriminator === "0") config.hideDiscrim = true;
   body.data.discord_user.clan = body.data.discord_user.clan || body.data.discord_user.primary_guild;
   if (!body.data.discord_user.clan) hideClan = true;
   if (showDisplayName && data.discord_user.global_name) data.discord_user.username = data.discord_user.global_name;
