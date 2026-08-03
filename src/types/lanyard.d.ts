@@ -9,7 +9,7 @@ export namespace LanyardTypes {
   }
 
   export interface Data {
-    spotify: Spotify;
+    spotify: Spotify | null;
     listening_to_spotify: boolean;
     discord_user: DiscordUser;
     discord_status: string;

@@ -58,7 +58,7 @@ export async function loadCardAssets(
       : undefined;
   const clanBadgeUrl = getClanBadgeUrl(user);
   const usesUnknownActivityImage = !activity?.assets?.large_image && !activity?.application_id;
-  const usesUnknownSpotifyImage = !data.spotify.album_art_url;
+  const usesUnknownSpotifyImage = !data.spotify?.album_art_url;
 
   const [
     avatar,
@@ -98,7 +98,7 @@ export async function loadCardAssets(
           return url ? encodeBase64(url, 64) : undefined;
         })()
       : undefined,
-    data.listening_to_spotify
+    data.listening_to_spotify && data.spotify
       ? encodeBase64(data.spotify.album_art_url || UNKNOWN_IMAGE_URL, 80)
       : undefined,
   ]);
