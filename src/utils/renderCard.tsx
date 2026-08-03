@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use server";
 
-import { DetailedHTMLProps, HTMLAttributes } from "react";
+import type { CSSProperties, DetailedHTMLProps, HTMLAttributes } from "react";
 import * as Icons from "react-icons/si";
 import { Badges } from "#/public/assets/badges/BadgesEncoded";
 import {
@@ -140,6 +140,21 @@ async function renderCard(body: Root, params: API.Parameters): Promise<string> {
   const ForeignDiv = (props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> & { xmlns: string }) => (
     <div {...props}>{props.children}</div>
   );
+
+  const nameplateReflectionMask = "linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.55) 28%, transparent 72%)";
+  const nameplateReflectionStyle: CSSProperties = {
+    position: "absolute",
+    top: -1,
+    right: 0,
+    zIndex: 0,
+    height: "80px",
+    objectFit: "cover",
+    transform: "scaleY(-1)",
+    opacity: 0.48,
+    filter: "blur(0.5px) saturate(0.75)",
+    maskImage: nameplateReflectionMask,
+    WebkitMaskImage: nameplateReflectionMask,
+  };
 
   const renderedSVG = (
     <svg xmlns="http://www.w3.org/2000/svg" width="400px" height={svgHeight}>
@@ -741,16 +756,7 @@ async function renderCard(body: Root, params: API.Parameters): Promise<string> {
               >
                 {nameplateAsset ? (
                   <img
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      right: 0,
-                      zIndex: 0,
-                      height: "80px",
-                      objectFit: "cover",
-                      transform: "rotate(180deg) scaleX(-1)",
-                      maskImage: `linear-gradient(to bottom, transparent 25%, #000 100%)`,
-                    }}
+                    style={nameplateReflectionStyle}
                     src={`data:image/png;base64,${nameplateAsset}`}
                     alt="User Nameplate"
                   />
@@ -1045,16 +1051,7 @@ async function renderCard(body: Root, params: API.Parameters): Promise<string> {
               >
                 {nameplateAsset ? (
                   <img
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      right: 0,
-                      zIndex: 0,
-                      height: "80px",
-                      objectFit: "cover",
-                      transform: "rotate(180deg) scaleX(-1)",
-                      maskImage: `linear-gradient(to bottom, transparent 25%, #000 100%)`,
-                    }}
+                    style={nameplateReflectionStyle}
                     src={`data:image/png;base64,${nameplateAsset}`}
                     alt="User Nameplate"
                   />
@@ -1254,15 +1251,7 @@ async function renderCard(body: Root, params: API.Parameters): Promise<string> {
               {nameplateAsset ? (
                 <div style={{ position: "absolute", top: -1, right: 0, height: "80px", width: "100%" }}>
                   <img
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      right: 0,
-                      height: "80px",
-                      objectFit: "cover",
-                      transform: "rotate(180deg) scaleX(-1)",
-                      maskImage: `linear-gradient(to bottom, transparent 25%, #000 100%)`,
-                    }}
+                    style={nameplateReflectionStyle}
                     src={`data:image/png;base64,${nameplateAsset}`}
                     alt="User Nameplate"
                   />
