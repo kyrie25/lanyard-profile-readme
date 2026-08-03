@@ -3,7 +3,8 @@ import type { CardParameters, ParsedCardConfig } from "@/features/card/config/sc
 import type { NormalizedCardData } from "@/features/card/domain/model";
 import type { PreparedCardAssets } from "@/features/card/render/types";
 import type { LanyardTypes } from "@/types/lanyard";
-import { fetchAvatarDecoration, fetchUserBanner, getLargeImage } from "@/utils/actions";
+import { fetchUserBanner } from "@/features/card/server/banner-service";
+import { fetchAvatarDecoration, getLargeImage } from "@/features/card/server/discord-assets";
 import { Color } from "@/utils/color";
 import { encodeBase64 } from "@/utils/toBase64";
 

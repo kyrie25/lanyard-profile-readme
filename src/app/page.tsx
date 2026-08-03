@@ -11,7 +11,7 @@ import { CardPreview } from "@/features/configurator/CardPreview";
 import { CopyOutput } from "@/features/configurator/CopyOutput";
 import { ParameterForm } from "@/features/configurator/ParameterForm";
 import { cn } from "@/lib/utils";
-import { getUserCount } from "@/utils/actions";
+import { getUserCount } from "@/features/users/server/actions";
 import { isSnowflake } from "@/utils/snowflake";
 
 const ORIGIN_URL =
