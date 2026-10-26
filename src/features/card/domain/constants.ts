@@ -14,7 +14,7 @@ export const NAMEPLATES = {
   sky: { darkBackground: "#0080B7", lightBackground: "#56CCFF", name: "Sky" },
   teal: { darkBackground: "#086460", lightBackground: "#7DEED7", name: "Teal" },
   forest: { darkBackground: "#2D5401", lightBackground: "#6AA624", name: "Forest" },
-  bubblegum: { darkBackground: "#DC3E97", lightBackground: "#F957B3", name: "BubbleGum" },
+  bubble_gum: { darkBackground: "#DC3E97", lightBackground: "#F957B3", name: "BubbleGum" },
   violet: { darkBackground: "#730BC8", lightBackground: "#972FED", name: "Violet" },
   cobalt: { darkBackground: "#0131C2", lightBackground: "#4278FF", name: "Cobalt" },
   clover: { darkBackground: "#047B20", lightBackground: "#63CD5A", name: "Clover" },
