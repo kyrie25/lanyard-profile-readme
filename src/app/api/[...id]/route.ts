@@ -59,7 +59,7 @@ export async function GET(request: NextRequest, options: { params: Promise<{ id:
 
   return new Response(body, {
     headers: {
-      "Cache-Control": "max-age=60",
+      "Cache-Control": "public, max-age=60, s-maxage=30, stale-while-revalidate=3600",
       "Content-Type": "image/svg+xml; charset=utf-8",
       "content-security-policy": "default-src 'none'; img-src * data:; style-src 'unsafe-inline'",
     },
