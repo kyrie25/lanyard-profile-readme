@@ -8,6 +8,7 @@ export type CardParameters = {
   clanbg?: string;
   animated?: string;
   animatedDecoration?: string;
+  animatedNameplate?: string;
   hideDiscrim?: string;
   hideStatus?: string;
   hideTimestamp?: string;
@@ -70,6 +71,7 @@ export interface ParsedCardConfig {
   showDisplayName: boolean;
   showBanner: boolean | "animated";
   hideNameplate: boolean;
+  animatedNameplate: boolean;
   forceGradient: boolean;
 }
 
@@ -319,6 +321,14 @@ export const CARD_PARAMETER_INFO = [
     },
   },
   {
+    parameter: "animatedNameplate",
+    type: "boolean",
+    title: "Enable Animated Nameplate",
+    description: "Animates your Discord nameplate when available.",
+    options: { defaultBool: false },
+    displayCondition: options => options.hideProfile !== "true" && options.hideNameplate !== "true",
+  },
+  {
     parameter: "hideStatus",
     type: "boolean",
     title: "Hide Status",
@@ -481,6 +491,7 @@ export function parseCardParameters(params: CardParameters, data: Data): ParsedC
     showDisplayName,
     showBanner,
     hideNameplate,
+    animatedNameplate: parseBool(params.animatedNameplate),
     forceGradient,
   };
 }

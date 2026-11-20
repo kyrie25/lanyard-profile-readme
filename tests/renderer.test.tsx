@@ -14,19 +14,20 @@ const fakeAssets: PreparedCardAssets = {
   avatarDecoration: null,
   nameplateHex: "#123456",
   nameplateBg: "linear-gradient(90deg, #123456 0%, #654321 100%)",
-  nameplateAsset: "nameplate-data",
+  nameplateAsset: "data:image/png;base64,nameplate-data",
   activityLargeImage: "activity-data",
   usesUnknownActivityImage: false,
   usesUnknownSpotifyImage: false,
 };
 
 describe("CardSvg", () => {
-  it("renders normalized activity data using prepared assets", () => {
+  it.each(["png", "webp"])("renders normalized activity data with a %s nameplate", format => {
     const body = structuredClone(presenceFixture);
     const config = parseCardParameters({ optimized: false }, body.data);
     const normalized = normalizeCardData(body, config, 1_700_000_065_000);
+    const nameplateAsset = `data:image/${format};base64,nameplate-data`;
     const svg = renderToStaticMarkup(
-      <CardSvg context={{ ...normalized, config, assets: fakeAssets, flags: ["Nitro"] }} />,
+      <CardSvg context={{ ...normalized, config, assets: { ...fakeAssets, nameplateAsset }, flags: ["Nitro"] }} />,
     );
 
     expect(svg).toMatch(/^<svg[^>]+height="200"/);
@@ -34,6 +35,7 @@ describe("CardSvg", () => {
     expect(svg).toContain("Fixture details");
     expect(svg).toContain("01:05 elapsed");
     expect(svg).toContain("data:image/png;base64,activity-data");
+    expect(svg.split(`src="${nameplateAsset}"`)).toHaveLength(3);
     expect(svg).toContain("transform:scaleY(-1)");
     expect(svg).toContain("mask-image:linear-gradient(to top");
     expect(svg).not.toContain("[object Promise]");

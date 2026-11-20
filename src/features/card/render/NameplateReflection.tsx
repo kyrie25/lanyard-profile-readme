@@ -20,5 +20,5 @@ const reflectionStyle: CSSProperties = {
 
 export function NameplateReflection({ asset }: { asset?: string }) {
   if (!asset) return null;
-  return <img style={reflectionStyle} src={`data:image/png;base64,${asset}`} alt="User Nameplate" />;
+  return <img style={reflectionStyle} src={asset} alt="User Nameplate" />;
 }
