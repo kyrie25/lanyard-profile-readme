@@ -23,7 +23,7 @@ export function IdlePanel({ context }: { context: CardRenderContext }) {
     >
       {assets.nameplateAsset ? (
         <div style={{ position: "absolute", top: -1, right: 0, height: "80px", width: "100%" }}>
-          <NameplateReflection asset={assets.nameplateAsset} />
+          <NameplateReflection asset={assets.nameplateAsset} variant={config.nameplateReflection} />
         </div>
       ) : null}
       <p

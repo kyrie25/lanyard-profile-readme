@@ -31,6 +31,7 @@ export function SpotifyPanel({ context }: { context: CardRenderContext }) {
         backgroundColor={backgroundColor}
         theme={spotifyTheme}
         animationDuration={animationDuration}
+        nameplateReflection={config.nameplateReflection}
         nameplateAsset={assets.nameplateAsset}
         nameplateBackground={assets.nameplateBg}
         nameplateColor={assets.nameplateHex}

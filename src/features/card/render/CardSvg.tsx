@@ -26,6 +26,13 @@ function CardSvg({ context }: { context: CardRenderContext }) {
   const renderedSVG = (
     <svg xmlns="http://www.w3.org/2000/svg" width="400px" height={svgHeight}>
       <defs>
+        {assets.nameplateAsset && context.panel && config.nameplateReflection === "water" ? (
+          <filter id="nameplate-water-ripple" colorInterpolationFilters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.012 0.16" numOctaves="1" />
+            <feColorMatrix type="matrix" values="1 0 0 0 0  0 0 0 0 0.5  0 0 0 0 0  0 0 0 0 1" result="ripple" />
+            <feDisplacementMap in="SourceGraphic" in2="ripple" scale="22" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        ) : null}
         <style>
           {`@-webkit-keyframes wave {
               0% {

@@ -21,7 +21,7 @@ const fakeAssets: PreparedCardAssets = {
 describe("CardSvg", () => {
   it.each(["png", "webp"])("renders normalized activity data with a %s nameplate", format => {
     const body = structuredClone(presenceFixture);
-    const config = parseCardParameters({ optimized: false }, body.data);
+    const config = parseCardParameters({ optimized: false, nameplateReflection: "classic" }, body.data);
     const normalized = normalizeCardData(body, config, 1_700_000_065_000);
     const nameplateAsset = `data:image/${format};base64,nameplate-data` as const;
     const svg = renderToStaticMarkup(
@@ -43,6 +43,25 @@ describe("CardSvg", () => {
     expect(svg).not.toContain("[object Promise]");
   });
 
+  it.each([
+    [undefined, "scaleY(-0.62)", false],
+    ["glass", "scaleY(-0.62)", false],
+    ["water", "scaleY(-0.86)", true],
+    ["invalid", "scaleY(-0.62)", false],
+  ])("renders the idle nameplate reflection for %s", (nameplateReflection, transform, hasRipple) => {
+    const body = structuredClone(presenceFixture);
+    body.data.activities = [];
+    const config = parseCardParameters({ optimized: false, nameplateReflection }, body.data);
+    const normalized = normalizeCardData(body, config);
+    const svg = renderToStaticMarkup(<CardSvg context={{ ...normalized, config, assets: fakeAssets, flags: [] }} />);
+
+    expect(normalized.panel?.kind).toBe("idle");
+    expect(svg).toContain(`transform:${transform}`);
+    expect(svg.includes('id="nameplate-water-ripple"')).toBe(hasRipple);
+    expect(svg.includes("url(#nameplate-water-ripple)")).toBe(hasRipple);
+    expect(svg.split(`src="${fakeAssets.nameplateAsset}"`)).toHaveLength(3);
+  });
+
   it.each([true, false])("renders Spotify with timestamps present=%s", hasTimestamps => {
     const body = structuredClone(presenceFixture);
     body.data.listening_to_spotify = true;
@@ -56,7 +75,7 @@ describe("CardSvg", () => {
         created_at: 1_700_000_000_000,
       },
     ];
-    const config = parseCardParameters({ optimized: false }, body.data);
+    const config = parseCardParameters({ optimized: false, nameplateReflection: "water" }, body.data);
     const normalized = normalizeCardData(body, config, 1_700_000_060_000);
     const svg = renderToStaticMarkup(
       <CardSvg
@@ -71,6 +90,7 @@ describe("CardSvg", () => {
 
     expect(svg).toContain("Fixture Song");
     expect(svg).toContain("Fixture Artist");
+    expect(svg).toContain("url(#nameplate-water-ripple)");
     expect(svg).toContain("data:image/webp;base64,spotify-data");
     expect(svg).not.toContain("Fixture Game");
     expect(svg).not.toContain("width:NaN%");

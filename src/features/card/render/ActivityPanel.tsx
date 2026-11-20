@@ -34,6 +34,7 @@ export function ActivityPanel({ context }: { context: CardRenderContext }) {
         backgroundColor={backgroundColor}
         theme={activityTheme}
         animationDuration={animationDuration}
+        nameplateReflection={config.nameplateReflection}
         nameplateAsset={assets.nameplateAsset}
         nameplateBackground={assets.nameplateBg}
         nameplateColor={assets.nameplateHex}

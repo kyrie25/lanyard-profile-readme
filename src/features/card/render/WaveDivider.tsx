@@ -1,3 +1,4 @@
+import type { NameplateReflectionStyle } from "@/features/card/config/schema";
 import { NameplateReflection } from "@/features/card/render/NameplateReflection";
 import { getBlendedColor } from "@/utils/helpers";
 
@@ -14,6 +15,7 @@ interface WaveDividerProps {
   backgroundColor: string;
   theme: string;
   animationDuration: string;
+  nameplateReflection: NameplateReflectionStyle;
   nameplateAsset?: string;
   nameplateBackground?: string;
   nameplateColor?: string;
@@ -24,6 +26,7 @@ export function WaveDivider({
   backgroundColor,
   theme,
   animationDuration,
+  nameplateReflection,
   nameplateAsset,
   nameplateBackground,
   nameplateColor,
@@ -38,7 +41,7 @@ export function WaveDivider({
         ...(nameplateBackground ? { background: nameplateBackground } : {}),
       }}
     >
-      <NameplateReflection asset={nameplateAsset} />
+      <NameplateReflection asset={nameplateAsset} variant={nameplateReflection} />
       <div
         style={{
           position: "absolute",

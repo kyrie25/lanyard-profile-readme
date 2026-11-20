@@ -81,6 +81,8 @@ https://lanyard.kyrie25.dev/api/368399721494216706?gradient=FF597B-FF8A5C&forceG
 https://lanyard.kyrie25.dev/api/368399721494216706?animatedNameplate=true
 ```
 
+- Use `nameplateReflection=glass` for the default short mirror fade, `nameplateReflection=water` for a rippled reflection, or `nameplateReflection=classic` for the original fade. You can switch between them in the configurator.
+
 If you wish to disable it, you can use `hideNameplate=true`.
 
 ```url

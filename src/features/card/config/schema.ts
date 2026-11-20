@@ -9,6 +9,7 @@ export type CardParameters = {
   animated?: string;
   animatedDecoration?: string;
   animatedNameplate?: string;
+  nameplateReflection?: string;
   hideDiscrim?: string;
   hideStatus?: string;
   hideTimestamp?: string;
@@ -37,6 +38,7 @@ export type CardParameters = {
 };
 
 export type HideActivityMode = "false" | "true" | "whenNotUsed";
+export type NameplateReflectionStyle = "glass" | "water" | "classic";
 export type CardParameterKey = Exclude<keyof CardParameters, "optimized" | "useDisplayName">;
 export type ConfiguratorOptions = Partial<Record<CardParameterKey, string>>;
 
@@ -73,6 +75,7 @@ export interface ParsedCardConfig {
   showBanner: boolean | "animated";
   hideNameplate: boolean;
   animatedNameplate: boolean;
+  nameplateReflection: NameplateReflectionStyle;
   forceGradient: boolean;
 }
 
@@ -98,7 +101,7 @@ export type ParameterDefinition = { deprecated?: boolean } & (
       type: "list";
       title: string;
       description?: string;
-      options: { list: Array<{ name: string; value: string }> };
+      options: { defaultLabel?: string; list: Array<{ name: string; value: string }> };
       displayCondition?: (options: ConfiguratorOptions) => boolean;
     }
 );
@@ -330,6 +333,21 @@ export const CARD_PARAMETER_INFO = [
     displayCondition: options => options.hideProfile !== "true" && options.hideNameplate !== "true",
   },
   {
+    parameter: "nameplateReflection",
+    type: "list",
+    title: "Nameplate Reflection",
+    description: "Changes how the nameplate reflects below the profile header.",
+    options: {
+      defaultLabel: "Glass (default)",
+      list: [
+        { name: "Water", value: "water" },
+        { name: "Classic", value: "classic" },
+      ],
+    },
+    displayCondition: options =>
+      options.hideProfile !== "true" && options.hideNameplate !== "true" && options.hideActivity !== "true",
+  },
+  {
     parameter: "hideStatus",
     type: "boolean",
     title: "Hide Status",
@@ -494,6 +512,10 @@ export function parseCardParameters(params: CardParameters, data: Data): ParsedC
     showBanner,
     hideNameplate,
     animatedNameplate: parseBool(params.animatedNameplate),
+    nameplateReflection:
+      params.nameplateReflection === "water" || params.nameplateReflection === "classic"
+        ? params.nameplateReflection
+        : "glass",
     forceGradient,
   };
 }

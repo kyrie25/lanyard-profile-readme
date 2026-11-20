@@ -86,6 +86,7 @@ export function ParameterField({ definition, options, setOptions }: ParameterFie
       ) : (
         <div className="relative">
           <select
+            aria-label={definition.title}
             value={options[definition.parameter] || ""}
             onChange={event =>
               setOptions(previous => ({ ...previous, [definition.parameter]: event.target.value }))
@@ -99,7 +100,7 @@ export function ParameterField({ definition, options, setOptions }: ParameterFie
             )}
           >
             <option value="" className="bg-black text-white">
-              None
+              {definition.options.defaultLabel ?? "None"}
             </option>
             {definition.options.list.map(option => (
               <option value={option.value} key={option.value} className="bg-black text-white">

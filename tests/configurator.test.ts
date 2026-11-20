@@ -8,8 +8,11 @@ describe("buildCardUrl", () => {
         idleMessage: "Hello world!",
         hideActivity: "false",
         animatedNameplate: "true",
+        nameplateReflection: "water",
       }),
-    ).toBe("https://example.com/api/123?idleMessage=Hello%20world!&hideActivity=false&animatedNameplate=true");
+    ).toBe(
+      "https://example.com/api/123?idleMessage=Hello%20world!&hideActivity=false&animatedNameplate=true&nameplateReflection=water",
+    );
   });
 
   it("omits options hidden by another setting", () => {
@@ -18,6 +21,7 @@ describe("buildCardUrl", () => {
         hideProfile: "true",
         gradient: "ffffff-000000",
         animatedNameplate: "true",
+        nameplateReflection: "classic",
       }),
     ).toBe("https://example.com/api/123?hideProfile=true");
   });
