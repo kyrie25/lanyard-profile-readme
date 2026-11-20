@@ -107,7 +107,7 @@ export namespace LanyardTypes {
 
   export interface Nameplate {
     label: string;
-    sku_id: number;
+    sku_id: string;
     asset: string;
     expires_at: number | null;
     palette: NameplatePalette;

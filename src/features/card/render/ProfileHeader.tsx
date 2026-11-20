@@ -49,7 +49,7 @@ export function ProfileHeader({ context }: { context: CardRenderContext }) {
             height: "100%",
             borderRadius: hideActivity === "true" ? borderRadius : `${borderRadius} ${borderRadius} 0 0`,
           }}
-          src={`data:image/png;base64,${nameplateAsset}`}
+          src={nameplateAsset}
           alt="User Nameplate"
         />
       ) : null}

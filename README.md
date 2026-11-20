@@ -75,7 +75,11 @@ https://lanyard.kyrie25.dev/api/368399721494216706?gradient=FF597B-FF8A5C&forceG
 ### Nameplates
 
 - Nameplates are supported and enabled by default.
-- Animated nameplates are **not supported**, as Discord uses WebM for animated assets, making it costly and time-consuming to convert to PNG. (this may change in the future)
+- Use `animatedNameplate=true` to enable animation. The card embeds a looping WebP and falls back to the static nameplate if the animation is unavailable or too large.
+
+```url
+https://lanyard.kyrie25.dev/api/368399721494216706?animatedNameplate=true
+```
 
 If you wish to disable it, you can use `hideNameplate=true`.
 

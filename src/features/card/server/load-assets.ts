@@ -5,6 +5,7 @@ import type { PreparedCardAssets } from "@/features/card/render/types";
 import type { LanyardTypes } from "@/types/lanyard";
 import { fetchUserBanner } from "@/features/card/server/banner-service";
 import { fetchAvatarDecoration, getLargeImage } from "@/features/card/server/discord-assets";
+import { loadNameplateAsset } from "@/features/card/server/nameplate-service";
 import { Color } from "@/utils/color";
 import { encodeBase64 } from "@/utils/toBase64";
 
@@ -82,7 +83,7 @@ export async function loadCardAssets(
       ? null
       : fetchAvatarDecoration(user, params.animatedDecoration).then(url => (url ? encodeBase64(url, 100, false) : null)),
     !config.hideNameplate && !config.hideProfile && nameplate
-      ? encodeBase64(`https://cdn.discordapp.com/assets/collectibles/${nameplate.asset}static.png`, 100, false)
+      ? loadNameplateAsset(nameplate, config.animatedNameplate)
       : undefined,
     userStatus?.emoji?.id
       ? encodeBase64(`https://cdn.discordapp.com/emojis/${userStatus.emoji.id}.${config.statusExtension}`, 32)
