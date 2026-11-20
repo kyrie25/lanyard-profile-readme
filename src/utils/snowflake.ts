@@ -1,11 +1,8 @@
-const EPOCH = 1420070400000; // Discord's EPOCH
+const minSnowflake = BigInt(4194304);
+const maxSnowflake = BigInt("18446744073709551615");
 
-// Snowflakes will never be a string
-export function isSnowflake(snowflake: number | string): boolean {
-    snowflake = Number(snowflake);
-    return (
-        Number.isInteger(+snowflake) &&
-        snowflake > 4194304 &&
-        !isNaN(new Date(snowflake / 4194304 + EPOCH).getTime())
-    );
+export function isSnowflake(snowflake: string): boolean {
+  if (snowflake.length < 7 || snowflake.length > 20 || snowflake.startsWith("0") || /\D/.test(snowflake)) return false;
+  const value = BigInt(snowflake);
+  return value > minSnowflake && value <= maxSnowflake;
 }

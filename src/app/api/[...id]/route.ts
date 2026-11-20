@@ -6,6 +6,7 @@ import { trackUser } from "@/features/users/server/user-store";
 import { isSnowflake } from "@/utils/snowflake";
 
 export const dynamic = "force-dynamic";
+const maxCardBytes = 4_500_000;
 
 function errorResponse(message: string, status: number) {
   return Response.json({ data: { message }, success: false }, { status });
@@ -38,22 +39,28 @@ export async function GET(request: NextRequest, options: { params: Promise<{ id:
     optimized: request.url.includes("lanyard-profile-readme"),
   };
 
-  await trackUser(userId);
-  const body = await renderCard(presence, params);
+  let body: string;
+  try {
+    await trackUser(userId);
+    body = await renderCard(presence, params);
+  } catch (error) {
+    console.error("Unable to render Lanyard card", error);
+    return errorResponse("The card could not be rendered. Please try again later.", 500);
+  }
   const responseLength = Buffer.byteLength(body);
 
-  if (responseLength > 5_000_000) {
+  if (responseLength > maxCardBytes) {
     return Response.json(
       {
+        success: false,
         data: {
-          success: false,
           response_length: responseLength,
           message:
-            "Bandwidth isn't free, this service will not embed large images. Set animated banner/avatar/decoration to static images or remove them.",
+            "The card exceeds 4.5 MB. Switch animated images to static images or hide some assets and try again.",
           docs: "https://github.com/kyrie25/lanyard-profile-readme",
         },
       },
-      { status: 500 },
+      { status: 422 },
     );
   }
 

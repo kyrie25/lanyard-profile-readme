@@ -247,7 +247,7 @@ export const CARD_PARAMETER_INFO = [
     type: "list",
     title: "Banner Type",
     description:
-      "Change your profile banner style.\n\nNote: This will dramatically increase the size of the image. If your image exceeds 5MB, it will not be served.",
+      "Changes your profile banner style. Animated banners can cause the card to exceed its 4.5 MB limit.",
     options: {
       list: [
         {

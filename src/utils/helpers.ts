@@ -71,6 +71,8 @@ export function getDisplayNameStyleEffectVars(styles: DisplayNameStyles | null):
 }
 
 export const getFormatFromMs = (ms: number) => {
+  if (!Number.isFinite(ms) || ms < 0) return "00:00";
+
   const daysDifference = Math.floor(ms / 60 / 60 / 24);
   ms -= daysDifference * 60 * 60 * 24;
 

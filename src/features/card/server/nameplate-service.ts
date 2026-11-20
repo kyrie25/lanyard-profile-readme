@@ -1,9 +1,10 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
-import ffmpegPath from "ffmpeg-static";
+import ffmpegPath from "ffmpeg-for-homebridge";
 import { unstable_cache } from "next/cache";
 import { loadImageDataUrl, type ImageDataUrl } from "@/features/card/server/image-data";
+import { readResponseBytes } from "@/features/card/server/read-response-bytes";
 import type { LanyardTypes } from "@/types/lanyard";
 
 const runFfmpeg = promisify(execFile);
@@ -16,12 +17,8 @@ const loadAnimatedNameplate = unstable_cache(async (skuId: string): Promise<Imag
   const response = await fetch(`https://cdn.discordapp.com/media/v1/collectibles-shop/${skuId}/video`, {
     signal: AbortSignal.timeout(3000),
   });
-  if (!response.ok || Number(response.headers.get("content-length")) > maxVideoBytes) {
-    throw new Error("Discord nameplate video is unavailable or too large");
-  }
-
-  const input = Buffer.from(await response.arrayBuffer());
-  if (input.length > maxVideoBytes) throw new Error("Discord nameplate video is too large");
+  const input = await readResponseBytes(response, maxVideoBytes);
+  if (!input) throw new Error("Discord nameplate video is unavailable or too large");
 
   // FFmpeg's native VP9 decoder drops the alpha channel in Discord's WebM files.
   const conversion = runFfmpeg(
@@ -29,6 +26,8 @@ const loadAnimatedNameplate = unstable_cache(async (skuId: string): Promise<Imag
     [
       "-loglevel",
       "error",
+      "-max_alloc",
+      "33554432",
       "-threads",
       "2",
       "-c:v",

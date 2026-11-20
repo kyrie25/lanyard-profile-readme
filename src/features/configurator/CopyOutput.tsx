@@ -36,9 +36,13 @@ export function CopyOutput({ url, userId }: { url: string; userId: string }) {
       </div>
       <button
         className="w-full cursor-pointer rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1 font-mono text-sm font-medium text-white/50 transition-colors duration-75 ease-out hover:bg-zinc-800/75 hover:text-white"
-        onClick={() => {
-          void navigator.clipboard.writeText(copyContent[outputType]);
-          setCopyState("Copied!");
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(copyContent[outputType]);
+            setCopyState("Copied!");
+          } catch {
+            setCopyState("Copy failed");
+          }
           setTimeout(() => setCopyState("Copy"), 1500);
         }}
       >

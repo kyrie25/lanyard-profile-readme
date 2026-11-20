@@ -10,6 +10,9 @@ export function ActivityPanel({ context }: { context: CardRenderContext }) {
   if (panel?.kind !== "activity") return null;
 
   const { activity } = panel;
+  const { start = 0, end = 0 } = activity.timestamps ?? {};
+  const duration = end - start;
+  const elapsed = Math.max(0, Math.min(renderedAt - start, duration));
 
   const {
     backgroundColor,
@@ -146,7 +149,7 @@ export function ActivityPanel({ context }: { context: CardRenderContext }) {
             </p>
           ) : null}
           {(activity.timestamps?.end || activity.timestamps?.start) && !hideTimestamp ? (
-            activity.timestamps?.end && activity.timestamps.start && activity.type !== 0 ? (
+            start > 0 && Number.isFinite(duration) && duration > 0 && activity.type !== 0 ? (
               <div
                 style={{
                   width: "calc(100% - 15px)",
@@ -158,12 +161,7 @@ export function ActivityPanel({ context }: { context: CardRenderContext }) {
                 }}
               >
                 <span style={{ color: activityTheme === "dark" ? "#fff" : "#000" }}>
-                  {getFormatFromMs(
-                    Math.min(
-                      renderedAt - activity.timestamps.start,
-                      activity.timestamps.end - activity.timestamps.start,
-                    ) / 1000,
-                  )}
+                  {getFormatFromMs(elapsed / 1000)}
                 </span>
                 <div
                   style={{
@@ -178,12 +176,7 @@ export function ActivityPanel({ context }: { context: CardRenderContext }) {
                 >
                   <div
                     style={{
-                      width: `${Math.min(
-                        100,
-                        ((renderedAt - activity.timestamps.start) /
-                          (activity.timestamps.end - activity.timestamps.start)) *
-                          100,
-                      )}%`,
+                      width: `${(elapsed / duration) * 100}%`,
                       height: "100%",
                       backgroundColor: activityTheme === "dark" ? "#fff" : "#000",
                       borderRadius: "5px",
@@ -191,7 +184,7 @@ export function ActivityPanel({ context }: { context: CardRenderContext }) {
                   />
                 </div>
                 <span style={{ color: activityTheme === "dark" ? "#fff" : "#000" }}>
-                  {getFormatFromMs((activity.timestamps.end - activity.timestamps.start) / 1000)}
+                  {getFormatFromMs(duration / 1000)}
                 </span>
               </div>
             ) : (

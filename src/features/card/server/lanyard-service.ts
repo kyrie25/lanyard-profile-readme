@@ -1,7 +1,21 @@
 import type { LanyardTypes } from "@/types/lanyard";
+import { isSnowflake } from "@/utils/snowflake";
 
-interface LanyardErrorPayload {
-  error?: { message?: string } | string;
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isPresenceData(value: unknown): value is LanyardTypes.Data {
+  if (!isRecord(value)) return false;
+  const user = value.discord_user;
+  return (
+    isRecord(user) &&
+    typeof user.id === "string" &&
+    isSnowflake(user.id) &&
+    typeof user.username === "string" &&
+    Array.isArray(value.activities) &&
+    value.activities.every(activity => isRecord(activity) && typeof activity.type === "number")
+  );
 }
 
 export class LanyardServiceError extends Error {
@@ -22,24 +36,28 @@ export async function fetchPresence(userId: string): Promise<LanyardTypes.Root> 
       cache: "no-store",
       signal: controller.signal,
     });
-    const payload = (await response.json()) as LanyardTypes.Root | LanyardErrorPayload;
-
-    if (!response.ok || !("success" in payload) || !payload.success) {
-      const error = "error" in payload ? payload.error : undefined;
-      const message = typeof error === "string" ? error : error?.message;
-      throw new LanyardServiceError(message || "Lanyard could not load this user.", 400);
+    if (response.status === 429 || response.status >= 500) {
+      throw new LanyardServiceError("Lanyard is temporarily unavailable.", 502);
     }
 
-    return payload;
+    const payload: unknown = await response.json();
+    if (!response.ok || (isRecord(payload) && payload.success === false)) {
+      const error = isRecord(payload) ? payload.error : undefined;
+      const message = isRecord(error) ? error.message : error;
+      if (typeof message === "string" && message) throw new LanyardServiceError(message, 400);
+      throw new LanyardServiceError("Lanyard could not load this user.", 400);
+    }
+
+    if (!isRecord(payload) || payload.success !== true || !isPresenceData(payload.data)) {
+      throw new LanyardServiceError("Lanyard returned an invalid presence response.", 502);
+    }
+    return { success: true, data: payload.data };
   } catch (error) {
     if (error instanceof LanyardServiceError) throw error;
-    if (error instanceof DOMException && error.name === "AbortError") {
+    if (controller.signal.aborted) {
       throw new LanyardServiceError("Lanyard API timed out. Please try again later.", 504);
     }
-    throw new LanyardServiceError(
-      `Lanyard API error: ${error instanceof Error ? error.message : "Unknown error occurred."}`,
-      500,
-    );
+    throw new LanyardServiceError("Lanyard is temporarily unavailable.", 502);
   } finally {
     clearTimeout(timeout);
   }

@@ -19,6 +19,10 @@ export function SpotifyPanel({ context }: { context: CardRenderContext }) {
     imgBorderRadius,
     hideTimestamp,
   } = config;
+  const start = spotify.timestamps?.start ?? 0;
+  const duration = (spotify.timestamps?.end ?? 0) - start;
+  const showTiming = !hideTimestamp && start > 0 && Number.isFinite(duration) && duration > 0;
+  const elapsed = Math.max(0, Math.min(renderedAt - start, duration));
 
   return (
     <>
@@ -57,12 +61,12 @@ export function SpotifyPanel({ context }: { context: CardRenderContext }) {
             }}
           />
         ) : null}
-        <div style={{ color: "#999", marginTop: !hideTimestamp ? "0" : "-3px", lineHeight: 1, width: "279px" }}>
+        <div style={{ color: "#999", marginTop: showTiming ? "0" : "-3px", lineHeight: 1, width: "279px" }}>
           <p
             style={{
               fontSize: "0.85rem",
               color: spotifyTheme === "dark" ? "#ccc" : "#777",
-              margin: !hideTimestamp ? "0" : "revert",
+              margin: showTiming ? "0" : "revert",
             }}
           >
             Listening to <ActivityIcon activity="SiSpotify" theme={spotifyTheme} />{" "}
@@ -95,7 +99,7 @@ export function SpotifyPanel({ context }: { context: CardRenderContext }) {
           >
             {spotify.artist ?? spotify.album}
           </p>
-          {!hideTimestamp ? (
+          {showTiming ? (
             <div
               style={{
                 width: "calc(100% - 15px)",
@@ -107,12 +111,7 @@ export function SpotifyPanel({ context }: { context: CardRenderContext }) {
               }}
             >
               <span style={{ color: spotifyTheme === "dark" ? "#fff" : "#000" }}>
-                {getFormatFromMs(
-                  Math.min(
-                    renderedAt - spotify.timestamps.start,
-                    spotify.timestamps.end - spotify.timestamps.start,
-                  ) / 1000,
-                )}
+                {getFormatFromMs(elapsed / 1000)}
               </span>
               <div
                 style={{
@@ -127,12 +126,7 @@ export function SpotifyPanel({ context }: { context: CardRenderContext }) {
               >
                 <div
                   style={{
-                    width: `${Math.min(
-                      100,
-                      ((renderedAt - spotify.timestamps.start) /
-                        (spotify.timestamps.end - spotify.timestamps.start)) *
-                        100,
-                    )}%`,
+                    width: `${(elapsed / duration) * 100}%`,
                     height: "100%",
                     backgroundColor: spotifyTheme === "dark" ? "#fff" : "#000",
                     borderRadius: "5px",
@@ -140,7 +134,7 @@ export function SpotifyPanel({ context }: { context: CardRenderContext }) {
                 />
               </div>
               <span style={{ color: spotifyTheme === "dark" ? "#fff" : "#000" }}>
-                {getFormatFromMs((spotify.timestamps.end - spotify.timestamps.start) / 1000)}
+                {getFormatFromMs(duration / 1000)}
               </span>
             </div>
           ) : null}

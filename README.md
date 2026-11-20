@@ -55,7 +55,7 @@ https://lanyard.kyrie25.dev/api/368399721494216706?showBanner=animated&waveColor
 
 #### Banners are disabled by default & caveats
 
-Banners are disabled by default because not every card will look good with it. It would also increase the API's response time, and you may hit the 5MB limit for assets on markdown files if you have a lot of animated assets in your card.
+Banners are disabled by default. They can increase API response times, and combining animated assets can push the card past the API's 4.5 MB response limit.
 
 Banners are **cached for 5 minutes** to avoid API rate limit.
 

@@ -1,8 +1,11 @@
 allowBuilds:
   esbuild: true
-  ffmpeg-static: true
+  ffmpeg-for-homebridge: true
   sharp: true
   unrs-resolver: true
+overrides:
+  browserslist: 4.28.7
+  vite: 7.3.7
 supportedArchitectures:
   os:
     - win32

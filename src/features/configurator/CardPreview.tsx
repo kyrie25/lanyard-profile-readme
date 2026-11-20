@@ -18,6 +18,10 @@ export function CardPreview({ url, enabled, onError }: CardPreviewProps) {
 
     const controller = new AbortController();
     let objectUrl: string | undefined;
+    const timeout = setTimeout(() => {
+      controller.abort();
+      onError("The card preview timed out. Please try again.");
+    }, 15_000);
 
     async function loadPreview() {
       try {
@@ -27,17 +31,24 @@ export function CardPreview({ url, enabled, onError }: CardPreviewProps) {
           throw new Error(error?.data?.message || "An unknown error occurred, please try again later.");
         }
 
-        objectUrl = URL.createObjectURL(await response.blob());
+        const image = await response.blob();
+        if (controller.signal.aborted) return;
+        if (image.type.split(";")[0] !== "image/svg+xml") throw new Error("The card API returned an invalid image.");
+
+        objectUrl = URL.createObjectURL(image);
         setPreview({ source: url, imageUrl: objectUrl, loaded: false });
         onError(undefined);
       } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") return;
+        if (controller.signal.aborted) return;
         onError(error instanceof Error ? error.message : "An unknown error occurred, please try again later.");
+      } finally {
+        clearTimeout(timeout);
       }
     }
 
     void loadPreview();
     return () => {
+      clearTimeout(timeout);
       controller.abort();
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
@@ -55,6 +66,7 @@ export function CardPreview({ url, enabled, onError }: CardPreviewProps) {
           onLoad={() =>
             setPreview(previous => (previous?.source === url ? { ...previous, loaded: true } : previous))
           }
+          onError={() => onError("The generated card could not be displayed.")}
         />
       ) : null}
       {!currentPreview?.loaded ? (

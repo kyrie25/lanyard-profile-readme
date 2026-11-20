@@ -23,7 +23,8 @@ export default function Home() {
   const [options, setOptions] = useState<ConfiguratorOptions>({});
   const userCount = useSWR("getUserCount", getUserCount);
   const isValidUserId = userId.length > 0 && isSnowflake(userId);
-  const url = buildCardUrl(ORIGIN_URL, userId, options);
+  const cardPath = buildCardUrl("", userId, options);
+  const url = `${ORIGIN_URL}${cardPath}`;
 
   const handlePreviewError = useCallback((message?: string) => {
     if (!message) {
@@ -89,7 +90,7 @@ export default function Home() {
             >
               {userError}
             </motion.p>
-            <CardPreview url={url} enabled={isValidUserId} onError={handlePreviewError} />
+            <CardPreview url={cardPath} enabled={isValidUserId} onError={handlePreviewError} />
             <CopyOutput url={url} userId={userId} />
           </div>
           <ParameterForm options={options} setOptions={setOptions} />

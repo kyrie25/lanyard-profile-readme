@@ -13,6 +13,7 @@ export async function fetchAvatarDecoration(
 
   const decorData = await fetch(
     encodeURI(`https://decor.fieryflames.dev/api/users?ids=${JSON.stringify([discordUser.id])}`),
+    { signal: AbortSignal.timeout(3000) },
   )
     .then(response => (response.ok ? (response.json() as Promise<Record<string, string>>) : null))
     .catch(() => null);

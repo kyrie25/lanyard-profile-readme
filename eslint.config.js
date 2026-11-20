@@ -2,15 +2,17 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import prettier from "eslint-config-prettier/flat";
 import nextTs from "eslint-config-next/typescript";
 import nextVitals from "eslint-config-next/core-web-vitals";
+import importX from "eslint-plugin-import-x";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   prettier,
   {
+    plugins: { "import-x": importX },
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
-      "import/order": [
+      "import-x/order": [
         "error",
         {
           "newlines-between": "always",

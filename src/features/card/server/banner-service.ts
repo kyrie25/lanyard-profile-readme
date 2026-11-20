@@ -27,18 +27,21 @@ export async function fetchUserBanner(userId: string, showBanner: boolean | stri
     }
   }
 
-  const discordUser = await fetch(`${process.env.DISCORD_API_ENDPOINT}/${userId}`)
-    .then(response => (response.ok ? (response.json() as Promise<DiscordUserResponse>) : null))
-    .catch(() => null);
-  if (discordUser?.banner) {
+  const endpoint = process.env.DISCORD_API_ENDPOINT;
+  const discordUser = endpoint
+    ? await fetch(`${endpoint}/${userId}`, { signal: AbortSignal.timeout(3000) })
+        .then(response => (response.ok ? (response.json() as Promise<DiscordUserResponse>) : null))
+        .catch(() => null)
+    : null;
+  if (typeof discordUser?.banner === "string" && discordUser.banner) {
     await redis.set(`banner-${userId}`, discordUser.banner, "EX", 300).catch(() => null);
     return discordBannerUrl(userId, discordUser.banner, showBanner === "animated");
   }
 
-  const usrbg = await fetch("https://usrbg.is-hardly.online/users")
+  const usrbg = await fetch("https://usrbg.is-hardly.online/users", { signal: AbortSignal.timeout(3000) })
     .then(response => (response.ok ? (response.json() as Promise<UsrbgResponse>) : null))
     .catch(() => null);
-  const etag = usrbg?.users[userId];
+  const etag = usrbg?.users?.[userId];
   if (!usrbg || !etag) return "";
 
   const bannerUrl = `${usrbg.endpoint}/${usrbg.bucket}/${usrbg.prefix}${userId}?${etag}`;

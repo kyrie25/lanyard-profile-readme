@@ -43,9 +43,10 @@ describe("CardSvg", () => {
     expect(svg).not.toContain("[object Promise]");
   });
 
-  it("renders the Spotify panel when no primary activity is selected", () => {
+  it.each([true, false])("renders Spotify with timestamps present=%s", hasTimestamps => {
     const body = structuredClone(presenceFixture);
     body.data.listening_to_spotify = true;
+    if (!hasTimestamps) Object.assign(body.data.spotify!, { timestamps: undefined });
     body.data.activities = [
       {
         type: 2,
@@ -72,5 +73,7 @@ describe("CardSvg", () => {
     expect(svg).toContain("Fixture Artist");
     expect(svg).toContain("data:image/webp;base64,spotify-data");
     expect(svg).not.toContain("Fixture Game");
+    expect(svg).not.toContain("width:NaN%");
+    expect(svg.includes("03:00")).toBe(hasTimestamps);
   });
 });
