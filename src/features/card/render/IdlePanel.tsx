@@ -2,10 +2,10 @@ import { NameplateReflection } from "@/features/card/render/NameplateReflection"
 import type { CardRenderContext } from "@/features/card/render/types";
 
 export function IdlePanel({ context }: { context: CardRenderContext }) {
-  const { data, activity, config, assets } = context;
-  const { theme, borderRadius, idleMessage, hideActivity, hideSpotify } = config;
+  const { panel, config, assets } = context;
+  if (panel?.kind !== "idle") return null;
 
-  if (activity || (data.listening_to_spotify && !hideSpotify) || hideActivity !== "false") return null;
+  const { theme, borderRadius, idleMessage } = config;
 
   return (
     <div

@@ -3,14 +3,14 @@ import { promisify } from "node:util";
 
 import ffmpegPath from "ffmpeg-static";
 import { unstable_cache } from "next/cache";
+import { loadImageDataUrl, type ImageDataUrl } from "@/features/card/server/image-data";
 import type { LanyardTypes } from "@/types/lanyard";
-import { encodeBase64 } from "@/utils/toBase64";
 
 const runFfmpeg = promisify(execFile);
 const maxVideoBytes = 2_000_000;
 const maxWebpBytes = 650_000;
 
-const loadAnimatedNameplate = unstable_cache(async (skuId: string) => {
+const loadAnimatedNameplate = unstable_cache(async (skuId: string): Promise<ImageDataUrl> => {
   if (!ffmpegPath) throw new Error("FFmpeg is unavailable");
 
   const response = await fetch(`https://cdn.discordapp.com/media/v1/collectibles-shop/${skuId}/video`, {
@@ -72,10 +72,5 @@ export async function loadNameplateAsset(nameplate: LanyardTypes.Nameplate, anim
     if (asset) return asset;
   }
 
-  const png = await encodeBase64(
-    `https://cdn.discordapp.com/assets/collectibles/${nameplate.asset}static.png`,
-    100,
-    false,
-  );
-  return png ? `data:image/png;base64,${png}` : undefined;
+  return loadImageDataUrl(`https://cdn.discordapp.com/assets/collectibles/${nameplate.asset}static.png`);
 }

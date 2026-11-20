@@ -66,6 +66,7 @@ export interface ParsedCardConfig {
   hideSpotify: boolean;
   hideClan: boolean;
   hideDecoration: boolean;
+  animatedDecoration: boolean;
   ignoreAppId: string[];
   hideDiscrim: boolean;
   showDisplayName: boolean;
@@ -486,6 +487,7 @@ export function parseCardParameters(params: CardParameters, data: Data): ParsedC
     hideSpotify,
     hideClan,
     hideDecoration,
+    animatedDecoration: parseBool(params.animatedDecoration),
     ignoreAppId,
     hideDiscrim,
     showDisplayName,

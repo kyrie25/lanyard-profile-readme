@@ -8,14 +8,12 @@ import CardSvg from "@/features/card/render/CardSvg";
 import type { PreparedCardAssets } from "@/features/card/render/types";
 
 const fakeAssets: PreparedCardAssets = {
-  avatar: "avatar-data",
-  banner: "",
-  clanBadge: "clan-data",
-  avatarDecoration: null,
+  avatar: "data:image/webp;base64,avatar-data",
+  clanBadge: "data:image/webp;base64,clan-data",
   nameplateHex: "#123456",
   nameplateBg: "linear-gradient(90deg, #123456 0%, #654321 100%)",
   nameplateAsset: "data:image/png;base64,nameplate-data",
-  activityLargeImage: "activity-data",
+  activityLargeImage: "data:image/webp;base64,activity-data",
   usesUnknownActivityImage: false,
   usesUnknownSpotifyImage: false,
 };
@@ -25,16 +23,20 @@ describe("CardSvg", () => {
     const body = structuredClone(presenceFixture);
     const config = parseCardParameters({ optimized: false }, body.data);
     const normalized = normalizeCardData(body, config, 1_700_000_065_000);
-    const nameplateAsset = `data:image/${format};base64,nameplate-data`;
+    const nameplateAsset = `data:image/${format};base64,nameplate-data` as const;
     const svg = renderToStaticMarkup(
-      <CardSvg context={{ ...normalized, config, assets: { ...fakeAssets, nameplateAsset }, flags: ["Nitro"] }} />,
+      <CardSvg
+        context={{ ...normalized, config, assets: { ...fakeAssets, nameplateAsset }, flags: ["Nitro", "House_Bravery"] }}
+      />,
     );
 
     expect(svg).toMatch(/^<svg[^>]+height="200"/);
     expect(svg).toContain("Fixture Game");
     expect(svg).toContain("Fixture details");
     expect(svg).toContain("01:05 elapsed");
-    expect(svg).toContain("data:image/png;base64,activity-data");
+    expect(svg).toContain("data:image/webp;base64,activity-data");
+    expect(svg).toContain('alt="Nitro" src="data:image/png;base64,');
+    expect(svg).toContain('alt="House_Bravery" src="data:image/webp;base64,');
     expect(svg.split(`src="${nameplateAsset}"`)).toHaveLength(3);
     expect(svg).toContain("transform:scaleY(-1)");
     expect(svg).toContain("mask-image:linear-gradient(to top");
@@ -60,7 +62,7 @@ describe("CardSvg", () => {
         context={{
           ...normalized,
           config,
-          assets: { ...fakeAssets, spotifyAlbumArt: "spotify-data" },
+          assets: { ...fakeAssets, spotifyAlbumArt: "data:image/webp;base64,spotify-data" },
           flags: [],
         }}
       />,
@@ -68,7 +70,7 @@ describe("CardSvg", () => {
 
     expect(svg).toContain("Fixture Song");
     expect(svg).toContain("Fixture Artist");
-    expect(svg).toContain("data:image/png;base64,spotify-data");
+    expect(svg).toContain("data:image/webp;base64,spotify-data");
     expect(svg).not.toContain("Fixture Game");
   });
 });

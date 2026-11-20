@@ -10,10 +10,21 @@ export interface CardDimensions {
   divHeight: string;
 }
 
+type CardPanel =
+  { kind: "activity"; activity: Activity } | { kind: "spotify"; spotify: LanyardTypes.Spotify } | { kind: "idle" };
+
+interface CardProfile {
+  status: Activity | null;
+  clan: LanyardTypes.ClanTag | null;
+  nameplate: LanyardTypes.Nameplate | undefined;
+  showDecoration: boolean;
+}
+
 export interface NormalizedCardData {
   data: Data;
-  activity: Activity | null;
-  userStatus: Activity | null;
+  profile: CardProfile | null;
+  panel: CardPanel | null;
+  hasNitroIndicators: boolean;
   avatarBorderColor: string;
   dimensions: CardDimensions;
   renderedAt: number;
@@ -29,17 +40,21 @@ export function selectPrimaryActivity(data: Data, ignoreAppId: string[]): Activi
   );
 }
 
-export function getCardDimensions(
-  config: ParsedCardConfig,
-  activity: Activity | null,
-  data: Data,
-): CardDimensions {
-  if (config.hideProfile) return { svgHeight: "130", divHeight: "120" };
-  if (config.hideActivity === "true") return { svgHeight: "80", divHeight: "80" };
-  if (config.hideActivity === "whenNotUsed" && !activity && !data.listening_to_spotify) {
-    return { svgHeight: "80", divHeight: "80" };
+function selectPanel(data: Data, config: ParsedCardConfig): CardPanel | null {
+  if (config.hideActivity === "true") return null;
+
+  const activity = selectPrimaryActivity(data, config.ignoreAppId);
+  if (activity) return { kind: "activity", activity };
+  if (data.listening_to_spotify && data.spotify && !config.hideSpotify) {
+    return { kind: "spotify", spotify: data.spotify };
   }
 
+  return config.hideActivity === "whenNotUsed" ? null : { kind: "idle" };
+}
+
+function getCardDimensions(profile: CardProfile | null, panel: CardPanel | null): CardDimensions {
+  if (!profile) return { svgHeight: "130", divHeight: "120" };
+  if (!panel) return { svgHeight: "80", divHeight: "80" };
   return { svgHeight: "200", divHeight: "200" };
 }
 
@@ -74,14 +89,26 @@ export function normalizeCardData(
     discord_user: discordUser,
     activities: [...body.data.activities],
   };
-  const activity = selectPrimaryActivity(data, config.ignoreAppId);
+  const status = data.activities[0]?.type === 4 ? data.activities[0] : null;
+  const profile = config.hideProfile
+    ? null
+    : {
+        status: config.hideStatus ? null : status,
+        clan: config.hideClan ? null : discordUser.clan,
+        nameplate: config.hideNameplate ? undefined : discordUser.collectibles?.nameplate,
+        showDecoration: !config.hideDecoration,
+      };
+  const panel = selectPanel(data, config);
 
   return {
     data,
-    activity,
-    userStatus: data.activities[0]?.type === 4 ? data.activities[0] : null,
+    profile,
+    panel,
+    hasNitroIndicators: Boolean(
+      discordUser.avatar?.includes("a_") || status?.emoji?.id || discordUser.avatar_decoration_data,
+    ),
     avatarBorderColor: getAvatarBorderColor(data.discord_status),
-    dimensions: getCardDimensions(config, activity, data),
+    dimensions: getCardDimensions(profile, panel),
     renderedAt,
   };
 }

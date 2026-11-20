@@ -6,8 +6,10 @@ import { WaveDivider } from "@/features/card/render/WaveDivider";
 import { formatTime, getFormatFromMs, getPrefixActivityString } from "@/utils/helpers";
 
 export function ActivityPanel({ context }: { context: CardRenderContext }) {
-  const { activity, renderedAt, config, assets } = context;
-  if (!activity) return null;
+  const { panel, renderedAt, config, assets } = context;
+  if (panel?.kind !== "activity") return null;
+
+  const { activity } = panel;
 
   const {
     backgroundColor,
@@ -46,28 +48,26 @@ export function ActivityPanel({ context }: { context: CardRenderContext }) {
         }}
       >
         <div style={{ marginRight: "15px", width: "auto", height: "auto" }}>
-          {!assets.usesUnknownActivityImage ? (
+          {assets.activityLargeImage ? (
             <img
-              src={`data:image/png;base64,${assets.activityLargeImage}`}
-              alt="Activity Large Image"
-              style={{
-                width: "80px",
-                height: "80px",
-                border: `solid 0.5px #${waveColor}`,
-                borderRadius: imgBorderRadius,
-                objectFit: "cover",
-              }}
+              src={assets.activityLargeImage}
+              alt={assets.usesUnknownActivityImage ? "Unknown Icon" : "Activity Large Image"}
+              style={
+                assets.usesUnknownActivityImage
+                  ? { width: "70px", height: "70px", marginTop: "4px", filter: "invert(100)" }
+                  : {
+                      width: "80px",
+                      height: "80px",
+                      border: `solid 0.5px #${waveColor}`,
+                      borderRadius: imgBorderRadius,
+                      objectFit: "cover",
+                    }
+              }
             />
-          ) : (
-            <img
-              src={`data:image/png;base64,${assets.activityLargeImage}`}
-              alt="Unknown Icon"
-              style={{ width: "70px", height: "70px", marginTop: "4px", filter: "invert(100)" }}
-            />
-          )}
+          ) : null}
           {assets.activitySmallImage ? (
             <img
-              src={`data:image/png;base64,${assets.activitySmallImage}`}
+              src={assets.activitySmallImage}
               alt="Activity Small Image"
               style={{
                 width: "30px",

@@ -6,7 +6,10 @@ import type { CardRenderContext } from "@/features/card/render/types";
 import { getDisplayNameStyleClassname, getDisplayNameStyleEffectVars } from "@/utils/helpers";
 
 export function ProfileHeader({ context }: { context: CardRenderContext }) {
-  const { data, userStatus, avatarBorderColor, config, assets, flags } = context;
+  const { data, panel, profile, avatarBorderColor, config, assets, flags } = context;
+  if (!profile) return null;
+
+  const { status: userStatus, clan } = profile;
   const {
     backgroundColor,
     theme,
@@ -16,16 +19,13 @@ export function ProfileHeader({ context }: { context: CardRenderContext }) {
     imgBorderRadius,
     statusRadius,
     clanBackgroundColor,
-    hideStatus,
     hideBadges,
-    hideActivity,
-    hideDecoration,
     hideDiscrim,
     showDisplayName,
     forceGradient,
-    hideClan,
   } = config;
   const { avatar, clanBadge, avatarDecoration, nameplateBg, nameplateAsset } = assets;
+  const headerRadius = panel ? `${borderRadius} ${borderRadius} 0 0` : borderRadius;
 
   return (
     <div
@@ -37,7 +37,7 @@ export function ProfileHeader({ context }: { context: CardRenderContext }) {
         flexDirection: "row",
         background: nameplateBg,
         position: "relative",
-        borderRadius: hideActivity === "true" ? borderRadius : `${borderRadius} ${borderRadius} 0 0`,
+        borderRadius: headerRadius,
       }}
     >
       {nameplateAsset ? (
@@ -47,34 +47,36 @@ export function ProfileHeader({ context }: { context: CardRenderContext }) {
             bottom: 0,
             right: 0,
             height: "100%",
-            borderRadius: hideActivity === "true" ? borderRadius : `${borderRadius} ${borderRadius} 0 0`,
+            borderRadius: headerRadius,
           }}
           src={nameplateAsset}
           alt="User Nameplate"
         />
       ) : null}
       <div style={{ display: "flex", position: "relative", flexDirection: "row", height: "80px", width: "80px", zIndex: 2 }}>
-        {hideDecoration || !data.discord_user.avatar_decoration_data ? null : (
+        {avatarDecoration ? (
           <img
-            src={`data:image/png;base64,${avatarDecoration}`}
+            src={avatarDecoration}
             alt="User Avatar Decoration"
             style={{ position: "absolute", height: "60px", width: "60px", top: "10px", left: "10px", zIndex: 1 }}
           />
-        )}
-        <img
-          src={`data:image/png;base64,${avatar}`}
-          alt="User Avatar"
-          style={{
-            ...(imgStyle === "square" ? {} : { border: `solid 3px ${avatarBorderColor}` }),
-            borderRadius: imgStyle === "square" ? imgBorderRadius : "50%",
-            width: "50px",
-            height: "50px",
-            position: "relative",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-          }}
-        />
+        ) : null}
+        {avatar ? (
+          <img
+            src={avatar}
+            alt="User Avatar"
+            style={{
+              ...(imgStyle === "square" ? {} : { border: `solid 3px ${avatarBorderColor}` }),
+              borderRadius: imgStyle === "square" ? imgBorderRadius : "50%",
+              width: "50px",
+              height: "50px",
+              position: "relative",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          />
+        ) : null}
         {imgStyle === "square" ? (
           <svg xmlns="http://www.w3.org/2000/svg" style={{ overflow: "visible", zIndex: 9999 }}>
             <rect
@@ -95,17 +97,17 @@ export function ProfileHeader({ context }: { context: CardRenderContext }) {
         <div
           style={{
             display: "flex",
-            flexDirection: userStatus && !hideStatus ? "row" : "column",
+            flexDirection: userStatus ? "row" : "column",
             position: "relative",
-            top: userStatus && !hideStatus ? "35%" : "40%",
+            top: userStatus ? "35%" : "40%",
             transform: "translate(0, -50%)",
-            height: userStatus && !hideStatus ? "25px" : "35px",
+            height: userStatus ? "25px" : "35px",
           }}
         >
           <div
             style={{
               display: "flex",
-              flexDirection: !userStatus || hideStatus ? "column" : "row",
+              flexDirection: userStatus ? "row" : "column",
               height: "1.5rem",
               gap: "5px",
             }}
@@ -150,7 +152,7 @@ export function ProfileHeader({ context }: { context: CardRenderContext }) {
                   </span>
                 ) : null}
               </h1>
-              {hideClan || (!data.discord_user.clan?.tag && !data.discord_user.clan?.badge) ? null : (
+              {clan && (clan.tag || clanBadge) ? (
                 <span
                   style={{
                     backgroundColor:
@@ -167,10 +169,10 @@ export function ProfileHeader({ context }: { context: CardRenderContext }) {
                     height: "100%",
                   }}
                 >
-                  <img src={`data:image/png;base64,${clanBadge!}`} alt="Clan Badge" />
-                  <p style={{ marginBottom: "1.1rem" }}>{data.discord_user.clan.tag}</p>
+                  {clanBadge ? <img src={clanBadge} alt="Clan Badge" /> : null}
+                  <p style={{ marginBottom: "1.1rem" }}>{clan.tag}</p>
                 </span>
-              )}
+              ) : null}
             </div>
             {hideBadges ? null : (
               <div style={{ display: "flex" }}>
@@ -178,7 +180,7 @@ export function ProfileHeader({ context }: { context: CardRenderContext }) {
                   <img
                     key={flag}
                     alt={flag}
-                    src={`data:image/png;base64,${Badges[flag]}`}
+                    src={Badges[flag]}
                     style={{
                       height: "20px",
                       position: "relative",
@@ -192,7 +194,7 @@ export function ProfileHeader({ context }: { context: CardRenderContext }) {
             )}
           </div>
         </div>
-        {userStatus && !hideStatus ? (
+        {userStatus ? (
           <p
             style={{
               fontSize: "0.9rem",
@@ -206,7 +208,7 @@ export function ProfileHeader({ context }: { context: CardRenderContext }) {
           >
             {assets.statusEmoji ? (
               <img
-                src={`data:image/png;base64,${assets.statusEmoji}`}
+                src={assets.statusEmoji}
                 alt="User Status Emoji"
                 style={{
                   width: "15px",

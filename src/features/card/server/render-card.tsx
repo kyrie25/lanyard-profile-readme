@@ -15,15 +15,10 @@ const renderToStaticMarkupPromise: Promise<RenderToStaticMarkup> = import("react
 export async function renderCard(body: LanyardTypes.Root, params: CardParameters): Promise<string> {
   const config = parseCardParameters(params, body.data);
   const normalized = normalizeCardData(body, config);
-  const assets = await loadCardAssets(normalized, config, params);
+  const assets = await loadCardAssets(normalized, config);
   const flags = getFlags(normalized.data.discord_user.public_flags);
 
-  if (
-    normalized.data.discord_user.avatar?.includes("a_") ||
-    normalized.userStatus?.emoji?.id ||
-    normalized.data.discord_user.avatar_decoration_data ||
-    assets.banner
-  ) {
+  if (normalized.hasNitroIndicators || assets.banner) {
     flags.push("Nitro");
   }
 

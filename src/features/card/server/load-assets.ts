@@ -1,13 +1,13 @@
 import { NAMEPLATES } from "@/features/card/domain/constants";
-import type { CardParameters, ParsedCardConfig } from "@/features/card/config/schema";
+import type { ParsedCardConfig } from "@/features/card/config/schema";
 import type { NormalizedCardData } from "@/features/card/domain/model";
 import type { PreparedCardAssets } from "@/features/card/render/types";
 import type { LanyardTypes } from "@/types/lanyard";
 import { fetchUserBanner } from "@/features/card/server/banner-service";
 import { fetchAvatarDecoration, getLargeImage } from "@/features/card/server/discord-assets";
+import { loadImageDataUrl } from "@/features/card/server/image-data";
 import { loadNameplateAsset } from "@/features/card/server/nameplate-service";
 import { Color } from "@/utils/color";
-import { encodeBase64 } from "@/utils/toBase64";
 
 type ActivityAssets = LanyardTypes.Assets;
 
@@ -25,11 +25,6 @@ export function getAvatarUrl(discordUser: LanyardTypes.DiscordUser, avatarExtens
   return `https://cdn.discordapp.com/embed/avatars/${fallbackIndex}.png`;
 }
 
-function getClanBadgeUrl(discordUser: LanyardTypes.DiscordUser): string | null {
-  if (!discordUser.clan?.badge) return null;
-  return `https://cdn.discordapp.com/clan-badges/${discordUser.clan.identity_guild_id}/${discordUser.clan.badge}.png?size=16`;
-}
-
 function getSmallActivityImageUrl(assets: ActivityAssets, applicationId?: string): string | null {
   if (!assets.small_image) return null;
   if (assets.small_image.startsWith("mp:external/")) {
@@ -41,26 +36,29 @@ function getSmallActivityImageUrl(assets: ActivityAssets, applicationId?: string
   return applicationId ? `https://cdn.discordapp.com/app-assets/${applicationId}/${assets.small_image}.webp` : null;
 }
 
+async function loadArtwork(url: string | undefined, width: number, fallbackWidth = width) {
+  const src = url ? await loadImageDataUrl(url, width) : undefined;
+  return src
+    ? { src, usesFallback: false }
+    : { src: await loadImageDataUrl(UNKNOWN_IMAGE_URL, fallbackWidth), usesFallback: true };
+}
+
 export async function loadCardAssets(
   normalized: NormalizedCardData,
   config: ParsedCardConfig,
-  params: CardParameters,
 ): Promise<PreparedCardAssets> {
-  const { data, activity, userStatus } = normalized;
+  const { data, panel, profile } = normalized;
   const user = data.discord_user;
-  const nameplate = user.collectibles?.nameplate;
-  const nameplateHex = nameplate
-    ? config.theme === "dark"
-      ? NAMEPLATES[nameplate.palette].darkBackground
-      : NAMEPLATES[nameplate.palette].lightBackground
-    : undefined;
-  const nameplateBg =
-    nameplateHex && config.backgroundColor !== "transparent"
-      ? `linear-gradient(90deg, ${new Color(nameplateHex).toString(0.1)} 0%, ${new Color(nameplateHex).toString(0.4)} 100%)`
+  const { clan, nameplate } = profile ?? {};
+  const emoji = profile?.status?.emoji;
+  const activity = panel?.kind === "activity" ? panel.activity : undefined;
+  const spotify = panel?.kind === "spotify" ? panel.spotify : undefined;
+  const activitySmallUrl = activity?.assets ? getSmallActivityImageUrl(activity.assets, activity.application_id) : null;
+  const palette = nameplate && NAMEPLATES[nameplate.palette];
+  const nameplateHex =
+    palette && config.backgroundColor !== "transparent"
+      ? palette[config.theme === "dark" ? "darkBackground" : "lightBackground"]
       : undefined;
-  const clanBadgeUrl = getClanBadgeUrl(user);
-  const usesUnknownActivityImage = !activity?.assets?.large_image && !activity?.application_id;
-  const usesUnknownSpotifyImage = !data.spotify?.album_art_url;
 
   const [
     avatar,
@@ -69,40 +67,35 @@ export async function loadCardAssets(
     avatarDecoration,
     nameplateAsset,
     statusEmoji,
-    activityLargeImage,
+    activityArtwork,
     activitySmallImage,
-    spotifyAlbumArt,
+    spotifyArtwork,
   ] = await Promise.all([
-    encodeBase64(
-      getAvatarUrl(user, config.avatarExtension),
-      config.avatarExtension === "gif" ? 64 : user.avatar ? 128 : 100,
-    ),
-    fetchUserBanner(user.id, config.showBanner).then(url => (url ? encodeBase64(url, 400) : "")),
-    clanBadgeUrl ? encodeBase64(clanBadgeUrl, 16) : null,
-    config.hideDecoration
-      ? null
-      : fetchAvatarDecoration(user, params.animatedDecoration).then(url => (url ? encodeBase64(url, 100, false) : null)),
-    !config.hideNameplate && !config.hideProfile && nameplate
-      ? loadNameplateAsset(nameplate, config.animatedNameplate)
+    profile
+      ? loadImageDataUrl(
+          getAvatarUrl(user, config.avatarExtension),
+          config.avatarExtension === "gif" ? 64 : user.avatar ? 128 : 100,
+        )
       : undefined,
-    userStatus?.emoji?.id
-      ? encodeBase64(`https://cdn.discordapp.com/emojis/${userStatus.emoji.id}.${config.statusExtension}`, 32)
+    fetchUserBanner(user.id, config.showBanner).then(url => (url ? loadImageDataUrl(url, 400) : undefined)),
+    clan?.badge
+      ? loadImageDataUrl(
+          `https://cdn.discordapp.com/clan-badges/${clan.identity_guild_id}/${clan.badge}.png?size=16`,
+          16,
+        )
+      : undefined,
+    profile?.showDecoration
+      ? fetchAvatarDecoration(user, config.animatedDecoration).then(url => (url ? loadImageDataUrl(url) : undefined))
+      : undefined,
+    nameplate ? loadNameplateAsset(nameplate, config.animatedNameplate) : undefined,
+    emoji?.id
+      ? loadImageDataUrl(`https://cdn.discordapp.com/emojis/${emoji.id}.${config.statusExtension}`, 32)
       : undefined,
     activity
-      ? (usesUnknownActivityImage
-          ? Promise.resolve(UNKNOWN_IMAGE_URL)
-          : getLargeImage(activity.assets ?? null, activity.application_id)
-        ).then(url => encodeBase64(url, usesUnknownActivityImage ? 64 : 196))
+      ? getLargeImage(activity.assets, activity.application_id).then(url => loadArtwork(url, 196, 64))
       : undefined,
-    activity?.assets
-      ? (() => {
-          const url = getSmallActivityImageUrl(activity.assets!, activity.application_id);
-          return url ? encodeBase64(url, 64) : undefined;
-        })()
-      : undefined,
-    data.listening_to_spotify && data.spotify
-      ? encodeBase64(data.spotify.album_art_url || UNKNOWN_IMAGE_URL, 80)
-      : undefined,
+    activitySmallUrl ? loadImageDataUrl(activitySmallUrl, 64) : undefined,
+    spotify ? loadArtwork(spotify.album_art_url, 80) : undefined,
   ]);
 
   return {
@@ -110,14 +103,16 @@ export async function loadCardAssets(
     banner,
     clanBadge,
     avatarDecoration,
-    nameplateHex: config.backgroundColor === "transparent" ? undefined : nameplateHex,
-    nameplateBg,
+    nameplateHex,
+    nameplateBg: nameplateHex
+      ? `linear-gradient(90deg, ${new Color(nameplateHex).toString(0.1)} 0%, ${new Color(nameplateHex).toString(0.4)} 100%)`
+      : undefined,
     nameplateAsset,
     statusEmoji,
-    activityLargeImage,
+    activityLargeImage: activityArtwork?.src,
     activitySmallImage,
-    spotifyAlbumArt,
-    usesUnknownActivityImage,
-    usesUnknownSpotifyImage,
+    spotifyAlbumArt: spotifyArtwork?.src,
+    usesUnknownActivityImage: activityArtwork?.usesFallback ?? false,
+    usesUnknownSpotifyImage: spotifyArtwork?.usesFallback ?? false,
   };
 }

@@ -2,11 +2,7 @@ import { presenceFixture } from "./fixtures/presence";
 
 import { describe, expect, it } from "vitest";
 import { parseAppId, parseBool, parseCardParameters } from "@/features/card/config/schema";
-import {
-  getCardDimensions,
-  normalizeCardData,
-  selectPrimaryActivity,
-} from "@/features/card/domain/model";
+import { normalizeCardData, selectPrimaryActivity } from "@/features/card/domain/model";
 import { getAvatarUrl } from "@/features/card/server/load-assets";
 import { getFormatFromMs } from "@/utils/helpers";
 
@@ -47,21 +43,19 @@ describe("card helpers", () => {
   });
 
   it("calculates stable card dimensions", () => {
-    const data = structuredClone(presenceFixture.data);
-    const activity = selectPrimaryActivity(data, []);
+    const body = structuredClone(presenceFixture);
+    const { data } = body;
 
-    expect(getCardDimensions(parseCardParameters({ optimized: false, hideActivity: "true" }, data), activity, data)).toEqual({
-      svgHeight: "80",
-      divHeight: "80",
-    });
-    expect(getCardDimensions(parseCardParameters({ optimized: false }, data), activity, data)).toEqual({
+    expect(
+      normalizeCardData(body, parseCardParameters({ optimized: false, hideActivity: "true" }, data)).dimensions,
+    ).toEqual({ svgHeight: "80", divHeight: "80" });
+    expect(normalizeCardData(body, parseCardParameters({ optimized: false }, data)).dimensions).toEqual({
       svgHeight: "200",
       divHeight: "200",
     });
-    expect(getCardDimensions(parseCardParameters({ optimized: false, hideProfile: "true" }, data), activity, data)).toEqual({
-      svgHeight: "130",
-      divHeight: "120",
-    });
+    expect(
+      normalizeCardData(body, parseCardParameters({ optimized: false, hideProfile: "true" }, data)).dimensions,
+    ).toEqual({ svgHeight: "130", divHeight: "120" });
   });
 
   it("builds Discord avatar URLs", () => {

@@ -19,7 +19,6 @@ function CardSvg({ context }: { context: CardRenderContext }) {
     theme,
     borderRadius,
     bannerFilter,
-    hideProfile,
   } = config;
   const { svgHeight, divHeight } = dimensions;
   const { banner } = assets;
@@ -327,7 +326,7 @@ function CardSvg({ context }: { context: CardRenderContext }) {
             }}
           >
             <img
-              src={`data:image/png;base64,${banner}`}
+              src={banner}
               alt="User Banner"
               style={{
                 width: "400px",
@@ -357,7 +356,7 @@ function CardSvg({ context }: { context: CardRenderContext }) {
             borderRadius: borderRadius,
           }}
         >
-          {hideProfile ? null : <ProfileHeader context={context} />}
+          <ProfileHeader context={context} />
           <ActivityPanel context={context} />
           <SpotifyPanel context={context} />
           <IdlePanel context={context} />

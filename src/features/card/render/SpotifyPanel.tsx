@@ -6,7 +6,10 @@ import { WaveDivider } from "@/features/card/render/WaveDivider";
 import { getFormatFromMs } from "@/utils/helpers";
 
 export function SpotifyPanel({ context }: { context: CardRenderContext }) {
-  const { data, activity, renderedAt, config, assets } = context;
+  const { panel, renderedAt, config, assets } = context;
+  if (panel?.kind !== "spotify") return null;
+
+  const { spotify } = panel;
   const {
     backgroundColor,
     spotifyTheme,
@@ -15,11 +18,7 @@ export function SpotifyPanel({ context }: { context: CardRenderContext }) {
     waveSpotifyColor,
     imgBorderRadius,
     hideTimestamp,
-    hideSpotify,
   } = config;
-  const spotifyActivity = data.activities.at(-1);
-
-  if (!data.listening_to_spotify || !data.spotify || activity || hideSpotify || spotifyActivity?.type !== 2) return null;
 
   return (
     <>
@@ -44,18 +43,20 @@ export function SpotifyPanel({ context }: { context: CardRenderContext }) {
           zIndex: 2,
         }}
       >
-        <img
-          src={`data:image/png;base64,${assets.spotifyAlbumArt}`}
-          alt="Spotify Album Art"
-          style={{
-            border: `solid 0.5px #${waveSpotifyColor}`,
-            width: "80px",
-            height: "80px",
-            borderRadius: imgBorderRadius,
-            marginRight: "15px",
-            ...(assets.usesUnknownSpotifyImage ? { filter: "invert(100)" } : {}),
-          }}
-        />
+        {assets.spotifyAlbumArt ? (
+          <img
+            src={assets.spotifyAlbumArt}
+            alt="Spotify Album Art"
+            style={{
+              border: `solid 0.5px #${waveSpotifyColor}`,
+              width: "80px",
+              height: "80px",
+              borderRadius: imgBorderRadius,
+              marginRight: "15px",
+              ...(assets.usesUnknownSpotifyImage ? { filter: "invert(100)" } : {}),
+            }}
+          />
+        ) : null}
         <div style={{ color: "#999", marginTop: !hideTimestamp ? "0" : "-3px", lineHeight: 1, width: "279px" }}>
           <p
             style={{
@@ -79,7 +80,7 @@ export function SpotifyPanel({ context }: { context: CardRenderContext }) {
               margin: "7px 0",
             }}
           >
-            {data.spotify.song}
+            {spotify.song}
           </p>
           <p
             style={{
@@ -92,7 +93,7 @@ export function SpotifyPanel({ context }: { context: CardRenderContext }) {
               color: spotifyTheme === "dark" ? "#ccc" : "#777",
             }}
           >
-            {data.spotify.artist ?? data.spotify.album}
+            {spotify.artist ?? spotify.album}
           </p>
           {!hideTimestamp ? (
             <div
@@ -108,8 +109,8 @@ export function SpotifyPanel({ context }: { context: CardRenderContext }) {
               <span style={{ color: spotifyTheme === "dark" ? "#fff" : "#000" }}>
                 {getFormatFromMs(
                   Math.min(
-                    renderedAt - data.spotify.timestamps.start,
-                    data.spotify.timestamps.end - data.spotify.timestamps.start,
+                    renderedAt - spotify.timestamps.start,
+                    spotify.timestamps.end - spotify.timestamps.start,
                   ) / 1000,
                 )}
               </span>
@@ -128,8 +129,8 @@ export function SpotifyPanel({ context }: { context: CardRenderContext }) {
                   style={{
                     width: `${Math.min(
                       100,
-                      ((renderedAt - data.spotify.timestamps.start) /
-                        (data.spotify.timestamps.end - data.spotify.timestamps.start)) *
+                      ((renderedAt - spotify.timestamps.start) /
+                        (spotify.timestamps.end - spotify.timestamps.start)) *
                         100,
                     )}%`,
                     height: "100%",
@@ -139,7 +140,7 @@ export function SpotifyPanel({ context }: { context: CardRenderContext }) {
                 />
               </div>
               <span style={{ color: spotifyTheme === "dark" ? "#fff" : "#000" }}>
-                {getFormatFromMs((data.spotify.timestamps.end - data.spotify.timestamps.start) / 1000)}
+                {getFormatFromMs((spotify.timestamps.end - spotify.timestamps.start) / 1000)}
               </span>
             </div>
           ) : null}
